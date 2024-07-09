@@ -17,13 +17,76 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-model messages {
-  text   String
-  author String
+// model preview {
+//   text   String
+//   author String
 
-  // xata fields
+//   // xata fields
+//   xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
+//   xata_id        String   @unique(map: "_pgroll_users_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
+//   xata_version   Int      @default(0)
+//   xata_createdat DateTime @default(now()) @db.Timestamptz(6)
+// }
+
+model User {
+  id      String @id @default(cuid())
+  clerkId String @unique
+
+  username String
+
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  personas Persona[]
+  comments Comment[]
+  guides   Guide[]
+
+  // Xata fields
   xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
   xata_id        String   @unique(map: "_pgroll_users_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
   xata_version   Int      @default(0)
   xata_createdat DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model Persona {
+  id           String    @id @default(cuid())
+  name         String
+  description  String
+  instructions String
+  imageUrl     String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  published    Boolean   @default(false)
+  creator      User      @relation(fields: [creatorId], references: [id])
+  creatorId    String
+  comments     Comment[]
+  tags         Tag[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  persona   Persona  @relation(fields: [personaId], references: [id])
+  personaId String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+}
+
+model Guide {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+}
+
+model Tag {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  personas Persona[]
 }
