@@ -8,7 +8,7 @@ generator client {
   provider = "prisma-client-js"
 
   // Enable if using driver adapters
-  // previewFeatures = ["driverAdapters"]
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -16,17 +16,6 @@ datasource db {
   url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
-
-// model preview {
-//   text   String
-//   author String
-
-//   // xata fields
-//   xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
-//   xata_id        String   @unique(map: "_pgroll_users_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
-//   xata_version   Int      @default(0)
-//   xata_createdat DateTime @default(now()) @db.Timestamptz(6)
-// }
 
 model User {
   id      String @id @default(cuid())
@@ -38,30 +27,136 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  personas       Persona[]
+  personaPrompts PersonaPrompt[]
+  comments       Comment[]
+
+  // Xata fields
+  xata_updatedat   DateTime          @default(now()) @db.Timestamptz(6)
+  xata_id          String            @unique(map: "_pgroll_user_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
+  xata_version     Int               @default(0)
+  xata_createdat   DateTime          @default(now()) @db.Timestamptz(6)
+  PersonaLikes     PersonaLike[]
+  PersonaBookmarks PersonaBookmark[]
+}
+
+model PersonaPrompt {
+  id String @id @default(cuid())
+
+  input  Json
+  prompt String?
+
   personas Persona[]
-  comments Comment[]
-  guides   Guide[]
+
+  creator   User   @relation(fields: [creatorId], references: [id])
+  creatorId String
+
+  createdAt DateTime @default(now())
 
   // Xata fields
   xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
-  xata_id        String   @unique(map: "_pgroll_users_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
+  xata_id        String   @unique(map: "_pgroll_persona_prompt_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
   xata_version   Int      @default(0)
   xata_createdat DateTime @default(now()) @db.Timestamptz(6)
 }
 
 model Persona {
-  id           String    @id @default(cuid())
-  name         String
-  description  String
-  instructions String
-  imageUrl     String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  published    Boolean   @default(false)
-  creator      User      @relation(fields: [creatorId], references: [id])
-  creatorId    String
-  comments     Comment[]
-  tags         Tag[]
+  id String @id @default(cuid())
+
+  // Persona main details
+  name       String
+  gender     String
+  age        String
+  occupation String
+
+  // Add summary for better persona tiles
+  summary String
+
+  // Structured fields for commonly queried attributes
+  personalityTraits  String[]
+  interests          String[]
+  culturalBackground String
+
+  // Detailed description fields as text
+  appearance      String
+  background      String
+  history         String
+  characteristics String
+
+  // Full text description
+  fullDescription String
+
+  // Image related fields
+  mainImageUrl  String?
+  consistencyId String? // For image generation consistency
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  published Boolean  @default(false)
+
+  creator   User   @relation(fields: [creatorId], references: [id])
+  creatorId String
+
+  viewCount Int @default(0)
+
+  likesCount Int           @default(0)
+  likes      PersonaLike[]
+
+  bookmarks PersonaBookmark[]
+
+  comments Comment[]
+
+  tags String[]
+
+  prompt   PersonaPrompt? @relation(fields: [promptId], references: [id])
+  promptId String?
+
+  // Xata fields
+  xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
+  xata_id        String   @unique(map: "_pgroll_persona_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
+  xata_version   Int      @default(0)
+  xata_createdat DateTime @default(now()) @db.Timestamptz(6)
+  Image          Image[]
+}
+
+model PersonaLike {
+  persona   Persona @relation(fields: [personaId], references: [id])
+  personaId String
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  createdAt DateTime @default(now())
+
+  // Xata fields
+  xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
+  xata_id        String   @unique(map: "_pgroll_persona_like_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
+  xata_version   Int      @default(0)
+  xata_createdat DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([personaId, userId])
+  @@index([personaId, userId])
+  @@map("PersonaLikes")
+}
+
+model PersonaBookmark {
+  persona   Persona @relation(fields: [personaId], references: [id])
+  personaId String
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  createdAt DateTime @default(now())
+
+  // Xata fields
+  xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
+  xata_id        String   @unique(map: "_pgroll_persona_bookmark_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
+  xata_version   Int      @default(0)
+  xata_createdat DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([personaId, userId])
+  @@index([personaId, userId])
+  @@map("PersonaBookmarks")
 }
 
 model Comment {
@@ -73,20 +168,25 @@ model Comment {
   personaId String
   user      User     @relation(fields: [userId], references: [id])
   userId    String
+
+  // Xata fields
+  xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
+  xata_id        String   @unique(map: "_pgroll_comment_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
+  xata_version   Int      @default(0)
+  xata_createdat DateTime @default(now()) @db.Timestamptz(6)
 }
 
-model Guide {
-  id        String   @id @default(cuid())
-  title     String
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  String
-}
+model Image {
+  id String @id @default(cuid())
 
-model Tag {
-  id       String    @id @default(cuid())
-  name     String    @unique
-  personas Persona[]
+  prompt String? // Allow user to upload custom images, this images won't have a prompt
+
+  persona   Persona @relation(fields: [personaId], references: [id])
+  personaId String
+
+  // Xata fields
+  xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
+  xata_id        String   @unique(map: "_pgroll_image_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
+  xata_version   Int      @default(0)
+  xata_createdat DateTime @default(now()) @db.Timestamptz(6)
 }

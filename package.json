@@ -9,17 +9,38 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/google-vertex": "^0.0.14",
     "@clerk/nextjs": "^5.1.6",
+    "@clerk/themes": "^2.1.10",
+    "@nextui-org/breadcrumbs": "^2.0.10",
+    "@nextui-org/button": "^2.0.34",
+    "@nextui-org/card": "^2.0.31",
+    "@nextui-org/chip": "^2.0.30",
+    "@nextui-org/image": "^2.0.29",
+    "@nextui-org/input": "^2.2.2",
+    "@nextui-org/listbox": "^2.1.22",
+    "@nextui-org/react": "^2.4.2",
+    "@nextui-org/select": "^2.2.2",
+    "@nextui-org/skeleton": "^2.0.29",
+    "@nextui-org/switch": "^2.0.31",
+    "@nextui-org/system": "^2.2.2",
+    "@nextui-org/tabs": "^2.0.32",
+    "@nextui-org/theme": "^2.2.6",
     "@prisma/adapter-pg": "^5.16.1",
     "@prisma/client": "^5.16.1",
     "@xata.io/cli": "^0.15.15",
     "@xata.io/client": "^0.29.5",
+    "ai": "^3.2.19",
+    "framer-motion": "^11.2.14",
     "inngest": "^3.19.18",
+    "ioredis": "^5.4.1",
+    "lucide-react": "^0.407.0",
     "next": "14.2.4",
     "openai": "^4.52.2",
     "pg": "^8.12.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "superstruct": "^2.0.2"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -30,6 +51,7 @@
     "postcss": "^8",
     "prisma": "^5.16.1",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^3.63.2"
   }
 }
