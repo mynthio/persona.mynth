@@ -1,10 +1,8 @@
 import { assert } from "superstruct";
 import { inngest } from "./client";
 import { GeneratePersonaEventData } from "@/schemas/generate-persona-event-data.schema";
-import axios from "axios";
 import { textPrompt } from "@/app/prompts";
 import got from "got";
-import { request } from "undici";
 import { parsePersonaResponse } from "@/lib/parser";
 
 export const generatePersona = inngest.createFunction(

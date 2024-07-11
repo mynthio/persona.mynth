@@ -1,8 +1,6 @@
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
-import PromptCreatorForm from "./_components/prompt-creator-form";
-import { Tab, Tabs } from "@nextui-org/tabs";
-import PromptTextPromptForm from "./_components/prompt-text-prompt-form";
 import PromptCreator from "./_components/prompt-creator";
+import { Suspense } from "react";
 
 export default async function NewPromptPage() {
   return (
@@ -35,7 +33,9 @@ export default async function NewPromptPage() {
       </CardHeader>
 
       <CardBody>
-        <PromptCreator />
+        <Suspense>
+          <PromptCreator />
+        </Suspense>
       </CardBody>
     </Card>
   );

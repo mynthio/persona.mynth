@@ -2,7 +2,7 @@ import { prisma } from "@/prisma/client";
 import { auth } from "@clerk/nextjs/server";
 import GeneratePersonas from "./_components/generate-personas.client";
 import PollPendingPersonas from "./_components/poll-pending-personas.client";
-import { redis } from "@/redis/client";
+
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import { Image } from "@nextui-org/image";
 

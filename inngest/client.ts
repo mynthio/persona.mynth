@@ -1,7 +1,6 @@
 import { Inngest, InngestMiddleware } from "inngest";
 import { PrismaClient } from "@prisma/client";
 import { Redis } from "ioredis";
-import { createVertex } from "@ai-sdk/google-vertex";
 
 // make Prisma available in the Inngest functions
 const prismaMiddleware = new InngestMiddleware({
@@ -40,31 +39,6 @@ const redisMiddleware = new InngestMiddleware({
               // Anything passed via `ctx` will be merged with the function's arguments
               ctx: {
                 redis,
-              },
-            };
-          },
-        };
-      },
-    };
-  },
-});
-
-const aiMiddleware = new InngestMiddleware({
-  name: "AI Middleware",
-  init() {
-    const vertex = createVertex({
-      project: "persona-mynth", // optional
-      location: "us-central1", // optional
-    });
-
-    return {
-      onFunctionRun(ctx) {
-        return {
-          transformInput(ctx) {
-            return {
-              // Anything passed via `ctx` will be merged with the function's arguments
-              ctx: {
-                vertex,
               },
             };
           },

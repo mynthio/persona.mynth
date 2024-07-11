@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ai-sdk/google-vertex": "^0.0.14",
     "@clerk/nextjs": "^5.1.6",
     "@clerk/themes": "^2.1.10",
     "@hookform/resolvers": "^3.9.0",
@@ -32,7 +31,6 @@
     "@xata.io/cli": "^0.15.15",
     "@xata.io/client": "^0.29.5",
     "ai": "^3.2.19",
-    "axios": "^1.7.2",
     "framer-motion": "^11.2.14",
     "got": "^14.4.1",
     "inngest": "^3.19.18",
@@ -45,8 +43,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7.52.1",
     "superstruct": "^2.0.2",
-    "swr": "^2.2.5",
-    "undici": "^6.19.2"
+    "swr": "^2.2.5"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -57,7 +54,6 @@
     "postcss": "^8",
     "prisma": "^5.16.1",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5",
-    "wrangler": "^3.63.2"
+    "typescript": "^5"
   }
 }
