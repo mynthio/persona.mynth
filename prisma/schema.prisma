@@ -18,46 +18,74 @@ datasource db {
 }
 
 model User {
-  id      String @id @default(cuid())
-  clerkId String @unique
+  id String @id
 
   username String
+  email    String? @unique
 
-  email     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  personas       Persona[]
-  personaPrompts PersonaPrompt[]
-  comments       Comment[]
+  personas         Persona[]
+  personaPrompts   PersonaPrompt[]
+  comments         Comment[]
+  personaLikes     PersonaLike[]
+  personaBookmarks PersonaBookmark[]
 
   // Xata fields
-  xata_updatedat   DateTime          @default(now()) @db.Timestamptz(6)
-  xata_id          String            @unique(map: "_pgroll_user_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
-  xata_version     Int               @default(0)
-  xata_createdat   DateTime          @default(now()) @db.Timestamptz(6)
-  PersonaLikes     PersonaLike[]
-  PersonaBookmarks PersonaBookmark[]
+  xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
+  xata_id        String   @unique(map: "_pgroll_user_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
+  xata_version   Int      @default(0)
+  xata_createdat DateTime @default(now()) @db.Timestamptz(6)
 }
 
 model PersonaPrompt {
-  id String @id @default(cuid())
+  id   String @id @default(dbgenerated("('pp_'::text || (xata_private.xid())::text)"))
+  name String @default("New prompt")
 
-  input  Json
-  prompt String?
+  input Json
 
-  personas Persona[]
+  isPublic Boolean @default(false)
+
+  personas           Persona[]
+  personasQueue      String[]
+  personaGenerations PersonaGeneration[]
 
   creator   User   @relation(fields: [creatorId], references: [id])
   creatorId String
 
-  createdAt DateTime @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime?
 
   // Xata fields
   xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
   xata_id        String   @unique(map: "_pgroll_persona_prompt_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
   xata_version   Int      @default(0)
   xata_createdat DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model PersonaGeneration {
+  id     String @id @default(cuid())
+  status String @default("queued") // Can be "queued", "in_progress", "completed", or "failed"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  prompt   PersonaPrompt @relation(fields: [promptId], references: [id])
+  promptId String
+
+  persona   Persona? @relation(fields: [personaId], references: [id])
+  personaId String?
+
+  // Xata fields
+  xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
+  xata_id        String   @unique(map: "_pgroll_persona_generation_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
+  xata_version   Int      @default(0)
+  xata_createdat DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([promptId])
+  @@index([status])
 }
 
 model Persona {
@@ -73,8 +101,8 @@ model Persona {
   summary String
 
   // Structured fields for commonly queried attributes
-  personalityTraits  String[]
-  interests          String[]
+  personalityTraits  String
+  interests          String
   culturalBackground String
 
   // Detailed description fields as text
@@ -84,15 +112,16 @@ model Persona {
   characteristics String
 
   // Full text description
-  fullDescription String
+  fullDescription String?
 
   // Image related fields
   mainImageUrl  String?
   consistencyId String? // For image generation consistency
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  published Boolean  @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime?
+  published   Boolean   @default(false)
 
   creator   User   @relation(fields: [creatorId], references: [id])
   creatorId String
@@ -111,12 +140,14 @@ model Persona {
   prompt   PersonaPrompt? @relation(fields: [promptId], references: [id])
   promptId String?
 
+  images      Image[]
+  generations PersonaGeneration[]
+
   // Xata fields
   xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
   xata_id        String   @unique(map: "_pgroll_persona_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
   xata_version   Int      @default(0)
   xata_createdat DateTime @default(now()) @db.Timestamptz(6)
-  Image          Image[]
 }
 
 model PersonaLike {
@@ -136,7 +167,6 @@ model PersonaLike {
 
   @@unique([personaId, userId])
   @@index([personaId, userId])
-  @@map("PersonaLikes")
 }
 
 model PersonaBookmark {
@@ -156,7 +186,6 @@ model PersonaBookmark {
 
   @@unique([personaId, userId])
   @@index([personaId, userId])
-  @@map("PersonaBookmarks")
 }
 
 model Comment {

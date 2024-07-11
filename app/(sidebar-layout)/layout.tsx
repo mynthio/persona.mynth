@@ -17,7 +17,7 @@ export default async function SidebarLayout({ children }: Props) {
 
       <Sidebar />
 
-      <main className="sm:ml-96 pl-4 p-8">{children}</main>
+      <main className="lg:ml-96 pl-4 p-8">{children}</main>
     </>
   );
 }

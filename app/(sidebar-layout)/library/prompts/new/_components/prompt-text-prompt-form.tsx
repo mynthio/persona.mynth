@@ -1,42 +1,56 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
+import { createPromptAction } from "@/app/_actions/create-prompt.action";
+import { TextPromptSchema } from "@/schemas/create-prompt.schema";
+import { superstructResolver } from "@hookform/resolvers/superstruct";
+import { Button } from "@nextui-org/button";
 import { Textarea } from "@nextui-org/input";
-import { Skeleton } from "@nextui-org/skeleton";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 
 export default function PromptTextPromptForm() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    reValidateMode: "onChange",
+    resolver: superstructResolver(TextPromptSchema),
+  });
 
-  if (!isLoaded)
-    return (
-      <div className="space-y-4">
-        <Skeleton className="rounded-lg">
-          <div className="h-10 rounded-lg bg-default-300"></div>
-        </Skeleton>
-        <Skeleton className="rounded-lg">
-          <div className="h-10 rounded-lg bg-default-300"></div>
-        </Skeleton>
-        <Skeleton className="rounded-lg">
-          <div className="h-24 rounded-lg bg-default-300"></div>
-        </Skeleton>
-      </div>
-    );
-
-  if (!isSignedIn)
-    return <div>You need to be logged in to generate a persona</div>;
+  const { push } = useRouter();
 
   return (
-    <form className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <form
+      className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8"
+      onSubmit={handleSubmit(async (data) => {
+        const { personaPromptId } = await createPromptAction(data);
+        push(`/prompts/${personaPromptId}`);
+      })}
+    >
       <div className="col-span-full">
-        <h3 className="text-large text-foreground-500 p-3">Text prompt</h3>
+        <h3 className="text-large text-foreground-500">Text prompt</h3>
+        <p className="mt-1 text-foreground-500 text-small">
+          Write character information that will be used to generate persona, it
+          can be short or long, missing details will be generated.
+        </p>
       </div>
 
       <div className="col-span-full">
         <Textarea
+          {...register("textPrompt")}
           fullWidth
+          isInvalid={!!errors.textPrompt}
+          errorMessage={
+            errors.textPrompt?.message?.toString() || "Uknown error"
+          }
           placeholder="a woman, around 20 years old, student, long hairs, playing tennis"
           description="Write character information that will be used to generate persona"
         />
+      </div>
+
+      <div>
+        <Button type="submit">Generate</Button>
       </div>
     </form>
   );

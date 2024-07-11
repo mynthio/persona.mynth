@@ -5,10 +5,31 @@ import PromptTextPromptForm from "./prompt-text-prompt-form";
 import PromptCreatorForm from "./prompt-creator-form";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
+import { Skeleton } from "@nextui-org/skeleton";
 
 export default function PromptCreator() {
   const { replace } = useRouter();
   const searchParams = useSearchParams();
+  const { isSignedIn, isLoaded } = useAuth();
+
+  if (!isLoaded)
+    return (
+      <div className="space-y-4">
+        <Skeleton className="rounded-lg">
+          <div className="h-10 rounded-lg bg-default-300"></div>
+        </Skeleton>
+        <Skeleton className="rounded-lg">
+          <div className="h-10 rounded-lg bg-default-300"></div>
+        </Skeleton>
+        <Skeleton className="rounded-lg">
+          <div className="h-24 rounded-lg bg-default-300"></div>
+        </Skeleton>
+      </div>
+    );
+
+  if (!isSignedIn)
+    return <div>You need to be logged in to generate a persona</div>;
 
   return (
     <Tabs

@@ -1,10 +1,10 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
 import { Chip } from "@nextui-org/chip";
 import { Input } from "@nextui-org/input";
+import { useForm } from "react-hook-form";
+import { superstructResolver } from "@hookform/resolvers/superstruct";
 import { Select, SelectItem } from "@nextui-org/select";
-import { Skeleton } from "@nextui-org/skeleton";
 import { Tab, Tabs } from "@nextui-org/tabs";
 
 const predefinedAges = [
@@ -77,26 +77,6 @@ const predefinedOccupations = [
 ];
 
 export default function PromptCreatorForm() {
-  const { isSignedIn, isLoaded } = useAuth();
-
-  if (!isLoaded)
-    return (
-      <div className="space-y-4">
-        <Skeleton className="rounded-lg">
-          <div className="h-10 rounded-lg bg-default-300"></div>
-        </Skeleton>
-        <Skeleton className="rounded-lg">
-          <div className="h-10 rounded-lg bg-default-300"></div>
-        </Skeleton>
-        <Skeleton className="rounded-lg">
-          <div className="h-24 rounded-lg bg-default-300"></div>
-        </Skeleton>
-      </div>
-    );
-
-  if (!isSignedIn)
-    return <div>You need to be logged in to generate a persona</div>;
-
   return (
     <form className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div className="col-span-full">

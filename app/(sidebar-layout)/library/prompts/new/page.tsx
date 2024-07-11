@@ -10,7 +10,9 @@ export default async function NewPromptPage() {
       <CardHeader className="mt-10">
         {/* TODO use client */}
         <div>
-          <strong className="text-foreground-600">Generate Persona</strong>
+          <strong className="text-foreground-600">
+            Create prompt for personas generation
+          </strong>
           <p className="text-small text-foreground-500 mt-2">
             Fill the fields or leave them empty for a surprise. After that, you
             can generate peronas in batch and later modify them and publish. By
