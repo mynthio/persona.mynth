@@ -3,7 +3,7 @@ import "server-only";
 import { Redis } from "ioredis";
 
 const redisClientSingleton = () => {
-  return new Redis();
+  return new Redis(process.env.REDIS_CONNECTION_URL);
 };
 
 declare const globalThis: {

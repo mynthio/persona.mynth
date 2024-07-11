@@ -29,7 +29,7 @@ const prismaMiddleware = new InngestMiddleware({
 const redisMiddleware = new InngestMiddleware({
   name: "Cache Client Init Middleware",
   init() {
-    const redis = new Redis();
+    const redis = new Redis(process.env.REDIS_CONNECTION_URL);
 
     return {
       onFunctionRun(ctx) {
