@@ -2,8 +2,6 @@
 
 import { Chip } from "@nextui-org/chip";
 import { Input } from "@nextui-org/input";
-import { useForm } from "react-hook-form";
-import { superstructResolver } from "@hookform/resolvers/superstruct";
 import { Select, SelectItem } from "@nextui-org/select";
 import { Tab, Tabs } from "@nextui-org/tabs";
 
