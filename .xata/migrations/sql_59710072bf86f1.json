@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_59710072bf86f1",
+    "operations": [
+      {
+        "sql": {
+          "up": "CREATE TABLE \"Persona\" (id text NOT NULL, name text NOT NULL, gender text NOT NULL, age text NOT NULL, occupation text NOT NULL, summary text NOT NULL, \"personalityTraits\" text[], interests text[], \"culturalBackground\" text NOT NULL, appearance text NOT NULL, background text NOT NULL, history text NOT NULL, characteristics text NOT NULL, \"fullDescription\" text NOT NULL, \"mainImageUrl\" text, \"consistencyId\" text, \"createdAt\" timestamp(3) NOT NULL DEFAULT current_timestamp, \"updatedAt\" timestamp(3) NOT NULL, published boolean NOT NULL DEFAULT false, \"creatorId\" text NOT NULL, \"viewCount\" int NOT NULL DEFAULT 0, \"likesCount\" int NOT NULL DEFAULT 0, tags text[], \"promptId\" text, xata_updatedat timestamptz(6) NOT NULL DEFAULT current_timestamp, xata_id text NOT NULL DEFAULT 'rec_'::text || xata_private.xid()::text, xata_version int NOT NULL DEFAULT 0, xata_createdat timestamptz(6) NOT NULL DEFAULT current_timestamp, CONSTRAINT \"Persona_pkey\" PRIMARY KEY (id))"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_59710072bf86f1",
+  "parent": "sql_d792afb2e9da03",
+  "schema": "public",
+  "startedAt": "2024-07-10T22:29:44.877155Z"
+}

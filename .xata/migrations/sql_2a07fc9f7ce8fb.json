@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_2a07fc9f7ce8fb",
+    "operations": [
+      {
+        "sql": {
+          "up": "ALTER TABLE \"Image\" ADD CONSTRAINT \"Image_personaId_fkey\" FOREIGN KEY (\"personaId\") REFERENCES \"Persona\" (id) ON UPDATE CASCADE ON DELETE RESTRICT"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_2a07fc9f7ce8fb",
+  "parent": "sql_83c1505b8966ef",
+  "schema": "public",
+  "startedAt": "2024-07-10T22:32:14.609292Z"
+}

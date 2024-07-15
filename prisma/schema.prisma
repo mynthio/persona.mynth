@@ -21,6 +21,7 @@ model User {
   id String @id
 
   username String
+  imageUrl String?
   email    String? @unique
 
   createdAt DateTime @default(now())
@@ -43,12 +44,9 @@ model PersonaPrompt {
   id   String @id @default(dbgenerated("('pp_'::text || (xata_private.xid())::text)"))
   name String @default("New prompt")
 
-  input Json
-
+  input    Json
   isPublic Boolean @default(false)
 
-  personas           Persona[]
-  personasQueue      String[]
   personaGenerations PersonaGeneration[]
 
   creator   User   @relation(fields: [creatorId], references: [id])
@@ -66,8 +64,10 @@ model PersonaPrompt {
 }
 
 model PersonaGeneration {
-  id     String @id @default(cuid())
+  id     String @id @default(dbgenerated("('pg_'::text || (xata_private.xid())::text)"))
   status String @default("queued") // Can be "queued", "in_progress", "completed", or "failed"
+
+  inngestEventId String @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -75,8 +75,10 @@ model PersonaGeneration {
   prompt   PersonaPrompt @relation(fields: [promptId], references: [id])
   promptId String
 
-  persona   Persona? @relation(fields: [personaId], references: [id])
-  personaId String?
+  persona Persona?
+
+  model         String
+  promptVersion Int
 
   // Xata fields
   xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
@@ -86,10 +88,11 @@ model PersonaGeneration {
 
   @@index([promptId])
   @@index([status])
+  @@index([inngestEventId])
 }
 
 model Persona {
-  id String @id @default(cuid())
+  id String @id @default(dbgenerated("('ps_'::text || (xata_private.xid())::text)"))
 
   // Persona main details
   name       String
@@ -122,6 +125,7 @@ model Persona {
   updatedAt   DateTime  @updatedAt
   publishedAt DateTime?
   published   Boolean   @default(false)
+  isNsfw      Boolean   @default(false)
 
   creator   User   @relation(fields: [creatorId], references: [id])
   creatorId String
@@ -137,11 +141,10 @@ model Persona {
 
   tags String[]
 
-  prompt   PersonaPrompt? @relation(fields: [promptId], references: [id])
-  promptId String?
+  images Image[]
 
-  images      Image[]
-  generations PersonaGeneration[]
+  personaGeneration   PersonaGeneration? @relation(fields: [personaGenerationId], references: [id])
+  personaGenerationId String?            @unique
 
   // Xata fields
   xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
@@ -189,14 +192,18 @@ model PersonaBookmark {
 }
 
 model Comment {
-  id        String   @id @default(cuid())
-  content   String
+  id String @id @default(dbgenerated("('cm_'::text || (xata_private.xid())::text)"))
+
+  content String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  persona   Persona  @relation(fields: [personaId], references: [id])
+
+  persona   Persona @relation(fields: [personaId], references: [id])
   personaId String
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 
   // Xata fields
   xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
@@ -206,12 +213,15 @@ model Comment {
 }
 
 model Image {
-  id String @id @default(cuid())
+  id String @id @default(dbgenerated("('i_'::text || (xata_private.xid())::text)"))
 
   prompt String? // Allow user to upload custom images, this images won't have a prompt
+  model  String?
 
-  persona   Persona @relation(fields: [personaId], references: [id])
-  personaId String
+  imageUrl String
+
+  persona   Persona? @relation(fields: [personaId], references: [id])
+  personaId String?
 
   // Xata fields
   xata_updatedat DateTime @default(now()) @db.Timestamptz(6)

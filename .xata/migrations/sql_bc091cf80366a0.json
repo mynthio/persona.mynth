@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_bc091cf80366a0",
+    "operations": [
+      {
+        "sql": {
+          "up": "CREATE UNIQUE INDEX _pgroll_persona_like_xata_id_key ON \"PersonaLikes\" USING btree (xata_id)"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_bc091cf80366a0",
+  "parent": "sql_f376af95d90f22",
+  "schema": "public",
+  "startedAt": "2024-07-10T22:29:47.442958Z"
+}

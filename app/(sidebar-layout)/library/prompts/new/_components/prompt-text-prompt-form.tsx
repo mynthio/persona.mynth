@@ -25,7 +25,7 @@ export default function PromptTextPromptForm() {
       className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8"
       onSubmit={handleSubmit(async (data) => {
         const { personaPromptId } = await createPromptAction(data);
-        push(`/prompts/${personaPromptId}`);
+        push(`/library/prompts/${personaPromptId}`);
       })}
     >
       <div className="col-span-full">
@@ -50,7 +50,10 @@ export default function PromptTextPromptForm() {
       </div>
 
       <div>
-        <Button type="submit">Generate</Button>
+        <Button type="submit">Save</Button>
+        <p className="text-small text-foreground-500 mt-2">
+          After that you can start generating personas based on this prompt
+        </p>
       </div>
     </form>
   );

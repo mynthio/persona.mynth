@@ -1,7 +1,8 @@
-import { boolean, Infer, object, string } from "superstruct";
+import { boolean, Infer, number, object, string } from "superstruct";
 import { CreatePromptSchema } from "./create-prompt.schema";
 
 export const GeneratePersonaEventData = object({
+  promptVersion: number(),
   promptId: string(),
   generateImage: boolean(),
   promptInput: CreatePromptSchema,

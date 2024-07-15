@@ -1,7 +1,7 @@
 import { assert } from "superstruct";
 import { inngest } from "./client";
 import { GeneratePersonaEventData } from "@/schemas/generate-persona-event-data.schema";
-import { textPrompt } from "@/app/prompts";
+import { creatorPrompt, textPrompt } from "@/app/prompts";
 import got from "got";
 import { parsePersonaResponse } from "@/lib/parser";
 
@@ -35,16 +35,17 @@ export const generatePersona = inngest.createFunction(
       );
     });
 
-    const { personaId, appearance } = await step.run(
+    const { personaId, appearance, persona } = await step.run(
       "generate-persona",
       async () => {
         const modelUrl = new URL(
           `https://gateway.ai.cloudflare.com/v1/c99aff4cb614b593e268702200736e8c/persona/workers-ai/@cf/meta/llama-3-8b-instruct`
         );
 
-        if (!("textPrompt" in data.promptInput)) {
-          throw new Error("No prompt input provided");
-        }
+        const prompt =
+          "textPrompt" in data.promptInput
+            ? textPrompt(data.promptInput.textPrompt)
+            : creatorPrompt(data.promptInput);
 
         const response = await got
           .post(modelUrl.href, {
@@ -53,7 +54,7 @@ export const generatePersona = inngest.createFunction(
             },
             json: {
               max_tokens: 1000,
-              prompt: textPrompt(data.promptInput.textPrompt),
+              prompt,
             },
           })
           .json<{
@@ -66,11 +67,16 @@ export const generatePersona = inngest.createFunction(
           response.result.response
         );
 
-        const { personaId } = await prisma.personaGeneration.update({
-          where: {
-            id: event.id,
-          },
+        const { persona } = await prisma.personaGeneration.create({
           data: {
+            inngestEventId: event.id!,
+            model: "meta/llama-3-8b-instruct",
+            promptVersion: data.promptVersion,
+            prompt: {
+              connect: {
+                id: data.promptId,
+              },
+            },
             status: "done",
             persona: {
               create: {
@@ -92,50 +98,74 @@ export const generatePersona = inngest.createFunction(
                     id: userId,
                   },
                 },
-
-                prompt: {
-                  connect: {
-                    id: data.promptId,
-                  },
-                },
+              },
+            },
+          },
+          select: {
+            persona: {
+              select: {
+                id: true,
               },
             },
           },
         });
 
+        const personaId = persona?.id;
         if (!personaId) throw new Error("Failed to create persona");
 
         return {
           personaId,
-          appearance: parsedPersonaResponse.appearance,
+          appearance: parsedPersonaResponse.appearancePrompt,
+          persona: {
+            id: personaId,
+            name: parsedPersonaResponse.name,
+            gender: parsedPersonaResponse.gender,
+            age: parsedPersonaResponse.age,
+            occupation: parsedPersonaResponse.occupation,
+            summary: parsedPersonaResponse.summary,
+          },
         };
       }
     );
 
-    if (data.generateImage) {
-      const generatedBuffer = await step.run(
-        "generate-persona-image",
-        async () => {
-          const modelUrl = new URL(
-            `https://gateway.ai.cloudflare.com/v1/c99aff4cb614b593e268702200736e8c/persona/workers-ai/@cf/lykon/dreamshaper-8-lcm`
-          );
+    await step.run("update-persona-generation-status-completed", async () => {
+      await redis.set(
+        `persona_generation:${data.promptId}:${event.id}`,
+        JSON.stringify({
+          status: "pending",
+          persona: persona,
+        }),
+        "EX",
+        120
+      );
+    });
 
-          const response = await got
-            .post(modelUrl.href, {
-              headers: {
-                Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY}`,
-              },
-              json: {
-                prompt: `realistic portrait of ${appearance.toLowerCase()}`,
-              },
-            })
-            .buffer();
-
-          return response;
-        }
+    await step.run("generate-persona-image", async () => {
+      const imageModel = "@cf/stabilityai/stable-diffusion-xl-base-1.0";
+      const modelUrl = new URL(
+        `https://gateway.ai.cloudflare.com/v1/c99aff4cb614b593e268702200736e8c/persona/workers-ai/${imageModel}`
       );
 
-      await step.run("upload-persona-image", async () => {
+      try {
+        const response = await got
+          .post(modelUrl.href, {
+            headers: {
+              Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY}`,
+            },
+            json: {
+              width: 1024,
+              height: 1024,
+              negative_prompt:
+                "cartoon, anime, 2d, painting, drawing, sketch, watercolor, photo, realistic, unrealistic, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, blurry",
+              prompt: appearance,
+            },
+          })
+          .buffer();
+
+        /**
+         * We need to upload image in the same step as we generate it
+         * because of the file size and issue while returning it from step
+         */
         await got.put(
           `https://ny.storage.bunnycdn.com/persona-mynth-dev/persona-${personaId}.png`,
           {
@@ -143,33 +173,60 @@ export const generatePersona = inngest.createFunction(
               AccessKey: process.env.BUNNY_CDN_API_KEY,
               "Content-Type": "application/octet-stream",
             },
-            body: Buffer.from(generatedBuffer.data),
+            body: Buffer.from(response),
           }
         );
-      });
+      } catch (error) {
+        logger.error(error);
+        throw error;
+      }
+    });
 
-      await step.run("update-persona-image-url", async () => {
-        await prisma.persona.update({
-          where: {
-            id: personaId,
-          },
-          data: {
-            mainImageUrl: `https://persona-mynth-dev.b-cdn.net/persona-${personaId}.png`,
-          },
-        });
+    await step.run("update-persona-image-url", async () => {
+      await prisma.persona.update({
+        where: {
+          id: personaId,
+        },
+        data: {
+          mainImageUrl: `https://${process.env.BUNNY_CDN_HOST}/persona-${personaId}.png`,
+        },
       });
-    }
+    });
 
     await step.run("update-persona-generation-status-completed", async () => {
       await redis.set(
         `persona_generation:${data.promptId}:${event.id}`,
         JSON.stringify({
           status: "done",
-          persona: {},
+          persona: {
+            ...persona,
+            mainImageUrl: `https://${process.env.BUNNY_CDN_HOST}/persona-${personaId}.png`,
+          },
         }),
         "EX",
-        120
+        10
       );
+    });
+  }
+);
+
+export const syncUser = inngest.createFunction(
+  { id: "sync-user-from-clerk" }, // ←The 'id' is an arbitrary string used to identify the function in the dashboard
+  { event: "clerk/user.created" }, // ← This is the function's triggering event
+  async ({ event, prisma }) => {
+    const user = event.data; // The event payload's data will be the Clerk User json object
+    const { id, username } = user;
+    const email = user.email_addresses.find(
+      (e: any) => e.id === user.primary_email_address_id
+    ).email;
+
+    await prisma.user.create({
+      data: {
+        id,
+        username: username || "Anonymous",
+        email,
+        imageUrl: user.image_url,
+      },
     });
   }
 );

@@ -3,8 +3,11 @@
 import React from "react";
 
 import {
+  Book,
   BookCopy,
   CircleUserRound,
+  Coins,
+  Globe,
   Menu,
   Package,
   PlusIcon,
@@ -23,11 +26,15 @@ import { Listbox, ListboxSection, ListboxItem } from "@nextui-org/listbox";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@nextui-org/button";
+import useSWR from "swr";
+
 export default function Sidebar() {
   const { isLoaded, isSignedIn, user } = useUser();
   const { push } = useRouter();
 
   const [isOpen, setIsOpen] = React.useState(false);
+
+  const { data, isLoading } = useSWR("/api/tokens");
 
   return (
     <>
@@ -82,9 +89,22 @@ export default function Sidebar() {
                 </ListboxItem>
               </ListboxSection>
 
-              <ListboxSection>
+              <ListboxSection title="Explore" showDivider>
                 <ListboxItem
                   key="/personas"
+                  className="text-foreground-500 py-2"
+                  classNames={{
+                    title: "text-[1.05rem] font-light",
+                  }}
+                  startContent={<Globe size={16} className="flex-shrink-0" />}
+                >
+                  Public Personas
+                </ListboxItem>
+              </ListboxSection>
+
+              <ListboxSection title="My library" showDivider>
+                <ListboxItem
+                  key="/library/personas"
                   className="text-foreground-500 py-2"
                   classNames={{
                     title: "text-[1.05rem] font-light",
@@ -97,7 +117,7 @@ export default function Sidebar() {
                 </ListboxItem>
 
                 <ListboxItem
-                  key="/prompts"
+                  key="/library/prompts"
                   className="text-foreground-500 py-2"
                   classNames={{
                     title: "text-[1.05rem] font-light",
@@ -108,46 +128,65 @@ export default function Sidebar() {
                 >
                   Prompts
                 </ListboxItem>
-
-                <ListboxItem
-                  key="/library"
-                  className="text-foreground-500 py-2"
-                  classNames={{
-                    title: "text-[1.05rem] font-light",
-                  }}
-                  startContent={
-                    <BookCopy size={16} className="flex-shrink-0" />
-                  }
-                >
-                  Library
-                </ListboxItem>
-
-                <ListboxItem
-                  key="/profile"
-                  className="text-foreground-500 py-2"
-                  classNames={{
-                    title: "text-[1.05rem] font-light",
-                  }}
-                  startContent={<User size={16} className="flex-shrink-0" />}
-                >
-                  Profile
-                </ListboxItem>
               </ListboxSection>
+              <ListboxItem
+                key="/tokens"
+                className="text-foreground-500 py-2"
+                classNames={{
+                  title: "text-[1.05rem] font-light",
+                }}
+                startContent={<Coins size={16} className="flex-shrink-0" />}
+              >
+                {!isLoading && data
+                  ? `${data.remainingTokens}/${data.dailyTokens} tokens`
+                  : ``}
+              </ListboxItem>
             </Listbox>
           </CardBody>
 
-          <CardFooter>
-            {isLoaded &&
-              (isSignedIn ? (
-                <UserButton
-                  showName
-                  appearance={{
-                    baseTheme: dark,
-                  }}
-                />
-              ) : (
-                <SignInButton />
-              ))}
+          <CardFooter className="flex-col">
+            <div className="w-full">
+              {isLoaded &&
+                (isSignedIn ? (
+                  <UserButton
+                    showName
+                    appearance={{
+                      baseTheme: dark,
+                      elements: {
+                        userButtonOuterIdentifier: {
+                          color: "hsl(var(--nextui-foreground-500)))",
+                        },
+                        rootBox: {
+                          width: "100%",
+                          marginBottom: "1.5rem",
+                        },
+                        button: {
+                          width: "100%",
+                        },
+                      },
+                    }}
+                  />
+                ) : (
+                  <SignInButton />
+                ))}
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 w-full">
+              <Button
+                as={Link}
+                href="https://discord.gg/By5AnDQDTQ"
+                target="_blank"
+              >
+                <img src="/discord-mark-blue.svg" alt="Discord" width={20} />
+              </Button>
+              <Button
+                as={Link}
+                href="https://github.com/mynthio/persona.mynth"
+                target="_blank"
+              >
+                <img src="/github-mark-white.svg" alt="Discord" width={20} />
+              </Button>
+            </div>
           </CardFooter>
         </Card>
       </aside>

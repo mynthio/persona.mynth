@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_c5e7449c8eface",
+    "operations": [
+      {
+        "sql": {
+          "up": "ALTER TABLE \"PersonaBookmarks\" DROP CONSTRAINT \"PersonaBookmarks_userId_fkey\""
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_c5e7449c8eface",
+  "parent": "sql_1f8d3965a707b9",
+  "schema": "public",
+  "startedAt": "2024-07-11T07:47:13.85812Z"
+}

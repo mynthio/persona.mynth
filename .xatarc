@@ -1,0 +1,6 @@
+{
+  "databaseURL": "https://mynth-uuv8ir.us-east-1.xata.sh/db/persona",
+  "codegen": {
+    "output": "xata/xata.ts"
+  }
+}

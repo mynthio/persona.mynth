@@ -1,7 +1,14 @@
-export default async function Personas() {
+import Personas from "@/app/_components/personas/personas.client";
+import { Suspense } from "react";
+
+export default async function PublicPersonasPage() {
   return (
-    <div className="flex h-full w-full items-center justify-center">
-      <h1>Personas</h1>
-    </div>
+    <Suspense>
+      <Personas
+        overwriteFilters={{
+          published: true,
+        }}
+      />
+    </Suspense>
   );
 }

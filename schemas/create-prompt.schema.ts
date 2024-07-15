@@ -11,12 +11,20 @@ import {
 
 export const CreatorPromptSchema = partial(
   object({
-    style: enums(["realistic", "fantasy"]),
-    generationStyle: enums(["detailed_realistic", "strict", "roleplay"]),
+    style: enums(["realistic", "fantasy", "random"]),
+    // generationStyle: enums(["detailed_realistic", "strict", "roleplay"]),
     personaName: size(string(), 1, 100),
-    gender: enums(["male", "female", "other"]),
+    gender: enums(["male", "female", "other", "random"]),
     age: string(), // TODO: Validate regex, possible values: '<number>-<number>' or '<number>'
-    occupation: array(string()),
+    occupation: string(),
+    personalityTraits: array(string()),
+    personalityTraitsCustom: string(),
+    background: string(),
+    educationLevel: string(),
+    hobbies: array(string()),
+    hobbiesCustom: string(),
+    culturalBackground: string(),
+    relationship: string(),
   })
 );
 

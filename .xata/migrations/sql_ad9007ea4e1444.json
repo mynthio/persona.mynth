@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_ad9007ea4e1444",
+    "operations": [
+      {
+        "sql": {
+          "up": "ALTER TABLE \"User\" ALTER COLUMN id SET DEFAULT 'u_'::text || xata_private.xid()::text, ALTER COLUMN email DROP NOT NULL"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_ad9007ea4e1444",
+  "parent": "sql_0625688b6f08be",
+  "schema": "public",
+  "startedAt": "2024-07-11T07:43:58.0487Z"
+}

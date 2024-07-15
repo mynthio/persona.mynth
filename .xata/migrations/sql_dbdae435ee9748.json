@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_dbdae435ee9748",
+    "operations": [
+      {
+        "sql": {
+          "up": "ALTER TABLE \"Comment\" ADD CONSTRAINT \"Comment_personaId_fkey\" FOREIGN KEY (\"personaId\") REFERENCES \"Persona\" (id) ON UPDATE CASCADE ON DELETE RESTRICT"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_dbdae435ee9748",
+  "parent": "sql_925359c0cafb2c",
+  "schema": "public",
+  "startedAt": "2024-07-10T22:29:50.813797Z"
+}

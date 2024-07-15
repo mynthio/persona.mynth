@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_13e1fd2f76c622",
+    "operations": [
+      {
+        "sql": {
+          "up": "CREATE UNIQUE INDEX \"PersonaLike_personaId_userId_key\" ON \"PersonaLike\" USING btree (\"personaId\", \"userId\")"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_13e1fd2f76c622",
+  "parent": "sql_e69ec9ae114148",
+  "schema": "public",
+  "startedAt": "2024-07-11T07:47:16.651521Z"
+}

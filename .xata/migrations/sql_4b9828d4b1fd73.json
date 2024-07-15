@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_4b9828d4b1fd73",
+    "operations": [
+      {
+        "sql": {
+          "up": "CREATE INDEX \"PersonaGeneration_promptId_idx\" ON \"PersonaGeneration\" USING btree (\"promptId\")"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_4b9828d4b1fd73",
+  "parent": "sql_d94ee471ad338b",
+  "schema": "public",
+  "startedAt": "2024-07-11T09:59:35.214173Z"
+}

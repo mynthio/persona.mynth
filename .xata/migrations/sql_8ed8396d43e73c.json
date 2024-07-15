@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_8ed8396d43e73c",
+    "operations": [
+      {
+        "sql": {
+          "up": "ALTER TABLE \"PersonaLikes\" DROP CONSTRAINT \"PersonaLikes_userId_fkey\""
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_8ed8396d43e73c",
+  "parent": "sql_818fe693de9e1d",
+  "schema": "public",
+  "startedAt": "2024-07-11T07:47:14.529501Z"
+}
