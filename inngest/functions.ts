@@ -188,7 +188,7 @@ export const generatePersona = inngest.createFunction(
           id: personaId,
         },
         data: {
-          mainImageUrl: `https://persona-mynth-dev.b-cdn.net/persona-${personaId}.png`,
+          mainImageUrl: `https://${process.env.BUNNY_CDN_HOST}/persona-${personaId}.png`,
         },
       });
     });
@@ -200,7 +200,7 @@ export const generatePersona = inngest.createFunction(
           status: "done",
           persona: {
             ...persona,
-            mainImageUrl: `https://persona-mynth-dev.b-cdn.net/persona-${personaId}.png`,
+            mainImageUrl: `https://${process.env.BUNNY_CDN_HOST}/persona-${personaId}.png`,
           },
         }),
         "EX",
