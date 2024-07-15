@@ -167,7 +167,7 @@ export const generatePersona = inngest.createFunction(
          * because of the file size and issue while returning it from step
          */
         await got.put(
-          `https://ny.storage.bunnycdn.com/persona-mynth-dev/persona-${personaId}.png`,
+          `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/persona-${personaId}.png`,
           {
             headers: {
               AccessKey: process.env.BUNNY_CDN_API_KEY,

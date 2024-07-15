@@ -17,6 +17,7 @@ namespace NodeJS {
 
     // BunnyCDN
     BUNNY_CDN_API_KEY: string;
+    BUNNY_STORAGE_ZONE: string;
     BUNNY_CDN_HOST: string;
   }
 }
