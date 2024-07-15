@@ -11,6 +11,7 @@ import Personas from "@/app/_components/personas/personas.client";
 import { CreatorPrompt, TextPrompt } from "@/schemas/create-prompt.schema";
 import { redis } from "@/redis/client";
 import got from "got";
+import { Suspense } from "react";
 
 type Props = {
   params: {
@@ -91,7 +92,9 @@ export default async function PromptPage({ params }: Props) {
         <h3 className="text-large text-foreground-500 p-3">Generate</h3>
 
         <div className="mt-2 px-3">
-          <GeneratePersonas promptId={prompt.id} />
+          <Suspense>
+            <GeneratePersonas promptId={prompt.id} />
+          </Suspense>
         </div>
       </div>
 
