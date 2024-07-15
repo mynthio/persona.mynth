@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_0a9bf11cdfdf23",
+    "operations": [
+      {
+        "sql": {
+          "up": "CREATE TABLE \"PersonaBookmark\" (\"personaId\" text NOT NULL, \"userId\" text NOT NULL, \"createdAt\" timestamp(3) NOT NULL DEFAULT current_timestamp, xata_updatedat timestamptz(6) NOT NULL DEFAULT current_timestamp, xata_id text NOT NULL DEFAULT 'rec_'::text || xata_private.xid()::text, xata_version int NOT NULL DEFAULT 0, xata_createdat timestamptz(6) NOT NULL DEFAULT current_timestamp)"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_0a9bf11cdfdf23",
+  "parent": "sql_d14bb137d7e70e",
+  "schema": "public",
+  "startedAt": "2024-07-11T07:47:15.975698Z"
+}

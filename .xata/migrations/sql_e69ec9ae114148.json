@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_e69ec9ae114148",
+    "operations": [
+      {
+        "sql": {
+          "up": "CREATE INDEX \"PersonaLike_personaId_userId_idx\" ON \"PersonaLike\" USING btree (\"personaId\", \"userId\")"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_e69ec9ae114148",
+  "parent": "sql_34ecbc86276c12",
+  "schema": "public",
+  "startedAt": "2024-07-11T07:47:16.47925Z"
+}

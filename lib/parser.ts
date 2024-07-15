@@ -8,6 +8,7 @@ type PersonaResponseFields = {
   interests: string;
   culturalBackground: string;
   appearance: string;
+  appearancePrompt: string;
   background: string;
   history: string;
   characteristics: string;
@@ -26,6 +27,7 @@ export const parsePersonaResponse = (text: string): PersonaResponseFields => {
     "interests",
     "culturalBackground",
     "appearance",
+    "appearancePrompt",
     "background",
     "history",
     "characteristics",

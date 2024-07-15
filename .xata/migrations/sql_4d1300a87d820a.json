@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_4d1300a87d820a",
+    "operations": [
+      {
+        "sql": {
+          "up": "ALTER TABLE \"PersonaBookmark\" ADD CONSTRAINT \"PersonaBookmark_personaId_fkey\" FOREIGN KEY (\"personaId\") REFERENCES \"Persona\" (id) ON UPDATE CASCADE ON DELETE RESTRICT"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_4d1300a87d820a",
+  "parent": "sql_3e8510c01f1270",
+  "schema": "public",
+  "startedAt": "2024-07-11T07:47:17.956567Z"
+}

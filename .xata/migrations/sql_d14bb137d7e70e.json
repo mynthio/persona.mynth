@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_d14bb137d7e70e",
+    "operations": [
+      {
+        "sql": {
+          "up": "CREATE TABLE \"PersonaLike\" (\"personaId\" text NOT NULL, \"userId\" text NOT NULL, \"createdAt\" timestamp(3) NOT NULL DEFAULT current_timestamp, xata_updatedat timestamptz(6) NOT NULL DEFAULT current_timestamp, xata_id text NOT NULL DEFAULT 'rec_'::text || xata_private.xid()::text, xata_version int NOT NULL DEFAULT 0, xata_createdat timestamptz(6) NOT NULL DEFAULT current_timestamp)"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_d14bb137d7e70e",
+  "parent": "sql_a3c70fbb1e1f28",
+  "schema": "public",
+  "startedAt": "2024-07-11T07:47:15.642084Z"
+}

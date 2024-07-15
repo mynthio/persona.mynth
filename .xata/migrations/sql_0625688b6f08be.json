@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_0625688b6f08be",
+    "operations": [
+      {
+        "sql": {
+          "up": "ALTER TABLE \"PersonaPrompt\" DROP prompt, ADD COLUMN \"isPublic\" boolean NOT NULL DEFAULT false, ADD COLUMN \"personasQueue\" text[], ADD COLUMN \"publishedAt\" timestamp(3), ADD COLUMN \"updatedAt\" timestamp(3) NOT NULL, ALTER COLUMN id SET DEFAULT 'pp_'::text || xata_private.xid()::text"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_0625688b6f08be",
+  "parent": "sql_08a8683277e441",
+  "schema": "public",
+  "startedAt": "2024-07-11T06:41:54.592142Z"
+}

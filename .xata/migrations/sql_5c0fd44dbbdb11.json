@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_5c0fd44dbbdb11",
+    "operations": [
+      {
+        "sql": {
+          "up": "CREATE UNIQUE INDEX _pgroll_comment_xata_id_key ON \"Comment\" USING btree (xata_id)"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_5c0fd44dbbdb11",
+  "parent": "sql_a92c2eb0200dc5",
+  "schema": "public",
+  "startedAt": "2024-07-10T22:29:48.456253Z"
+}

@@ -10,7 +10,7 @@ import {
 
 export const GeneratePersonasSchema = object({
   promptId: string(),
-  batchSize: size(number(), 1, 2), // Let's start slowly
+  batchSize: size(number(), 1, 4), // Let's start slowly with max 4 for all
 
   generateImage: optional(boolean()),
 });

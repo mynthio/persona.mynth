@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_cd1c47fc88e808",
+    "operations": [
+      {
+        "sql": {
+          "up": "CREATE UNIQUE INDEX _pgroll_persona_bookmark_xata_id_key ON \"PersonaBookmarks\" USING btree (xata_id)"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_cd1c47fc88e808",
+  "parent": "sql_c8005538f41292",
+  "schema": "public",
+  "startedAt": "2024-07-10T22:29:47.939536Z"
+}

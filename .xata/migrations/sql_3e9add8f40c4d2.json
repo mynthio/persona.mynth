@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_3e9add8f40c4d2",
+    "operations": [
+      {
+        "sql": {
+          "up": "CREATE UNIQUE INDEX _pgroll_persona_prompt_xata_id_key ON \"PersonaPrompt\" USING btree (xata_id)"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_3e9add8f40c4d2",
+  "parent": "sql_fafdc171ee722a",
+  "schema": "public",
+  "startedAt": "2024-07-10T22:29:47.108788Z"
+}

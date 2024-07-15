@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_5373f731721d6f",
+    "operations": [
+      {
+        "sql": {
+          "up": "CREATE INDEX \"PersonaBookmarks_personaId_userId_idx\" ON \"PersonaBookmarks\" USING btree (\"personaId\", \"userId\")"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_5373f731721d6f",
+  "parent": "sql_cd1c47fc88e808",
+  "schema": "public",
+  "startedAt": "2024-07-10T22:29:48.111644Z"
+}

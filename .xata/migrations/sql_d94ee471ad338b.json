@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_d94ee471ad338b",
+    "operations": [
+      {
+        "sql": {
+          "up": "CREATE UNIQUE INDEX _pgroll_persona_generation_xata_id_key ON \"PersonaGeneration\" USING btree (xata_id)"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_d94ee471ad338b",
+  "parent": "sql_7a3f4dc4a7aaac",
+  "schema": "public",
+  "startedAt": "2024-07-11T09:59:35.037893Z"
+}

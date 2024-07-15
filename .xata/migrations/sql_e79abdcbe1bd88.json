@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_e79abdcbe1bd88",
+    "operations": [
+      {
+        "sql": {
+          "up": "CREATE INDEX \"PersonaGeneration_status_idx\" ON \"PersonaGeneration\" USING btree (status)"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_e79abdcbe1bd88",
+  "parent": "sql_4b9828d4b1fd73",
+  "schema": "public",
+  "startedAt": "2024-07-11T09:59:35.383453Z"
+}

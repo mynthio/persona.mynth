@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_9e9798a2ff0e3c",
+    "operations": [
+      {
+        "sql": {
+          "up": "ALTER TABLE \"Persona\" ADD CONSTRAINT \"Persona_promptId_fkey\" FOREIGN KEY (\"promptId\") REFERENCES \"PersonaPrompt\" (id) ON UPDATE CASCADE ON DELETE SET NULL"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_9e9798a2ff0e3c",
+  "parent": "sql_f066c1e6eeed2e",
+  "schema": "public",
+  "startedAt": "2024-07-10T22:29:49.245013Z"
+}

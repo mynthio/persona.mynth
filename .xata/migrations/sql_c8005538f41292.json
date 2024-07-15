@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_c8005538f41292",
+    "operations": [
+      {
+        "sql": {
+          "up": "CREATE UNIQUE INDEX \"PersonaLikes_personaId_userId_key\" ON \"PersonaLikes\" USING btree (\"personaId\", \"userId\")"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_c8005538f41292",
+  "parent": "sql_b9adbc50943190",
+  "schema": "public",
+  "startedAt": "2024-07-10T22:29:47.774794Z"
+}

@@ -1,7 +1,6 @@
 "use server";
 
 import "server-only";
-import axios from "axios";
 
 import { inngest } from "@/inngest";
 import { prisma } from "@/prisma/client";
@@ -9,7 +8,8 @@ import { GeneratePersonaEventData } from "@/schemas/generate-persona-event-data.
 import { GeneratePersonasSchema } from "@/schemas/generate-personas.schema";
 import { auth } from "@clerk/nextjs/server";
 import { assert } from "superstruct";
-import { revalidatePath } from "next/cache";
+import { redis } from "@/redis/client";
+import { checkAndUpdateUserTokens } from "@/lib/tokens";
 
 export const generatePersonasAction = async (data: unknown) => {
   const { userId } = auth();
@@ -29,6 +29,17 @@ export const generatePersonasAction = async (data: unknown) => {
   if (!isAuthor) throw new Error("Not authorized");
 
   // TODO: Check rate limitting
+  const { canGenerate, remainingTokens } = await checkAndUpdateUserTokens(
+    data.batchSize
+  );
+
+  if (!canGenerate) {
+    return {
+      ok: false,
+      canGenerate,
+      remainingTokens,
+    };
+  }
 
   const { ids } = await inngest.send(
     Array(data.batchSize)
@@ -40,21 +51,23 @@ export const generatePersonasAction = async (data: unknown) => {
         },
         data: {
           promptId: prompt.id,
+          promptVersion: prompt.xata_version,
           promptInput: prompt.input as any,
           generateImage: !!data.generateImage,
         } satisfies GeneratePersonaEventData,
       }))
   );
 
-  await prisma.personaGeneration.createMany({
-    data: ids.map((id) => ({
-      id: id,
-      promptId: prompt.id,
-      status: "pending",
-    })),
-  });
-
-  revalidatePath(`/prompts/${prompt.id}`);
+  ids.forEach((id) =>
+    redis.set(
+      `persona_generation:${data.promptId}:${id}`,
+      JSON.stringify({
+        status: "queued",
+      }),
+      "EX",
+      86400 // 24 hours
+    )
+  );
 
   return {
     jobIds: ids,

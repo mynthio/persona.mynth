@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "sql_d792afb2e9da03",
+    "operations": [
+      {
+        "sql": {
+          "up": "CREATE TABLE \"PersonaPrompt\" (id text NOT NULL, input jsonb NOT NULL, prompt text NOT NULL, \"creatorId\" text NOT NULL, \"createdAt\" timestamp(3) NOT NULL DEFAULT current_timestamp, xata_updatedat timestamptz(6) NOT NULL DEFAULT current_timestamp, xata_id text NOT NULL DEFAULT 'rec_'::text || xata_private.xid()::text, xata_version int NOT NULL DEFAULT 0, xata_createdat timestamptz(6) NOT NULL DEFAULT current_timestamp, CONSTRAINT \"PersonaPrompt_pkey\" PRIMARY KEY (id))"
+        }
+      }
+    ]
+  },
+  "migrationType": "inferred",
+  "name": "sql_d792afb2e9da03",
+  "parent": "sql_de0bd6daedf824",
+  "schema": "public",
+  "startedAt": "2024-07-10T22:29:44.531532Z"
+}
