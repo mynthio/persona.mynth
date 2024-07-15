@@ -29,12 +29,12 @@ import { Button } from "@nextui-org/button";
 import useSWR from "swr";
 
 export default function Sidebar() {
-  const { isLoaded, isSignedIn, user } = useUser();
+  const { isLoaded, isSignedIn } = useUser();
   const { push } = useRouter();
 
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const { data, isLoading } = useSWR("/api/tokens");
+  const { data, isLoading } = useSWR(isSignedIn ? "/api/tokens" : null);
 
   return (
     <>
@@ -129,7 +129,9 @@ export default function Sidebar() {
                   Prompts
                 </ListboxItem>
               </ListboxSection>
+
               <ListboxItem
+                hidden={!isSignedIn}
                 key="/tokens"
                 className="text-foreground-500 py-2"
                 classNames={{
@@ -167,7 +169,9 @@ export default function Sidebar() {
                     }}
                   />
                 ) : (
-                  <SignInButton />
+                  <div className="p-3">
+                    <SignInButton />
+                  </div>
                 ))}
             </div>
 
