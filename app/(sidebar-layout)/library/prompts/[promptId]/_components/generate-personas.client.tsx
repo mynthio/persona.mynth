@@ -28,6 +28,7 @@ export default function GeneratePersonas({ promptId }: Props) {
     resolver: superstructResolver(GeneratePersonasSchema),
     defaultValues: {
       generateImage: true,
+      batchSize: 2,
     },
   });
 
