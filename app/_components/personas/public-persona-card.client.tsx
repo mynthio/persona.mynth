@@ -49,6 +49,7 @@ export default function PublicPersonaCard({ persona, path }: Props) {
       <Image
         removeWrapper
         alt="Card background"
+        height={200}
         className="z-0 w-full h-full object-cover object-center"
         src={persona.mainImageUrl || ""}
       />
