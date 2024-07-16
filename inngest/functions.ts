@@ -14,7 +14,7 @@ export const generatePersona = inngest.createFunction(
       key: "event.data.promptId",
     },
     concurrency: {
-      limit: 20,
+      limit: 15, // For free plan we have 20 connections to db, so we need to be careful
     },
     retries: 2,
     onFailure: async ({ error, logger, redis, event, step }) => {
