@@ -9,11 +9,14 @@ export const generatePersona = inngest.createFunction(
   {
     id: "generate-persona",
     throttle: {
-      limit: 25,
-      period: "5s",
-      burst: 2,
+      limit: 4,
+      period: "30s",
+      key: "event.user.id",
     },
-    retries: 3,
+    concurrency: {
+      limit: 20,
+    },
+    retries: 2,
     onFailure: async ({ error, logger, redis, event, step }) => {
       const data = event.data.event.data;
       assert(data, GeneratePersonaEventData);
