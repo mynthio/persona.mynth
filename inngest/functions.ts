@@ -10,8 +10,8 @@ export const generatePersona = inngest.createFunction(
     id: "generate-persona",
     throttle: {
       limit: 4,
-      period: "30s",
-      key: "event.user.id",
+      period: "60s",
+      key: "event.data.promptId",
     },
     concurrency: {
       limit: 20,
