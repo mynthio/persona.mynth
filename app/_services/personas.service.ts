@@ -1,6 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/prisma/client";
+import { unstable_cache as cache } from "next/cache";
 
 type GetPersonasArgs = {
   userId?: string | null;
@@ -65,7 +66,31 @@ export const getPersonaCount = async (args: GetPersonasArgs) => {
   });
 };
 
-type GetUserPersonasArgs = {
-  userId: string;
-  page: number;
+type GetPublicPersonaArgs = {
+  personaId: string;
 };
+
+export const getPublicPersona = async (args: GetPublicPersonaArgs) =>
+  cache(
+    async ({ personaId }: GetPublicPersonaArgs) => {
+      return prisma.persona.findUnique({
+        where: {
+          id: personaId,
+          published: true,
+        },
+        include: {
+          creator: {
+            select: {
+              username: true,
+              imageUrl: true,
+            },
+          },
+        },
+      });
+    },
+    ["public-persona"],
+    {
+      tags: ["persona", `persona:${args.personaId}`],
+      revalidate: 5 * 60,
+    }
+  )(args);

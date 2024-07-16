@@ -3,7 +3,7 @@
 import { prisma } from "@/prisma/client";
 import { UpdatePersonaSchema } from "@/schemas/update-persona.schema";
 import { auth } from "@clerk/nextjs/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import "server-only";
 import { assert } from "superstruct";
 
@@ -29,6 +29,7 @@ export const updatePersonaAction = async (data: unknown) => {
   });
 
   revalidatePath(`/library/personas/${data.personaId}`);
+  revalidateTag(`persona:${data.personaId}`);
 
   return {};
 };

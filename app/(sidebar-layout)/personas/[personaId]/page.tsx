@@ -1,13 +1,10 @@
-import { prisma } from "@/prisma/client";
-import { auth } from "@clerk/nextjs/server";
-import { Button } from "@nextui-org/button";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
-import { Globe } from "lucide-react";
-import PublishPersonaButton from "./_components/publish-persona-button.client";
 import { Image } from "@nextui-org/image";
 import { Link } from "@nextui-org/react";
 import PersonaComments from "./_components/persona-comments.client";
 import CreatePersonaCommentForm from "./_components/create-persona-comment-form.client";
+import { getPublicPersona } from "@/app/_services/personas.service";
+import { Metadata } from "next";
 
 type Props = {
   params: {
@@ -15,14 +12,33 @@ type Props = {
   };
 };
 
-export default async function PersonaPage({ params }: Props) {
-  const persona = await prisma.persona.findUnique({
-    where: {
-      id: params.personaId,
-      published: true,
-    },
-  });
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const persona = await getPublicPersona({ personaId: params.personaId });
+  if (!persona)
+    return {
+      title: "Persona not found",
+    };
 
+  return {
+    title: `${persona.name} by ${persona.creator.username} | Persona by mynth`,
+    description: persona.summary,
+    openGraph: {
+      title: persona.name,
+      description: persona.summary,
+      images: [persona.mainImageUrl || ""],
+      url: `https://persona.mynth.io/personas/${params.personaId}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: persona.name,
+      description: persona.summary,
+      images: [persona.mainImageUrl || ""],
+    },
+  };
+}
+
+export default async function PersonaPage({ params }: Props) {
+  const persona = await getPublicPersona({ personaId: params.personaId });
   if (!persona) return <div>Persona not found</div>; // TODO: Move to component or handle 404
 
   return (
