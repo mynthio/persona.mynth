@@ -9,17 +9,32 @@ export async function GET(request: Request) {
   const showNsfw = searchParams.get("nswf") === "true";
   const promptId = searchParams.get("promptId") ?? undefined;
   const creatorId = searchParams.get("creatorId") ?? undefined;
-
+  const bookmarked = searchParams.get("bookmarked") === "true";
   const published = searchParams.get("published") === "true";
 
   const { userId } = auth();
-  console.log({ userId });
 
   if (!published && !userId) throw new Error("Not authorized");
 
   const [personas, count] = await Promise.all([
-    getPersonas({ userId, page, showNsfw, promptId, creatorId, published }),
-    getPersonaCount({ userId, showNsfw, promptId, creatorId, page, published }),
+    getPersonas({
+      userId,
+      page,
+      showNsfw,
+      promptId,
+      creatorId,
+      published,
+      bookmarked,
+    }),
+    getPersonaCount({
+      userId,
+      showNsfw,
+      promptId,
+      creatorId,
+      page,
+      published,
+      bookmarked,
+    }),
   ]);
 
   return Response.json({

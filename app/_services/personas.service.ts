@@ -11,6 +11,7 @@ type GetPersonasArgs = {
   promptId?: string;
   creatorId?: string;
   limit?: number;
+  bookmarked?: boolean;
 };
 
 const PER_PAGE = 24;
@@ -24,6 +25,9 @@ export const getPersonas = async (args: GetPersonasArgs) => {
       ...(args.showNsfw ? {} : { isNsfw: false }),
       ...(args.promptId ? { promptId: args.promptId } : {}),
       ...(args.creatorId ? { creatorId: args.creatorId } : {}),
+      ...(args.bookmarked && args.userId
+        ? { bookmarks: { some: { userId: args.userId } } }
+        : {}),
     },
     include: {
       creator: {
@@ -62,6 +66,9 @@ export const getPersonaCount = async (args: GetPersonasArgs) => {
       ...(args.showNsfw ? {} : { isNsfw: false }),
       ...(args.promptId ? { promptId: args.promptId } : {}),
       ...(args.creatorId ? { creatorId: args.creatorId } : {}),
+      ...(args.bookmarked && args.userId
+        ? { bookmarks: { some: { userId: args.userId } } }
+        : {}),
     },
   });
 };

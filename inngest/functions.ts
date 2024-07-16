@@ -9,11 +9,46 @@ export const generatePersona = inngest.createFunction(
   {
     id: "generate-persona",
     throttle: {
-      limit: 10,
-      period: "1s",
+      limit: 25,
+      period: "5s",
       burst: 2,
     },
     retries: 3,
+    onFailure: async ({ error, logger, redis, event, step }) => {
+      const data = event.data.event.data;
+      assert(data, GeneratePersonaEventData);
+
+      await step.run("remove-persona-generation", async () => {
+        await redis.del(
+          `persona_generation:${data.promptId}:${event.data.event.id}`
+        );
+      });
+
+      /**
+       * Since we failed to generate persona, it would be bad to still consume
+       * user tokens for generation. So we will resotre them :)
+       *
+       * We could do the opposite and increment consumed tokens here,
+       * but we would have outdated data until generation is done, meaning
+       * user could generate more than the limit very easily, especially
+       * in case of bigger traffic
+       */
+      await step.run("restore-tokens", async () => {
+        const userId = event.data.event.user.id;
+        // Let's use event date if generation finished later
+        const dateKey = new Date(event.data.event.ts!)
+          .toISOString()
+          .split("T")[0]; // e.g., "2024-07-15"
+        const key = `user:${userId}:tokens:${dateKey}`;
+
+        try {
+          await redis.decrby(key, 1);
+        } catch (error) {
+          logger.error(error);
+          // Ignore error
+        }
+      });
+    },
   },
   { event: "app/generate-persona.sent" },
   async ({ event, step, logger, prisma, redis, runId }) => {
@@ -31,7 +66,7 @@ export const generatePersona = inngest.createFunction(
           persona: null,
         }),
         "EX",
-        86400
+        5 * 60 // 5 minutes
       );
     });
 

@@ -1,9 +1,7 @@
 "use client";
 
 import { fetcher } from "@/app/_utils/utils";
-import { Card, CardHeader } from "@nextui-org/card";
 import { Skeleton } from "@nextui-org/skeleton";
-import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import PersonaTile from "./persona-tile.client";
 

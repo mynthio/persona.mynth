@@ -42,7 +42,7 @@ export const creatorPrompt = (input: CreatorPrompt) => {
   history: A paragraph detailing key events in the character's life
   characteristics: A paragraph describing the character's behavior,mannerisms, and notable qualities
   
-  Ensure that all fields are filled out based on the given description, using creative inference where necessary to provide a complete and consistent persona. If any information is not explicitly provided in the original description, use your best judgment to create plausible details that fit the overall character concept.
+  Ensure that all fields are filled out based on the given description, using creative inference where necessary to provide a complete and consistent persona, but do not modify name or gender if provided. If any information is not explicitly provided in the original description, use your best judgment to create plausible details that fit the overall character concept.
   
   Character Description:
   ${input.style ? `Style: ${input.style}` : ""}

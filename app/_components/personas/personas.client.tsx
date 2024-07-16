@@ -16,6 +16,7 @@ type Props = {
     nsfw?: boolean;
     promptId?: string;
     creatorId?: string;
+    bookmarked?: boolean;
     published?: boolean;
     limit?: number;
   };
@@ -64,6 +65,10 @@ export default function Personas({
       overwriteFilters?.published === undefined
         ? searchParams.get("published") === "true"
         : overwriteFilters.published
+    }&bookmarked=${
+      overwriteFilters?.bookmarked === undefined
+        ? searchParams.get("bookmarked") === "true"
+        : overwriteFilters.bookmarked
     }`,
     fetcher
   );
