@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@clerk/nextjs": "^5.1.6",
+    "@clerk/nextjs": "^5.2.3",
     "@clerk/themes": "^2.1.10",
     "@hookform/resolvers": "^3.9.0",
     "@nextui-org/breadcrumbs": "^2.0.10",
@@ -35,22 +35,25 @@
     "@prisma/client": "^5.16.1",
     "@xata.io/cli": "^0.15.15",
     "@xata.io/client": "^0.29.5",
-    "ai": "^3.2.19",
+    "ai": "^3.2.25",
+    "clsx": "^2.1.1",
     "dayjs": "^1.11.11",
-    "framer-motion": "^11.2.14",
+    "framer-motion": "^11.3.4",
     "got": "^14.4.1",
-    "inngest": "^3.19.18",
+    "inngest": "^3.19.22",
     "ioredis": "^5.4.1",
-    "lucide-react": "^0.407.0",
-    "next": "14.2.4",
-    "openai": "^4.52.2",
+    "lucide-react": "^0.408.0",
+    "next": "14.2.5",
+    "openai": "^4.52.7",
     "pg": "^8.12.0",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.52.1",
     "server-only": "^0.0.1",
+    "sonner": "^1.5.0",
     "superstruct": "^2.0.2",
-    "swr": "^2.2.5"
+    "swr": "^2.2.5",
+    "tailwind-merge": "^2.4.0"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -60,7 +63,7 @@
     "eslint-config-next": "14.2.4",
     "postcss": "^8",
     "prisma": "^5.16.1",
-    "tailwindcss": "^3.4.1",
+    "tailwindcss": "^3.4.5",
     "typescript": "^5"
   }
 }

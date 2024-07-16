@@ -16,9 +16,6 @@ type Props = {
 };
 
 export default async function PersonaPage({ params }: Props) {
-  const { userId } = auth();
-  if (!userId) return <div>You need to be signed in to see this page</div>; // TODO: Add some cool component for login on such pages
-
   const persona = await prisma.persona.findUnique({
     where: {
       id: params.personaId,

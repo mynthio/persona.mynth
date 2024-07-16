@@ -1,23 +1,10 @@
-import { Button } from "@nextui-org/button";
-import { Card, CardBody, CardFooter, CardHeader } from "@nextui-org/card";
-import { Image } from "@nextui-org/image";
-import { Bookmark, Heart } from "lucide-react";
 import { countPersonaGenerations } from "../_services/persona-generations.service";
-import { getPersonas } from "../_services/personas.service";
-import PublicPersonaCard from "../_components/personas/public-persona-card.client";
-import { auth } from "@clerk/nextjs/server";
 import Personas from "../_components/personas/personas.client";
+import { BackgroundBeams } from "../_components/ui/background-beams";
+import { Suspense } from "react";
 
 export default async function Home() {
-  const { userId } = auth();
   const personasGenerationsCount = await countPersonaGenerations();
-  const recentlyPublishedPersonas = await getPersonas({
-    page: 1,
-    published: true,
-    showNsfw: false,
-    limit: 3,
-    userId,
-  });
 
   return (
     <>
@@ -36,12 +23,17 @@ export default async function Home() {
         <h2 className="text-3xl font-bold">Recently published personas</h2>
 
         <div className="w-full mt-8">
-          <Personas
-            overwriteFilters={{ published: true, limit: 3 }}
-            showPagination={false}
-          />
+          <Suspense>
+            <Personas
+              overwriteFilters={{ published: true, limit: 3 }}
+              showPagination={false}
+            />
+          </Suspense>
         </div>
       </div>
+      <Suspense>
+        <BackgroundBeams />
+      </Suspense>
     </>
   );
 }

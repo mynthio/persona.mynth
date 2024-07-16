@@ -175,7 +175,7 @@ export default function PromptCreatorForm() {
     control,
     setValue,
     getValues,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<CreatorPrompt>({
     resolver: superstructResolver(CreatorPromptSchema),
     defaultValues: {
@@ -187,6 +187,7 @@ export default function PromptCreatorForm() {
     <form
       className="grid grid-cols-1 sm:grid-cols-2 gap-4"
       onSubmit={handleSubmit(async (data) => {
+        if (isSubmitting) return;
         const { personaPromptId } = await createPromptAction(data);
         push(`/library/prompts/${personaPromptId}`);
       })}
@@ -585,7 +586,13 @@ export default function PromptCreatorForm() {
       </div>
 
       <div className="col-span-full">
-        <Button type="submit" className="w-full" variant="shadow">
+        <Button
+          type="submit"
+          className="w-full"
+          variant="shadow"
+          isLoading={isSubmitting}
+          isDisabled={isSubmitting}
+        >
           Create
         </Button>
       </div>

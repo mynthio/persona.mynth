@@ -169,14 +169,22 @@ export default function Sidebar() {
                     }}
                   />
                 ) : (
-                  <div className="p-3">
-                    <SignInButton />
+                  <div className="mb-2">
+                    <SignInButton>
+                      <Button
+                        variant="bordered"
+                        className="w-full text-foreground-600"
+                      >
+                        Sign in
+                      </Button>
+                    </SignInButton>
                   </div>
                 ))}
             </div>
 
             <div className="grid grid-cols-2 gap-2 w-full">
               <Button
+                variant="bordered"
                 as={Link}
                 href="https://discord.gg/By5AnDQDTQ"
                 target="_blank"
@@ -184,6 +192,7 @@ export default function Sidebar() {
                 <img src="/discord-mark-blue.svg" alt="Discord" width={20} />
               </Button>
               <Button
+                variant="bordered"
                 as={Link}
                 href="https://github.com/mynthio/persona.mynth"
                 target="_blank"

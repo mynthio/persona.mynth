@@ -5,6 +5,7 @@ import {
   CreatePersonaCommentInput,
   CreatePersonaCommentSchema,
 } from "@/schemas/create-persona-comment.schema";
+import { useAuth } from "@clerk/nextjs";
 import { superstructResolver } from "@hookform/resolvers/superstruct";
 import { Button } from "@nextui-org/button";
 import { Textarea } from "@nextui-org/input";
@@ -17,6 +18,7 @@ type Props = {
 };
 
 export default function CreatePersonaCommentForm({ personaId }: Props) {
+  const { isSignedIn } = useAuth();
   const searchParams = useSearchParams();
   const { mutate } = useSWRConfig();
 
@@ -50,19 +52,21 @@ export default function CreatePersonaCommentForm({ personaId }: Props) {
       })}
     >
       <Textarea
+        isDisabled={!isSignedIn}
         {...register("content")}
         placeholder="Add a comment"
         className="w-full"
         errorMessage={formState.errors.content?.message}
       />
       <Button
+        disabled={!isSignedIn}
         type="submit"
         className="w-full mt-2"
         variant="shadow"
         isDisabled={formState.isSubmitting}
         isLoading={formState.isSubmitting}
       >
-        Add
+        {isSignedIn ? "Add" : "Sign in to comment"}
       </Button>
     </form>
   );

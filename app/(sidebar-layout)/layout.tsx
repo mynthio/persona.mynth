@@ -1,4 +1,5 @@
 import React from "react";
+import { Toaster } from "sonner";
 
 import Sidebar from "./_components/sidebar";
 
@@ -15,6 +16,7 @@ export default async function SidebarLayout({ children }: Props) {
         className="fixed top-0 left-0 -z-50 w-full h-full object-cover opacity-30 blur-md"
       />
 
+      <Toaster />
       <Sidebar />
 
       <main className="lg:ml-96 pl-4 p-8">{children}</main>

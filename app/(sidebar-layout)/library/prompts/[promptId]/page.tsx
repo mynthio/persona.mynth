@@ -95,6 +95,11 @@ export default async function PromptPage({ params }: Props) {
           <Suspense>
             <GeneratePersonas promptId={prompt.id} />
           </Suspense>
+          <p className="mt-6 text-small text-foreground-500 max-w-xl">
+            Generation may take a while (usually done in about a minute, but can
+            be more if traffic is bigger). You can browse page or even close tab
+            and come back later to check the results.
+          </p>
         </div>
       </div>
 

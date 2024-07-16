@@ -12,7 +12,7 @@ export default function PromptTextPromptForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     reValidateMode: "onChange",
     resolver: superstructResolver(TextPromptSchema),
@@ -24,6 +24,7 @@ export default function PromptTextPromptForm() {
     <form
       className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8"
       onSubmit={handleSubmit(async (data) => {
+        if (isSubmitting) return;
         const { personaPromptId } = await createPromptAction(data);
         push(`/library/prompts/${personaPromptId}`);
       })}
@@ -50,7 +51,13 @@ export default function PromptTextPromptForm() {
       </div>
 
       <div>
-        <Button type="submit">Save</Button>
+        <Button
+          type="submit"
+          isLoading={isSubmitting}
+          isDisabled={isSubmitting}
+        >
+          Save
+        </Button>
         <p className="text-small text-foreground-500 mt-2">
           After that you can start generating personas based on this prompt
         </p>
