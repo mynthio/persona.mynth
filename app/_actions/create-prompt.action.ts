@@ -23,15 +23,8 @@ export const createPromptAction = async (data: CreatePrompt) => {
     data: {
       input: data,
       creator: {
-        connectOrCreate: {
-          where: {
-            id: userId,
-          },
-          create: {
-            id: userId,
-            username: user?.username || "Anonymous",
-            email: user?.primaryEmailAddress?.emailAddress || null,
-          },
+        connect: {
+          id: userId,
         },
       },
     },

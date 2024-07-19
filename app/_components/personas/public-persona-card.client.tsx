@@ -6,6 +6,7 @@ import { Link } from "@nextui-org/react";
 
 type Props = {
   path: string;
+  showFooter?: boolean;
   persona: {
     id: string;
     age: string;
@@ -23,7 +24,11 @@ type Props = {
   };
 };
 
-export default function PublicPersonaCard({ persona, path }: Props) {
+export default function PublicPersonaCard({
+  persona,
+  path,
+  showFooter = true,
+}: Props) {
   return (
     <Card
       key={persona.id}
@@ -54,7 +59,7 @@ export default function PublicPersonaCard({ persona, path }: Props) {
         src={persona.mainImageUrl || ""}
       />
 
-      {persona.published && (
+      {persona.published && showFooter && (
         <CardFooter className="justify-between overflow-hidden py-1 absolute rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
           <div className="text-foreground-700 text-small">
             by {persona.creator.username}

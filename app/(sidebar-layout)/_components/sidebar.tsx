@@ -102,9 +102,9 @@ export default function Sidebar() {
                 </ListboxItem>
               </ListboxSection>
 
-              <ListboxSection title="My library" showDivider>
+              <ListboxSection title={user?.username || ""} showDivider>
                 <ListboxItem
-                  key="/library/personas"
+                  key="/library"
                   className="text-foreground-500 py-2"
                   classNames={{
                     title: "text-[1.05rem] font-light",
@@ -113,11 +113,11 @@ export default function Sidebar() {
                     <CircleUserRound size={16} className="flex-shrink-0" />
                   }
                 >
-                  Personas
+                  Library
                 </ListboxItem>
 
                 <ListboxItem
-                  key="/library/prompts"
+                  key="/tokens"
                   className="text-foreground-500 py-2"
                   classNames={{
                     title: "text-[1.05rem] font-light",
