@@ -3,6 +3,8 @@ import Personas from "../_components/personas/personas.client";
 import { BackgroundBeams } from "../_components/ui/background-beams";
 import { Suspense } from "react";
 
+export const revalidate = 60 * 3; // 3 minutes
+
 export default async function Home() {
   const personasGenerationsCount = await countPersonaGenerations();
 
