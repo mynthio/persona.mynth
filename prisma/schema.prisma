@@ -32,6 +32,7 @@ model User {
   comments         Comment[]
   personaLikes     PersonaLike[]
   personaBookmarks PersonaBookmark[]
+  chats            Chat[]
 
   // Xata fields
   xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
@@ -138,6 +139,7 @@ model Persona {
   bookmarks PersonaBookmark[]
 
   comments Comment[]
+  chats    Chat[]
 
   tags String[]
 
@@ -226,6 +228,52 @@ model Image {
   // Xata fields
   xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
   xata_id        String   @unique(map: "_pgroll_image_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
+  xata_version   Int      @default(0)
+  xata_createdat DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model Chat {
+  id String @id @default(dbgenerated("('ch_'::text || (xata_private.xid())::text)"))
+
+  createdAt DateTime @default(now())
+
+  persona   Persona? @relation(fields: [personaId], references: [id])
+  personaId String?
+
+  published     Boolean @default(false)
+  model         String
+  type          String
+  modelSettings Json?
+
+  // Some user customization
+  name String @default("New chat")
+
+  messages ChatMessage[]
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  // Xata fields
+  xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
+  xata_id        String   @unique(map: "_pgroll_chat_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
+  xata_version   Int      @default(0)
+  xata_createdat DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model ChatMessage {
+  id String @id @default(dbgenerated("('cm_'::text || (xata_private.xid())::text)"))
+
+  createdAt DateTime @default(now())
+
+  role    String // Can be "user" or "assistant" or "system"
+  content String
+
+  chat   Chat?   @relation(fields: [chatId], references: [id])
+  chatId String?
+
+  // Xata fields
+  xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
+  xata_id        String   @unique(map: "_pgroll_chat_message_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
   xata_version   Int      @default(0)
   xata_createdat DateTime @default(now()) @db.Timestamptz(6)
 }

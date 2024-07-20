@@ -46,7 +46,7 @@ export default async function PersonaPage({ params }: Props) {
 
       <CardBody className="px-8 py-4">
         <div>
-          <PersonaChat />
+          <PersonaChat personaId={persona.id} />
         </div>
         <div className="space-y-2 text-foreground-600 mt-6">
           <i className="text-foreground-600 font-light">{persona.summary}</i>
