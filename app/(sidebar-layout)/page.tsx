@@ -3,6 +3,8 @@ import { getPersonas } from "../_services/personas.service";
 import { auth } from "@clerk/nextjs/server";
 import Personas from "../_components/personas/personas.client";
 import PublicPersonaCard from "../_components/personas/public-persona-card.client";
+import { Suspense } from "react";
+import { BackgroundBeams } from "../_components/ui/background-beams";
 
 export const revalidate = 1800; // 30 minutes
 

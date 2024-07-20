@@ -17,6 +17,9 @@ export async function GET(request: Request) {
     where: {
       creatorId: userId,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
     take: limit < MAX_LIMIT && limit > 1 ? limit : MAX_LIMIT,
     ...(cursor
       ? {

@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import Library from "./_components/library.client";
+import Library from "./_components/library-navigation.client";
 import { prisma } from "@/prisma/client";
 import dynamic from "next/dynamic";
 

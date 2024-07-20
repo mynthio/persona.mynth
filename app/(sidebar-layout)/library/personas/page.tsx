@@ -1,8 +1,8 @@
-import Personas from "@/app/_components/personas/personas.client";
 import { prisma } from "@/prisma/client";
 import { auth } from "@clerk/nextjs/server";
 import { Card, CardBody, CardHeader, Image, Link } from "@nextui-org/react";
 import { Suspense } from "react";
+import Personas from "./_components/personas.client";
 
 export default async function UserPersonasPage() {
   const { userId } = auth();
@@ -10,10 +10,7 @@ export default async function UserPersonasPage() {
 
   return (
     <Suspense>
-      <Personas
-        overwriteFilters={{ creatorId: userId }}
-        personaPath="/library/personas"
-      />
+      <Personas />
     </Suspense>
   );
 }

@@ -29,7 +29,7 @@ import { Button } from "@nextui-org/button";
 import useSWR from "swr";
 
 export default function Sidebar() {
-  const { isLoaded, isSignedIn } = useUser();
+  const { isLoaded, isSignedIn, user } = useUser();
   const { push } = useRouter();
 
   const [isOpen, setIsOpen] = React.useState(false);
@@ -89,7 +89,7 @@ export default function Sidebar() {
                 </ListboxItem>
               </ListboxSection>
 
-              <ListboxSection title="Explore" showDivider>
+              <ListboxSection title="Explore Public Creations" showDivider>
                 <ListboxItem
                   key="/personas"
                   className="text-foreground-500 py-2"
@@ -98,11 +98,11 @@ export default function Sidebar() {
                   }}
                   startContent={<Globe size={16} className="flex-shrink-0" />}
                 >
-                  Public Personas
+                  Personas
                 </ListboxItem>
               </ListboxSection>
 
-              <ListboxSection title={user?.username || ""} showDivider>
+              <ListboxSection title={user?.username || ""}>
                 <ListboxItem
                   key="/library"
                   className="text-foreground-500 py-2"
@@ -122,27 +122,13 @@ export default function Sidebar() {
                   classNames={{
                     title: "text-[1.05rem] font-light",
                   }}
-                  startContent={
-                    <Terminal size={16} className="flex-shrink-0" />
-                  }
+                  startContent={<Coins size={16} className="flex-shrink-0" />}
                 >
-                  Prompts
+                  {!isLoading && data
+                    ? `${data.remainingTokens}/${data.dailyTokens} tokens`
+                    : ``}
                 </ListboxItem>
               </ListboxSection>
-
-              <ListboxItem
-                hidden={!isSignedIn}
-                key="/tokens"
-                className="text-foreground-500 py-2"
-                classNames={{
-                  title: "text-[1.05rem] font-light",
-                }}
-                startContent={<Coins size={16} className="flex-shrink-0" />}
-              >
-                {!isLoading && data
-                  ? `${data.remainingTokens}/${data.dailyTokens} tokens`
-                  : ``}
-              </ListboxItem>
             </Listbox>
           </CardBody>
 

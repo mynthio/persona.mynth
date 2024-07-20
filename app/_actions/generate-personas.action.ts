@@ -10,6 +10,8 @@ import { auth } from "@clerk/nextjs/server";
 import { assert } from "superstruct";
 import { redis } from "@/redis/client";
 import { checkAndUpdateUserTokens } from "@/lib/tokens";
+import { TextToImgModelFactory } from "@/lib/ai/text-to-img-models/text-to-img-model.factory";
+import { TextToImgModelsEnum } from "@/lib/ai/text-to-img-models/enums/text-to-img-models.enum";
 
 export const generatePersonasAction = async (data: unknown) => {
   const { userId } = auth();

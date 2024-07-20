@@ -4,6 +4,7 @@ import { fetcher } from "@/app/_utils/utils";
 import { Skeleton } from "@nextui-org/skeleton";
 import useSWR from "swr";
 import PersonaTile from "./persona-tile.client";
+import React, { useMemo } from "react";
 
 type Props = {
   promptId: string;
@@ -11,6 +12,8 @@ type Props = {
 };
 
 export default function PendingPersonaTile({ promptId, generationId }: Props) {
+  const [persona, setPersona] = React.useState<any>(null);
+
   const { data, error, isLoading } = useSWR(
     `/api/prompts/${promptId}/generations/${generationId}`,
     fetcher,
@@ -22,9 +25,15 @@ export default function PendingPersonaTile({ promptId, generationId }: Props) {
     }
   );
 
+  React.useEffect(() => {
+    if (data?.persona) {
+      setPersona(data.persona);
+    }
+  }, [data]);
+
   if (error) return <div>Error: {error.message}</div>;
 
-  return data?.persona ? (
+  return persona ? (
     <PersonaTile persona={data.persona} />
   ) : (
     <Skeleton className="h-24 rounded-lg" />
