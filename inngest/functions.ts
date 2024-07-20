@@ -4,6 +4,10 @@ import { GeneratePersonaEventData } from "@/schemas/generate-persona-event-data.
 import { creatorPrompt, textPrompt } from "@/app/prompts";
 import got from "got";
 import { parsePersonaResponse } from "@/lib/parser";
+import { TextGenerationModelFactory } from "@/lib/ai/text-generation-models/text-generation-model-factory";
+import { TextGenerationModelsEnum } from "@/lib/ai/text-generation-models/enums/text-generation-models.enum";
+import { TextToImgModelFactory } from "@/lib/ai/text-to-img-models/text-to-img-model.factory";
+import { TextToImgModelsEnum } from "@/lib/ai/text-to-img-models/enums/text-to-img-models.enum";
 
 export const generatePersona = inngest.createFunction(
   {
@@ -76,39 +80,23 @@ export const generatePersona = inngest.createFunction(
     const { personaId, appearance, persona } = await step.run(
       "generate-persona",
       async () => {
-        const modelUrl = new URL(
-          `https://gateway.ai.cloudflare.com/v1/c99aff4cb614b593e268702200736e8c/persona/workers-ai/@cf/meta/llama-3-8b-instruct`
-        );
-
         const prompt =
           "textPrompt" in data.promptInput
             ? textPrompt(data.promptInput.textPrompt)
             : creatorPrompt(data.promptInput);
 
-        const response = await got
-          .post(modelUrl.href, {
-            headers: {
-              Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY}`,
-            },
-            json: {
-              max_tokens: 1000,
-              prompt,
-            },
-          })
-          .json<{
-            result: {
-              response: string;
-            };
-          }>();
-
-        const parsedPersonaResponse = parsePersonaResponse(
-          response.result.response
+        const model = TextGenerationModelFactory.create(
+          TextGenerationModelsEnum.MetaLlama3_8bInstruct
         );
+
+        const response = await model.generateText(prompt);
+
+        const parsedPersonaResponse = parsePersonaResponse(response);
 
         const { persona } = await prisma.personaGeneration.create({
           data: {
             inngestEventId: event.id!,
-            model: "meta/llama-3-8b-instruct",
+            model: model.id,
             promptVersion: data.promptVersion,
             prompt: {
               connect: {
@@ -179,27 +167,34 @@ export const generatePersona = inngest.createFunction(
     });
 
     await step.run("generate-persona-image", async () => {
-      const imageModel = "@cf/stabilityai/stable-diffusion-xl-base-1.0";
-      const modelUrl = new URL(
-        `https://gateway.ai.cloudflare.com/v1/c99aff4cb614b593e268702200736e8c/persona/workers-ai/${imageModel}`
-      );
-
       try {
-        const response = await got
-          .post(modelUrl.href, {
-            headers: {
-              Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY}`,
-            },
-            json: {
-              width: 1024,
-              height: 1024,
-              negative_prompt:
-                "cartoon, anime, 2d, painting, drawing, sketch, watercolor, photo, realistic, unrealistic, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, blurry",
-              prompt: appearance,
-            },
-          })
-          .buffer();
+        const model = TextToImgModelFactory.create(
+          TextToImgModelsEnum.StabilityAIStableDiffusionXL10
+        );
 
+        const fallbackModel = TextToImgModelFactory.create(
+          TextToImgModelsEnum.StabilityAIStableDiffusionXLBase10
+        );
+
+        let imgBuffer: Buffer | null = null;
+
+        try {
+          imgBuffer = await model.generateImage(appearance, {
+            width: 1024,
+            height: 1024,
+            negativePrompt:
+              "doll,fantasy,worst quality,shame,low-quality,medium-quality,low-details,",
+          });
+        } catch (error) {
+          logger.error(error);
+
+          imgBuffer = await fallbackModel.generateImage(appearance, {
+            width: 1024,
+            height: 1024,
+          });
+        }
+
+        if (!imgBuffer) throw new Error("Failed to generate image");
         /**
          * We need to upload image in the same step as we generate it
          * because of the file size and issue while returning it from step
@@ -211,7 +206,7 @@ export const generatePersona = inngest.createFunction(
               AccessKey: process.env.BUNNY_CDN_API_KEY,
               "Content-Type": "application/octet-stream",
             },
-            body: Buffer.from(response),
+            body: Buffer.from(imgBuffer),
           }
         );
       } catch (error) {

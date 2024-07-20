@@ -1,12 +1,25 @@
 import { countPersonaGenerations } from "../_services/persona-generations.service";
+import { getPersonas } from "../_services/personas.service";
+import { auth } from "@clerk/nextjs/server";
 import Personas from "../_components/personas/personas.client";
-import { BackgroundBeams } from "../_components/ui/background-beams";
+import PublicPersonaCard from "../_components/personas/public-persona-card.client";
 import { Suspense } from "react";
+import { BackgroundBeams } from "../_components/ui/background-beams";
 
-export const revalidate = 60 * 3; // 3 minutes
+export const revalidate = 1800; // 30 minutes
 
 export default async function Home() {
-  const personasGenerationsCount = await countPersonaGenerations();
+  const { userId } = auth();
+
+  const [personasGenerationsCount, recentPersonas] = await Promise.all([
+    countPersonaGenerations(),
+    getPersonas({
+      page: 1,
+      published: true,
+      showNsfw: false,
+      userId,
+    }),
+  ]);
 
   return (
     <>
@@ -24,13 +37,19 @@ export default async function Home() {
       <div className="mt-20">
         <h2 className="text-3xl font-bold">Recently published personas</h2>
 
-        <div className="w-full mt-8">
-          <Suspense>
-            <Personas
-              overwriteFilters={{ published: true, limit: 3 }}
-              showPagination={false}
+        <div className="w-full mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {recentPersonas.map((persona) => (
+            <PublicPersonaCard
+              showFooter={false}
+              path="/personas"
+              key={persona.id}
+              persona={{
+                ...persona,
+                isLiked: !!persona.likes?.length,
+                isBookmarked: !!persona.bookmarks?.length,
+              }}
             />
-          </Suspense>
+          ))}
         </div>
       </div>
       <Suspense>

@@ -19,5 +19,8 @@ namespace NodeJS {
     BUNNY_CDN_API_KEY: string;
     BUNNY_STORAGE_ZONE: string;
     BUNNY_CDN_HOST: string;
+
+    // Hyperbolic
+    HYPERBOLIC_API_KEY: string;
   }
 }

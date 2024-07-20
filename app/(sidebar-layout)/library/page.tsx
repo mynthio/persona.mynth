@@ -1,7 +1,35 @@
-export default async function Library() {
+import { auth } from "@clerk/nextjs/server";
+import Library from "./_components/library-navigation.client";
+import { prisma } from "@/prisma/client";
+import dynamic from "next/dynamic";
+
+import { SWRConfig } from "swr";
+
+const Personas = dynamic(() => import("./_components/personas.client"), {
+  ssr: false,
+});
+
+export default async function LibraryPage() {
+  const { userId } = auth();
+
+  if (!userId) return null;
+
+  const initialPersonas = await prisma.persona.findMany({
+    where: {
+      creatorId: userId,
+    },
+    take: 20,
+  });
+
   return (
-    <div className="flex h-full w-full items-center justify-center">
-      <h1>Library</h1>
-    </div>
+    // <SWRConfig
+    //   value={{
+    //     fallback: {
+    //       "/api/library/personas?limit=20": initialPersonas,
+    //     },
+    //   }}
+    // >
+    <Personas initialData={initialPersonas} />
+    // </SWRConfig>
   );
 }

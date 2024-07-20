@@ -54,10 +54,11 @@
     "sonner": "^1.5.0",
     "superstruct": "^2.0.2",
     "swr": "^2.2.5",
-    "tailwind-merge": "^2.4.0"
+    "tailwind-merge": "^2.4.0",
+    "virtua": "^0.33.3"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^20.14.11",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
