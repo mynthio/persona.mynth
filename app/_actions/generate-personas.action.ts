@@ -12,6 +12,8 @@ import { redis } from "@/redis/client";
 import { checkAndUpdateUserTokens } from "@/lib/tokens";
 import { TextToImgModelFactory } from "@/lib/ai/text-to-img-models/text-to-img-model.factory";
 import { TextToImgModelsEnum } from "@/lib/ai/text-to-img-models/enums/text-to-img-models.enum";
+import { MetaLlama3_8bInstruct } from "@/lib/ai/text-generation-models/meta/llama-3-8b-instruct.model";
+import got from "got";
 
 export const generatePersonasAction = async (data: unknown) => {
   const { userId } = auth();
