@@ -8,14 +8,22 @@ import { createStreamableValue } from "ai/rsc";
 import { checkAndUpdateUserTokens } from "@/lib/tokens";
 import { prisma } from "@/prisma/client";
 import { auth } from "@clerk/nextjs/server";
+import { getPersonaChat } from "../_services/persona-chats.service";
 
 export const chatAction = async (data: {
   messages: CoreMessage[];
   isLocal?: boolean;
-  chatId?: string;
+  chatId: string;
 }) => {
   const { userId } = auth();
   if (!userId) throw new Error("User not authenticated");
+
+  const chat = await getPersonaChat({
+    chatId: data.chatId,
+    userId,
+  });
+
+  if (!chat) throw new Error("Chat not found");
 
   const { canGenerate } = await checkAndUpdateUserTokens(1);
 

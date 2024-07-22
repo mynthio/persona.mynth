@@ -91,7 +91,32 @@ export const generatePersona = inngest.createFunction(
           TextGenerationModelsEnum.MetaLlama3_8bInstruct
         );
 
-        const response = await model.generateText(prompt);
+        let response = await model.generateText(prompt);
+
+        if (!response || response.length === 0) {
+          const res = await got
+            .post(`https://api.hyperbolic.xyz/v1/chat/completions`, {
+              headers: {
+                Authorization: `Bearer ${process.env.HYPERBOLIC_API_KEY}`,
+              },
+              json: {
+                messages: [
+                  {
+                    role: "user",
+                    content: prompt,
+                  },
+                ],
+                model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
+                max_tokens: 2048,
+                temperature: 0.7,
+                top_p: 0.9,
+                stream: false,
+              },
+            })
+            .json();
+
+          response = res.choices[0].message.content;
+        }
 
         const parsedPersonaResponse = parsePersonaResponse(response);
 
