@@ -34,7 +34,7 @@ export default function PendingPersonaTile({ promptId, generationId }: Props) {
   if (error) return <div>Error: {error.message}</div>;
 
   return persona ? (
-    <PersonaTile persona={data.persona} />
+    <PersonaTile persona={persona} />
   ) : (
     <Skeleton className="h-24 rounded-lg" />
   );

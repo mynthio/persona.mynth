@@ -2,11 +2,21 @@ import { prisma } from "@/prisma/client";
 import { auth } from "@clerk/nextjs/server";
 import { Button } from "@nextui-org/button";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
-import { Globe } from "lucide-react";
+import { Globe, Images, Lock, MessageSquare } from "lucide-react";
 import PublishPersonaButton from "./_components/publish-persona-button.client";
 import { Image } from "@nextui-org/image";
-import { Link } from "@nextui-org/react";
+import { Chip } from "@nextui-org/chip";
+import { Link } from "@nextui-org/link";
 import PersonaChat from "./_components/persona-chat.client";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+} from "@nextui-org/dropdown";
+
+import { Listbox, ListboxSection, ListboxItem } from "@nextui-org/listbox";
+import PersonaMenu from "./_components/persona-menu.client";
 
 type Props = {
   params: {
@@ -23,9 +33,33 @@ export default async function PersonaPage({ params }: Props) {
       id: params.personaId,
       creatorId: userId,
     },
+    include: {
+      creator: true,
+    },
   });
 
   if (!persona) return <div>Persona not found</div>; // TODO: Move to component or handle 404
+
+  return (
+    <>
+      <h1 className="text-5xl font-thin text-foreground-600">{persona.name}</h1>
+      <p className="font-light text-small text-foreground-500 max-w-xl mt-2">
+        {persona.summary}
+      </p>
+
+      <ul className="font-light text-balance text-foreground-600  max-w-xl mt-4 space-y-2">
+        <li>Age: {persona.age}</li>
+        <li>Gender: {persona.gender}</li>
+        <li>Occupations/Proffesions: {persona.occupation}</li>
+        <li>Personality Traits: {persona.personalityTraits}</li>
+        <li>Interests: {persona.interests}</li>
+        <li>Appearance: {persona.appearance}</li>
+        <li>Background: {persona.background}</li>
+        <li>History: {persona.history}</li>
+        <li>Characteristics: {persona.characteristics}</li>
+      </ul>
+    </>
+  );
 
   return (
     <Card className="bg-default-100/60 dark:bg-default-100/60" isBlurred>
@@ -46,7 +80,7 @@ export default async function PersonaPage({ params }: Props) {
 
       <CardBody className="px-8 py-4">
         <div>
-          <PersonaChat />
+          <PersonaChat personaId={persona.id} />
         </div>
         <div className="space-y-2 text-foreground-600 mt-6">
           <i className="text-foreground-600 font-light">{persona.summary}</i>

@@ -34,11 +34,12 @@ export default function PublishPersonaButton({ personaId }: Props) {
   return (
     <>
       <Button
+        variant="ghost"
         onPress={onOpen}
-        startContent={<Globe size={16} />}
-        color="secondary"
+        endContent={<Globe size={16} />}
+        className="w-full"
       >
-        Publish Persona
+        Publish
       </Button>
       <Modal
         backdrop="opaque"

@@ -99,7 +99,7 @@ export default function Personas({ initialData }: Props) {
                   src={persona.mainImageUrl}
                 />
 
-                <div className="w-full h-full absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-b from-secondary-50/40 via-transparent to-secondary-50/90" />
+                <div className="w-full h-full absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-b from-purple-900/40 via-transparent to-purple-300/90" />
 
                 <CardFooter className="absolute bg-transparent bottom-0 m-0 left-0 right-0 md:p-6 w-auto rounded-t-xl z-10 flex-col h-32">
                   <Link

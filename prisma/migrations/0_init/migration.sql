@@ -155,13 +155,13 @@ CREATE UNIQUE INDEX "PersonaGeneration_inngestEventId_key" ON "PersonaGeneration
 CREATE UNIQUE INDEX "_pgroll_persona_generation_xata_id_key" ON "PersonaGeneration"("xata_id");
 
 -- CreateIndex
+CREATE INDEX "PersonaGeneration_inngestEventId_idx" ON "PersonaGeneration"("inngestEventId");
+
+-- CreateIndex
 CREATE INDEX "PersonaGeneration_promptId_idx" ON "PersonaGeneration"("promptId");
 
 -- CreateIndex
 CREATE INDEX "PersonaGeneration_status_idx" ON "PersonaGeneration"("status");
-
--- CreateIndex
-CREATE INDEX "PersonaGeneration_inngestEventId_idx" ON "PersonaGeneration"("inngestEventId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Persona_personaGenerationId_key" ON "Persona"("personaGenerationId");

@@ -10,11 +10,7 @@ type Props = {
 export default async function SidebarLayout({ children }: Props) {
   return (
     <>
-      <img
-        src="/background.jpg"
-        alt="Background"
-        className="fixed top-0 left-0 -z-50 w-full h-full object-cover opacity-30 blur-md"
-      />
+      <div className="bg-gradient-to-tl from-purple-950/50 to-black fixed top-0 left-0 -z-50 w-full h-full" />
 
       <Toaster />
       <Sidebar />

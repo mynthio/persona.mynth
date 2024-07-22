@@ -10,8 +10,13 @@ import {
   useDisclosure,
 } from "@nextui-org/modal";
 import { Link } from "@nextui-org/react";
+import CreatePersonaChat from "./create-persona-chat.client";
 
-export default function PersonaChat() {
+type Props = {
+  personaId: string;
+};
+
+export default function PersonaChat({ personaId }: Props) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   return (
@@ -30,17 +35,23 @@ export default function PersonaChat() {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                You found a feature that is not yet implemented!
+                You found a beta feature!!!
               </ModalHeader>
               <ModalBody>
+                <CreatePersonaChat personaId={personaId} />
+
+                <Button
+                  as={Link}
+                  href={`/library/personas/${personaId}/chats/local`}
+                >
+                  Open local chat
+                </Button>
+
                 <p>
-                  Do you like the idea of chatting with created personas? We bet
-                  you do! 😁
-                </p>
-                <p>
-                  Join our Discord server and let us know what you think. Also
-                  you can vote there on your favorite features, so we can
-                  prioritize them.
+                  It's still early days, but we are working on it. So, if you
+                  like the idea, please join our Discord server and let us know
+                  what you think. Also you can vote there on your favorite
+                  features, so we can prioritize them.
                 </p>
 
                 <Button

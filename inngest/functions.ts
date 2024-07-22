@@ -9,6 +9,8 @@ import { TextGenerationModelsEnum } from "@/lib/ai/text-generation-models/enums/
 import { TextToImgModelFactory } from "@/lib/ai/text-to-img-models/text-to-img-model.factory";
 import { TextToImgModelsEnum } from "@/lib/ai/text-to-img-models/enums/text-to-img-models.enum";
 
+import sharp from "sharp";
+
 export const generatePersona = inngest.createFunction(
   {
     id: "generate-persona",
@@ -179,12 +181,16 @@ export const generatePersona = inngest.createFunction(
         let imgBuffer: Buffer | null = null;
 
         try {
-          imgBuffer = await model.generateImage(appearance, {
-            width: 1024,
-            height: 1024,
-            negativePrompt:
-              "doll,fantasy,worst quality,shame,low-quality,medium-quality,low-details,",
-          });
+          imgBuffer = await model.generateImage(
+            appearance +
+              ", realistic, ultra hd, 8k, high quality, (photorealism)+",
+            {
+              width: 1024,
+              height: 1024,
+              negativePrompt:
+                "low quality, drawing, bad anatomy, cartoon, painting",
+            }
+          );
         } catch (error) {
           logger.error(error);
 
@@ -195,18 +201,30 @@ export const generatePersona = inngest.createFunction(
         }
 
         if (!imgBuffer) throw new Error("Failed to generate image");
+
+        // Optimize image
+        const optimizedImageBuffer = await sharp(imgBuffer)
+          .resize({
+            width: 1024,
+            height: 1024,
+          })
+          .webp({
+            quality: 80,
+          })
+          .toBuffer();
+
         /**
          * We need to upload image in the same step as we generate it
          * because of the file size and issue while returning it from step
          */
         await got.put(
-          `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/persona-${personaId}.png`,
+          `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/personas/${personaId}/persona-${personaId}.webp`,
           {
             headers: {
               AccessKey: process.env.BUNNY_CDN_API_KEY,
               "Content-Type": "application/octet-stream",
             },
-            body: Buffer.from(imgBuffer),
+            body: Buffer.from(optimizedImageBuffer),
           }
         );
       } catch (error) {
@@ -221,7 +239,7 @@ export const generatePersona = inngest.createFunction(
           id: personaId,
         },
         data: {
-          mainImageUrl: `https://${process.env.BUNNY_CDN_HOST}/persona-${personaId}.png`,
+          mainImageUrl: `https://${process.env.BUNNY_CDN_HOST}/personas/${personaId}/persona-${personaId}.webp`,
         },
       });
     });
@@ -233,7 +251,7 @@ export const generatePersona = inngest.createFunction(
           status: "done",
           persona: {
             ...persona,
-            mainImageUrl: `https://${process.env.BUNNY_CDN_HOST}/persona-${personaId}.png`,
+            mainImageUrl: `https://${process.env.BUNNY_CDN_HOST}/personas/${personaId}/persona-${personaId}.webp`,
           },
         }),
         "EX",

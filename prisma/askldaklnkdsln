@@ -1,5 +1,13 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
+
+  // Enable if using driver adapters
   previewFeatures = ["driverAdapters"]
 }
 
@@ -21,7 +29,7 @@ model User {
 
   personas         Persona[]
   personaPrompts   PersonaPrompt[]
-  comment          Comment[]
+  comments         Comment[]
   personaLikes     PersonaLike[]
   personaBookmarks PersonaBookmark[]
   chats            Chat[]
@@ -58,7 +66,7 @@ model PersonaPrompt {
 
 model PersonaGeneration {
   id     String @id @default(dbgenerated("('pg_'::text || (xata_private.xid())::text)"))
-  status String @default("queued")
+  status String @default("queued") // Can be "queued", "in_progress", "completed", or "failed"
 
   inngestEventId String @unique
 
@@ -79,9 +87,9 @@ model PersonaGeneration {
   xata_version   Int      @default(0)
   xata_createdat DateTime @default(now()) @db.Timestamptz(6)
 
-  @@index([inngestEventId])
   @@index([promptId])
   @@index([status])
+  @@index([inngestEventId])
 }
 
 model Persona {
@@ -112,7 +120,7 @@ model Persona {
 
   // Image related fields
   mainImageUrl  String?
-  consistencyId String?
+  consistencyId String? // For image generation consistency
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -131,11 +139,11 @@ model Persona {
   bookmarks PersonaBookmark[]
 
   comments Comment[]
+  chats    Chat[]
 
   tags String[]
 
   images Image[]
-  chats  Chat[]
 
   personaGeneration   PersonaGeneration? @relation(fields: [personaGenerationId], references: [id])
   personaGenerationId String?            @unique
@@ -209,7 +217,7 @@ model Comment {
 model Image {
   id String @id @default(dbgenerated("('i_'::text || (xata_private.xid())::text)"))
 
-  prompt String?
+  prompt String? // Allow user to upload custom images, this images won't have a prompt
   model  String?
 
   imageUrl String

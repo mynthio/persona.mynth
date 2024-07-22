@@ -50,6 +50,8 @@ export default function Personas({ initialData }: Props) {
   const isReachingEnd =
     isEmpty || (data && data[data.length - 1]?.length < LIMIT);
 
+  const isMore = data?.[0]?.length < LIMIT;
+
   return (
     <>
       <WindowVirtualizer
@@ -95,11 +97,11 @@ export default function Personas({ initialData }: Props) {
                 <Image
                   removeWrapper
                   alt="Card background"
-                  className="z-0 w-full h-auto object-cover"
+                  className="z-0 w-full h-full object-cover"
                   src={persona.mainImageUrl}
                 />
 
-                <div className="w-full h-full absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-b from-secondary-50/40 via-transparent to-secondary-50/90" />
+                <div className="w-full h-full absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-b from-purple-950/20 via-transparent to-black/90" />
 
                 <CardFooter className="absolute bg-transparent bottom-0 m-0 left-0 right-0 md:p-6 w-auto rounded-t-xl z-10 flex-col h-32">
                   <Link
@@ -120,13 +122,19 @@ export default function Personas({ initialData }: Props) {
       </WindowVirtualizer>
 
       <div className="flex justify-center mt-10">
-        <Button
-          isDisabled={!isLoadingMore && isReachingEnd}
-          isLoading={isLoadingMore || isRefreshing}
-          onClick={() => setSize(size + 1)}
-        >
-          {isLoadingMore || isRefreshing ? "Loading..." : "Load more"}
-        </Button>
+        {!isReachingEnd ? (
+          <Button
+            isDisabled={!isLoadingMore && isReachingEnd}
+            isLoading={isLoadingMore || isRefreshing}
+            onClick={() => setSize(size + 1)}
+          >
+            {isLoadingMore || isRefreshing ? "Loading..." : "Load more"}
+          </Button>
+        ) : (
+          <p className="italic text-small text-foreground-500">
+            No more personas
+          </p>
+        )}
       </div>
     </>
   );
