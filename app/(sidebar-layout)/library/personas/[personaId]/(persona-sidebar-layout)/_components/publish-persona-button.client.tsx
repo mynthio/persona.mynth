@@ -4,6 +4,7 @@ import { updatePersonaAction } from "@/app/_actions/update-persona.action";
 import { UpdatePersonaSchema } from "@/schemas/update-persona.schema";
 import { superstructResolver } from "@hookform/resolvers/superstruct";
 import { Button } from "@nextui-org/button";
+import { ListboxItem } from "@nextui-org/listbox";
 import {
   Modal,
   ModalBody,
@@ -33,14 +34,14 @@ export default function PublishPersonaButton({ personaId }: Props) {
 
   return (
     <>
-      <Button
-        variant="ghost"
-        onPress={onOpen}
-        endContent={<Globe size={16} />}
+      <ListboxItem
+        key="publish"
+        onSelect={onOpen}
+        startContent={<Globe size={12} />}
         className="w-full"
       >
         Publish
-      </Button>
+      </ListboxItem>
       <Modal
         backdrop="opaque"
         isOpen={isOpen}
