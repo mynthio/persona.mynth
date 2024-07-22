@@ -40,6 +40,13 @@ export default function PersonaChat({ personaId }: Props) {
               <ModalBody>
                 <CreatePersonaChat personaId={personaId} />
 
+                <Button
+                  as={Link}
+                  href={`/library/personas/${personaId}/chats/local`}
+                >
+                  Open local chat
+                </Button>
+
                 <p>
                   It's still early days, but we are working on it. So, if you
                   like the idea, please join our Discord server and let us know

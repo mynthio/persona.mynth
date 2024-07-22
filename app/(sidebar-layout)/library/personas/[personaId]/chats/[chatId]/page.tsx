@@ -1,6 +1,7 @@
 import { prisma } from "@/prisma/client";
 import { auth } from "@clerk/nextjs/server";
 import Chat from "./chat.client";
+import { Chip } from "@nextui-org/chip";
 
 type Props = {
   params: {
@@ -37,11 +38,23 @@ export default async function ChatPage({ params }: Props) {
 
   return (
     <div>
-      Chat with {persona.name}
-      <div>
+      <div className="flex items-start gap-2">
+        <Chip size="sm" color="danger">
+          BETA
+        </Chip>
+        <h2 className="text-2xl font-light text-foreground-500">
+          Chat with {persona.name}
+        </h2>
+      </div>
+      <p className="text-small text-foreground-500 italic mt-1">
+        Be aware of issues and bugs, as it's early beta stage
+      </p>
+
+      <div className="mt-10">
         <Chat
           chatId={chat.id}
           personaName={persona.name}
+          personaImageUrl={persona.mainImageUrl}
           initialMessages={chat.messages.map((m) => ({
             role: m.role as any,
             content: m.content,

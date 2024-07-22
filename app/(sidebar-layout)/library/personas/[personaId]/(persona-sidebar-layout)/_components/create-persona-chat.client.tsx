@@ -27,7 +27,7 @@ export default function CreatePersonaChat({ personaId }: Props) {
       onSubmit={handleSubmit(async (data) => {
         const chat = await createPersonaChatAction(data);
 
-        push(`/library/chats/${chat.id}`);
+        push(`/library/personas/${personaId}/chats/${chat.id}`);
       })}
     >
       <Button type="submit">Create chat</Button>

@@ -13,52 +13,78 @@ import { useUser } from "@clerk/nextjs";
 import { Coins, Send } from "lucide-react";
 import { Card, CardBody, CardFooter } from "@nextui-org/card";
 import { User } from "@nextui-org/user";
+import { ScrollShadow } from "@nextui-org/react";
 type Props = {
-  chatId: string;
+  personaId: string;
   personaName: string;
   personaImageUrl: string | null;
-  initialMessages: Message[];
+  systemMessage: string;
 };
 
 export default function Chat({
-  chatId,
+  personaId,
   personaName,
   personaImageUrl,
-  initialMessages,
+  systemMessage,
 }: Props) {
   const { user } = useUser();
 
-  const [messages, setMessages] =
-    React.useState<CoreMessage[]>(initialMessages);
+  const savedChat = JSON.parse(
+    localStorage.getItem(`chat:${personaId}`) || "null"
+  );
 
-  const { handleSubmit, register, reset } = useForm<{
+  const [messages, setMessages] = React.useState<CoreMessage[]>(
+    savedChat && savedChat.messages.length > 0
+      ? savedChat.messages
+      : [{ role: "system", content: systemMessage }]
+  );
+
+  const { handleSubmit, register } = useForm<{
     content: string;
   }>();
 
-  return (
-    <div className="space-y-4">
-      {messages.map((m) =>
-        m.role === "system" ? null : (
-          <Card
-            key={m.id}
-            className={`${m.role === "user" ? "mr-10" : "ml-10"}`}
-          >
-            <CardBody>{m.content.toString()}</CardBody>
+  React.useEffect(() => {
+    localStorage.setItem(
+      `chat:${personaId}`,
+      JSON.stringify({ updatedAt: new Date(), messages })
+    );
+  }, [messages, personaId]);
 
-            <CardFooter>
-              <User
-                name={m.role === "user" ? user?.username : personaName}
-                avatarProps={{
-                  src:
-                    m.role === "user" ? user?.imageUrl : personaImageUrl || "",
-                }}
-              />
-            </CardFooter>
-          </Card>
-        )
-      )}
+  React.useEffect(() => {
+    window.scrollTo({
+      top: document.body.scrollHeight,
+    });
+  }, []);
+
+  return (
+    <div className="mt-10 relative ">
+      <div className="w-full space-y-4">
+        {messages.map((m) =>
+          m.role === "system" ? null : (
+            <Card
+              key={m.id}
+              className={`${m.role === "user" ? "ml-10" : "mr-10"} w-auto`}
+            >
+              <CardBody>{m.content.toString()}</CardBody>
+
+              <CardFooter>
+                <User
+                  name={m.role === "user" ? user?.username : personaName}
+                  avatarProps={{
+                    src:
+                      m.role === "user"
+                        ? user?.imageUrl
+                        : personaImageUrl || "",
+                  }}
+                />
+              </CardFooter>
+            </Card>
+          )
+        )}
+      </div>
 
       <form
+        className="mt-4"
         onSubmit={handleSubmit(async (data) => {
           const newMessages: CoreMessage[] = [
             ...messages,
@@ -67,10 +93,8 @@ export default function Chat({
 
           const result = await chatAction({
             messages: newMessages,
-            chatId: chatId,
+            isLocal: true,
           });
-
-          reset();
 
           for await (const content of readStreamableValue(result)) {
             setMessages([
@@ -80,6 +104,9 @@ export default function Chat({
                 content: content as string,
               },
             ]);
+            window.scrollTo({
+              top: document.body.scrollHeight,
+            });
           }
         })}
       >

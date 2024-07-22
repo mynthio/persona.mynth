@@ -7,10 +7,12 @@ export default async function LibraryLayout({
 }) {
   return (
     <>
-      <LibraryNavigation />
+      <div className="flex justify-center">
+        <LibraryNavigation />
+      </div>
 
-      <hr className="border-none my-2" />
-
+      <hr className="border-foreground-100 mt-6 mb-12" />
+      {/* <hr className="border-none mt-10" /> */}
       {children}
     </>
   );

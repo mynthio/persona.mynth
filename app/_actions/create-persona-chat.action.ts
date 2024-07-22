@@ -24,6 +24,26 @@ export const createPersonaChatAction = async (data: unknown) => {
       personaId: persona.id,
       userId,
       model: "meta-llama/Meta-Llama-3-70B-Instruct",
+      type: "roleplay",
+      messages: {
+        create: {
+          role: "system",
+          content: `You're playing the role of AI generated persona in roleplay chat with user. Answer the user question, talk with him, be creative and propose topics etc. 
+          
+Your character:
+Name: ${persona.name}
+Age: ${persona.age}
+Occupation: ${persona.occupation}
+Summary: ${persona.summary}
+Personality traits: ${persona.personalityTraits}
+Interests: ${persona.interests}
+Cultural background: ${persona.culturalBackground}
+Appearance: ${persona.appearance}
+Background: ${persona.background}
+History: ${persona.history}
+Characteristics: ${persona.characteristics}`,
+        },
+      },
     },
   });
 
