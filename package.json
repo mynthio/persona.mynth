@@ -14,6 +14,8 @@
     "@clerk/themes": "^2.1.13",
     "@hookform/resolvers": "^3.9.0",
     "@logsnag/next": "^1.0.3",
+    "@logtail/node": "^0.4.21",
+    "@logtail/winston": "^0.4.21",
     "@nextui-org/breadcrumbs": "^2.0.12",
     "@nextui-org/button": "^2.0.37",
     "@nextui-org/card": "^2.0.33",

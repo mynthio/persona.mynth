@@ -25,5 +25,8 @@ namespace NodeJS {
 
     // LogSnag
     LOGSNAG_API_KEY: string;
+
+    // Betterstack
+    LOGTAIL_SOURCE_TOKEN: string;
   }
 }

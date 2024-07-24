@@ -23,6 +23,12 @@ importers:
       '@logsnag/next':
         specifier: ^1.0.3
         version: 1.0.3(next@14.2.5(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@logtail/node':
+        specifier: ^0.4.21
+        version: 0.4.21
+      '@logtail/winston':
+        specifier: ^0.4.21
+        version: 0.4.21(winston@3.13.1)
       '@nextui-org/breadcrumbs':
         specifier: ^2.0.12
         version: 2.0.12(@nextui-org/system@2.2.5(@nextui-org/theme@2.2.9(tailwindcss@3.4.6))(framer-motion@11.3.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@nextui-org/theme@2.2.9(tailwindcss@3.4.6))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -594,6 +600,27 @@ packages:
       next: ^11.1.0 || ^12.0.0 || ^13.0.0 || ^14.0.0
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+
+  '@logtail/core@0.4.21':
+    resolution: {integrity: sha512-QDq194+24bwi4e+a/pxyf4X67NewhTvBmh9iwM2NhbSVSQz4Fo8xQn1Ul8zuUrXETycu/Od2D8wT2tZFNFx/7A==}
+
+  '@logtail/node@0.4.21':
+    resolution: {integrity: sha512-zpwkhJgcYaM+vsjotHRJthc0ot1vP0CAVy+fwrkL8XjfdC3NHiWb6f0agQpHlqdRX8RTsAbcYpWNXKPpFB5U9Q==}
+
+  '@logtail/tools@0.4.21':
+    resolution: {integrity: sha512-xIaolScUwJEikllopGphxBX0lVlN/rA8pLAZiNCMNJXpPbwitoFKLW3w4qRuYdKoFCCJZKwOdwEqU2Fv0i9Cuw==}
+
+  '@logtail/types@0.4.20':
+    resolution: {integrity: sha512-nYsum10eJMTo+ySBlYXvSrvgD1NDCVUeOlxLBbelq3XUmHu9L48VNR3P0BOmhLamYCTEgjatTj0PyPLfjL1W9g==}
+
+  '@logtail/winston@0.4.21':
+    resolution: {integrity: sha512-+aX8VgUJr+YJyHXEPBJR7iv6v3p7YzZgVMicFBiHKf49o9RWgA+QjU5KbyCKTAhHjNm9uYtZhA7vjdg5oO3fQg==}
+    peerDependencies:
+      winston: '>=3.2.1'
+
+  '@msgpack/msgpack@2.8.0':
+    resolution: {integrity: sha512-h9u4u/jiIRKbq25PM+zymTyW6bhTzELvOoUd+AvYriWOAKpLGnIamaET3pnHYoI5iYphAHBI4ayx0MehR+VVPQ==}
+    engines: {node: '>= 10'}
 
   '@next/env@14.2.5':
     resolution: {integrity: sha512-/zZGkrTOsraVfYjGP8uM0p6r0BDT6xWpkjdVbcz66PJVSpwXX3yNiRycxAuDfBKGWBrZBXRuK/YVlkNgxHGwmA==}
@@ -1847,6 +1874,9 @@ packages:
   '@types/semver@7.5.8':
     resolution: {integrity: sha512-I8EUhyrgfLrcTkzV3TSsGyl1tSuPrEDzr0yd5m90UgNxQkyDXULk3b6MlQqTCpZpNtWe1K0hzclnZkTcLBe2UQ==}
 
+  '@types/stack-trace@0.0.29':
+    resolution: {integrity: sha512-TgfOX+mGY/NyNxJLIbDWrO9DjGoVSW9+aB8H2yy1fy32jsvxijhmyJI9fDFgvz3YP4lvJaq9DzdR/M1bOgVc9g==}
+
   '@types/triple-beam@1.3.5':
     resolution: {integrity: sha512-6WaYesThRMCl19iryMYP7/x2OVgCtbIVflDGFpWnb9irXI3UjYE4AzmYuiUKY1AJstGijoY+MgUszMgRxIYTYw==}
 
@@ -2278,6 +2308,9 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  cross-fetch@3.1.8:
+    resolution: {integrity: sha512-cvA+JwZoU0Xq+h6WkMvAUqPEYy92Obet6UdKLfW60qn99ftItKjB5T+BkyWOFWe2pUyfQ+IJHmpOTznqk1M6Kg==}
 
   cross-fetch@4.0.0:
     resolution: {integrity: sha512-e4a5N8lVvuLgAWgnCrLr2PP0YyDOTHa9H/Rj54dirp61qXnNq46m82bRhNqIA5VccJtWBvPTFRV3TtvHUKPB1g==}
@@ -3975,6 +4008,10 @@ packages:
   serialize-error-cjs@0.1.3:
     resolution: {integrity: sha512-GXwbHkufrNZ87O7DUEvWhR8eBnOqiXtHsOXakkJliG7eLDmjh6gDlbJbMZFFbUx0J5sXKgwq4NFCs41dF5MhiA==}
 
+  serialize-error@8.1.0:
+    resolution: {integrity: sha512-3NnuWfM6vBYoy5gZFvHiYsVbafvI9vZv/+jlIigFn4oP4zjNPK3LhcY0xSCgeb1a5L8jO71Mit9LlNoi2UfDDQ==}
+    engines: {node: '>=10'}
+
   server-only@0.0.1:
     resolution: {integrity: sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA==}
 
@@ -4886,6 +4923,42 @@ snapshots:
       next: 14.2.5(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+
+  '@logtail/core@0.4.21':
+    dependencies:
+      '@logtail/tools': 0.4.21
+      '@logtail/types': 0.4.20
+      serialize-error: 8.1.0
+
+  '@logtail/node@0.4.21':
+    dependencies:
+      '@logtail/core': 0.4.21
+      '@logtail/types': 0.4.20
+      '@msgpack/msgpack': 2.8.0
+      '@types/stack-trace': 0.0.29
+      cross-fetch: 3.1.8
+      minimatch: 3.1.2
+      serialize-error: 8.1.0
+      stack-trace: 0.0.10
+    transitivePeerDependencies:
+      - encoding
+
+  '@logtail/tools@0.4.21':
+    dependencies:
+      '@logtail/types': 0.4.20
+
+  '@logtail/types@0.4.20': {}
+
+  '@logtail/winston@0.4.21(winston@3.13.1)':
+    dependencies:
+      '@logtail/node': 0.4.21
+      '@logtail/types': 0.4.20
+      winston: 3.13.1
+      winston-transport: 4.7.1
+    transitivePeerDependencies:
+      - encoding
+
+  '@msgpack/msgpack@2.8.0': {}
 
   '@next/env@14.2.5': {}
 
@@ -7028,6 +7101,8 @@ snapshots:
 
   '@types/semver@7.5.8': {}
 
+  '@types/stack-trace@0.0.29': {}
+
   '@types/triple-beam@1.3.5': {}
 
   '@types/wrap-ansi@3.0.0': {}
@@ -7559,6 +7634,12 @@ snapshots:
       parse-json: 5.2.0
     optionalDependencies:
       typescript: 5.5.4
+
+  cross-fetch@3.1.8:
+    dependencies:
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
 
   cross-fetch@4.0.0:
     dependencies:
@@ -9266,6 +9347,10 @@ snapshots:
   semver@7.6.3: {}
 
   serialize-error-cjs@0.1.3: {}
+
+  serialize-error@8.1.0:
+    dependencies:
+      type-fest: 0.20.2
 
   server-only@0.0.1: {}
 
