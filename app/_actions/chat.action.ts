@@ -32,7 +32,7 @@ export const chatAction = async (data: {
   }
 
   const result = await streamText({
-    model: openai.chat("meta-llama/Meta-Llama-3-70B-Instruct"),
+    model: openai.chat("meta-llama/Meta-Llama-3.1-405B-Instruct"),
     messages: data.messages,
     ...(data.isLocal
       ? {}
