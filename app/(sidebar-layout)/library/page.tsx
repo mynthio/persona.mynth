@@ -20,18 +20,13 @@ export default async function LibraryPage() {
     where: {
       creatorId: userId,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
     take: 3,
   });
 
   return (
-    // <SWRConfig
-    //   value={{
-    //     fallback: {
-    //       "/api/library/personas?limit=20": initialPersonas,
-    //     },
-    //   }}
-    // >
-    // <Personas initialData={initialPersonas} />
     <>
       <h1 className="text-5xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-b from-neutral-300 to-neutral-500 mt-10">
         Hello
@@ -57,6 +52,5 @@ export default async function LibraryPage() {
 
       <BackgroundBeams />
     </>
-    // </SWRConfig>
   );
 }

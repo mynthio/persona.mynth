@@ -31,7 +31,7 @@ export default function PersonasFilters() {
       <DropdownTrigger>
         <Button
           endContent={
-            searchParams.has("bookmarked") ? (
+            searchParams.get("filter") === "bookmarked" ? (
               <Button
                 isIconOnly
                 size="sm"
@@ -53,8 +53,7 @@ export default function PersonasFilters() {
         selectionMode="multiple"
         selectedKeys={searchParams.keys()}
         onAction={(key) => {
-          console.log(key.valueOf());
-          toggleSearchParam(String(key.toString()), "true");
+          toggleSearchParam("filter", String(key.toString()));
         }}
       >
         <DropdownItem key="bookmarked">Bookmarked</DropdownItem>

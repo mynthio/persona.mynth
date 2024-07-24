@@ -8,6 +8,7 @@ import PublicPersonaCard from "./public-persona-card.client";
 import { Pagination } from "@nextui-org/pagination";
 import React from "react";
 import { Spinner } from "@nextui-org/spinner";
+import { PersonaContext } from "../persona/persona-context";
 
 type Props = {
   personaPath?: string;
@@ -31,9 +32,9 @@ type Persona = {
   likesCount?: number;
 };
 
-export const PersonaContext = React.createContext<{
-  mutatePersona: (persona: Persona) => void;
-} | null>(null);
+// export const PersonaContext = React.createContext<{
+//   mutatePersona: (persona: Persona) => void;
+// } | null>(null);
 
 export default function Personas({
   overwriteFilters,
@@ -70,7 +71,7 @@ export default function Personas({
         ? searchParams.get("bookmarked") === "true"
         : overwriteFilters.bookmarked
     }`,
-    fetcher
+    fetcher,
   );
 
   // TODO: Fetch count separetely to avoid re-renders etc.
@@ -96,7 +97,7 @@ export default function Personas({
           : { personas: [], count: 0 },
       {
         revalidate: false,
-      }
+      },
     );
   };
 
@@ -105,7 +106,7 @@ export default function Personas({
       {!isLoading && data && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {data.personas.map((persona) => (
-            <PersonaContext.Provider key={persona.id} value={{ mutatePersona }}>
+            <PersonaContext.Provider key={persona.id} value={{ mutate }}>
               <PublicPersonaCard
                 path={personaPath || "/personas"}
                 persona={{

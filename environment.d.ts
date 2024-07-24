@@ -22,5 +22,8 @@ namespace NodeJS {
 
     // Hyperbolic
     HYPERBOLIC_API_KEY: string;
+
+    // LogSnag
+    LOGSNAG_API_KEY: string;
   }
 }

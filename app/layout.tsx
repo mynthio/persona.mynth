@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/react";
 
 import "./globals.css";
 import { Providers } from "./providers";
+import { logger } from "@/lib/logger";
 
 const inter = Inter({ subsets: ["latin"] });
 

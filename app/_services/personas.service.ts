@@ -3,7 +3,7 @@ import "server-only";
 import { prisma } from "@/prisma/client";
 import { unstable_cache as cache } from "next/cache";
 
-type GetPersonasArgs = {
+type GetPersonasArgs2 = {
   userId?: string | null;
   page: number;
   published: boolean;
@@ -16,7 +16,7 @@ type GetPersonasArgs = {
 
 const PER_PAGE = 24;
 
-export const getPersonas = async (args: GetPersonasArgs) => {
+export const getPersonas = async (args: GetPersonasArgs2) => {
   return prisma.persona.findMany({
     where: {
       ...(args.published || !args.userId
@@ -57,7 +57,7 @@ export const getPersonas = async (args: GetPersonasArgs) => {
 
 export type GetPersonasReturn = Awaited<ReturnType<typeof getPersonas>>;
 
-export const getPersonaCount = async (args: GetPersonasArgs) => {
+export const getPersonaCount = async (args: GetPersonasArgs2) => {
   return prisma.persona.count({
     where: {
       ...(args.published || !args.userId
@@ -99,5 +99,94 @@ export const getPublicPersona = async (args: GetPublicPersonaArgs) =>
     {
       tags: ["persona", `persona:${args.personaId}`],
       revalidate: 5 * 60,
-    }
+    },
   )(args);
+
+type GetPersonasArgs = {
+  userId: string;
+};
+
+type GetPublicPersonasArgs = {
+  userId: string;
+};
+
+export const getPublicPersonas = cache(async (args: GetPersonasArgs) => {
+  const results = await prisma.persona.findMany({
+    where: {
+      published: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      name: true,
+      summary: true,
+
+      createdAt: true,
+
+      personaGenerationId: true,
+
+      published: true,
+
+      likesCount: true,
+      likes: {
+        where: {
+          userId: args.userId,
+        },
+      },
+
+      bookmarks: {
+        where: {
+          userId: args.userId,
+        },
+      },
+    },
+  });
+
+  return results.map((result) => ({
+    id: result.id,
+    name: result.name,
+    summary: result.summary,
+
+    personaGenerationId: result.personaGenerationId,
+
+    published: result.published,
+
+    likes: result.likesCount,
+    liked: result.likes.length > 0,
+
+    bookmarked: result.bookmarks.length > 0,
+  }));
+});
+
+export type GetPublicPersonasData = Awaited<
+  ReturnType<typeof getPublicPersonas>
+>;
+
+export const getUserPersonas = cache(async (args: GetPersonasArgs) => {
+  const results = await prisma.persona.findMany({
+    where: {
+      creatorId: args.userId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      name: true,
+      summary: true,
+
+      createdAt: true,
+
+      personaGenerationId: true,
+
+      published: true,
+      likesCount: true,
+    },
+  });
+
+  return results;
+});
+
+export type GetUserPersonasData = Awaited<ReturnType<typeof getUserPersonas>>;

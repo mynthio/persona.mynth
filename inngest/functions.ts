@@ -10,6 +10,7 @@ import { TextToImgModelFactory } from "@/lib/ai/text-to-img-models/text-to-img-m
 import { TextToImgModelsEnum } from "@/lib/ai/text-to-img-models/enums/text-to-img-models.enum";
 
 import sharp from "sharp";
+import { logsnag } from "@/lib/logsnag.server";
 
 export const generatePersona = inngest.createFunction(
   {
@@ -302,6 +303,21 @@ export const syncUser = inngest.createFunction(
         username: username || "Anonymous",
         email,
         imageUrl: user.image_url,
+      },
+    });
+
+    await logsnag.track({
+      channel: "users",
+      event: "New user",
+      user_id: id,
+      icon: "😊",
+      notify: true,
+    });
+
+    await logsnag.identify({
+      user_id: id,
+      properties: {
+        username,
       },
     });
   }
