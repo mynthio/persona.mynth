@@ -223,7 +223,7 @@ export default function PersonaCard(props: Props) {
 
       <CardBody className="absolute bg-transparent bottom-5 m-0 left-0 right-0 md:p-6 w-auto rounded-t-xl z-10 flex-col h-32">
         <Link
-          href={`/library/personas/${persona.id}`}
+          href={`/personas/${persona.id}`}
           className="text-white font-medium text-2xl w-full overflow-hidden truncate whitespace-nowrap"
         >
           {persona.name}
