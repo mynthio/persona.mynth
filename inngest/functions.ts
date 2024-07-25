@@ -167,6 +167,14 @@ export const generatePersona = inngest.createFunction(
         const personaId = persona?.id;
         if (!personaId) throw new Error("Failed to create persona");
 
+        await logsnag.track({
+          channel: "personas",
+          event: "New Persona",
+          user_id: userId,
+          icon: "🧑",
+          notify: false,
+        });
+
         return {
           personaId,
           appearance: parsedPersonaResponse.appearancePrompt,

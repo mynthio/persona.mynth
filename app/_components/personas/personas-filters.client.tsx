@@ -7,7 +7,7 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@nextui-org/react";
-import { Trash } from "lucide-react";
+import { Filter, Trash } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function PersonasFilters() {
@@ -27,37 +27,24 @@ export default function PersonasFilters() {
   };
 
   return (
-    <Dropdown backdrop="blur" size="lg">
-      <DropdownTrigger>
-        <Button
-          endContent={
-            searchParams.get("filter") === "bookmarked" ? (
-              <Button
-                isIconOnly
-                size="sm"
-                variant="faded"
-                onClick={() => {
-                  push(`?`);
-                }}
-              >
-                <Trash size={12} />
-              </Button>
-            ) : null
-          }
+    <div className="flex items-center gap-2">
+      <Dropdown placement="bottom-start">
+        <DropdownTrigger>
+          <Button variant="light" startContent={<Filter size={12} />}>
+            Filters
+          </Button>
+        </DropdownTrigger>
+        <DropdownMenu
+          aria-label="Static Actions"
+          selectionMode="multiple"
+          selectedKeys={searchParams.keys()}
+          onAction={(key) => {
+            toggleSearchParam("filter", String(key.toString()));
+          }}
         >
-          Filters
-        </Button>
-      </DropdownTrigger>
-      <DropdownMenu
-        aria-label="Static Actions"
-        selectionMode="multiple"
-        selectedKeys={searchParams.keys()}
-        onAction={(key) => {
-          toggleSearchParam("filter", String(key.toString()));
-        }}
-      >
-        <DropdownItem key="bookmarked">Bookmarked</DropdownItem>
-      </DropdownMenu>
-    </Dropdown>
+          <DropdownItem key="bookmarked">Bookmarked</DropdownItem>
+        </DropdownMenu>
+      </Dropdown>
+    </div>
   );
 }

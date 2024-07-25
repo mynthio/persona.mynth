@@ -9,6 +9,7 @@ import { checkAndUpdateUserTokens } from "@/lib/tokens";
 import { prisma } from "@/prisma/client";
 import { auth } from "@clerk/nextjs/server";
 import { getPersonaChat } from "../_services/persona-chats.service";
+import { logger } from "@/lib/logger";
 
 export const chatAction = async (data: {
   messages: CoreMessage[];
@@ -31,8 +32,10 @@ export const chatAction = async (data: {
     throw new Error("Not enough tokens");
   }
 
+  const model = openai.chat("meta-llama/Meta-Llama-3-70B-Instruct");
+
   const result = await streamText({
-    model: openai.chat("meta-llama/Meta-Llama-3-70B-Instruct"),
+    model,
     messages: data.messages,
     ...(data.isLocal
       ? {}
@@ -40,6 +43,24 @@ export const chatAction = async (data: {
           onFinish: async (finalResult) => {
             if (finalResult.finishReason !== "stop") return;
             if (finalResult.text.length < 1) return;
+
+            logger.info("Chat response generation onFinish callback", {
+              data: JSON.stringify({
+                finishReason: finalResult.finishReason,
+                warnings: finalResult.warnings,
+              }),
+              ai: {
+                model: {
+                  id: model.modelId,
+                  provider: model.provider,
+                },
+                usage: {
+                  completionTokens: finalResult.usage.completionTokens,
+                  promptTokens: finalResult.usage.promptTokens,
+                  totalTokens: finalResult.usage.totalTokens,
+                },
+              },
+            });
 
             await prisma.chat.update({
               where: {

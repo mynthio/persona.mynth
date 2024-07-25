@@ -6,6 +6,7 @@ import { prisma } from "@/prisma/client";
 import { CreatePersonaChatSchema } from "@/schemas/create-persona-chat";
 import { auth } from "@clerk/nextjs/server";
 import { assert } from "superstruct";
+import { logsnag } from "@/lib/logsnag.server";
 
 export const createPersonaChatAction = async (data: unknown) => {
   const { userId } = auth();
@@ -45,6 +46,14 @@ Characteristics: ${persona.characteristics}`,
         },
       },
     },
+  });
+
+  await logsnag.track({
+    channel: "chats",
+    event: "New chat",
+    user_id: userId,
+    icon: "💬",
+    notify: false,
   });
 
   return chat;

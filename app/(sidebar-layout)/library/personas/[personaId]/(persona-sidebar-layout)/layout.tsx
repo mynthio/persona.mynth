@@ -1,29 +1,11 @@
 import { prisma } from "@/prisma/client";
 import { auth } from "@clerk/nextjs/server";
-import { Button } from "@nextui-org/button";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
-import {
-  BookUser,
-  ExternalLink,
-  Globe,
-  Images,
-  Info,
-  Lock,
-  MessageSquare,
-} from "lucide-react";
 import PublishPersonaButton from "./_components/publish-persona-button.client";
 import { Image } from "@nextui-org/image";
-import { Chip } from "@nextui-org/chip";
 import { Link } from "@nextui-org/link";
 import PersonaChat from "./_components/persona-chat.client";
-import {
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-} from "@nextui-org/dropdown";
 
-import { Listbox, ListboxSection, ListboxItem } from "@nextui-org/listbox";
 import PersonaMenu from "./_components/persona-menu.client";
 
 type Props = {
