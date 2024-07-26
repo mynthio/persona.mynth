@@ -28,13 +28,8 @@ export const usePersonaLikeAction = (args: Args) => {
         setLoading(false);
       });
 
-      if (likes) {
-        setLikes(likes - 1);
-        setliked(!liked);
-      } else {
-        setLikes(likes + 1);
-        setliked(!liked);
-      }
+      setLikes(liked ? likes - 1 : likes + 1);
+      setliked(!liked);
     },
   };
 };
