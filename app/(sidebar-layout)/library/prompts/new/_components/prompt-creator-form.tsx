@@ -649,11 +649,12 @@ export default function PromptCreatorForm() {
           </AccordionItem>
         </Accordion>
 
-        <div className="col-span-full mt-20">
+        <div className="col-span-full text-center mt-10">
           <Button
             type="submit"
-            className="w-full"
+            className="max-w-xl w-full"
             variant="shadow"
+            color="secondary"
             isLoading={isSubmitting}
             isDisabled={isSubmitting}
           >
@@ -661,11 +662,14 @@ export default function PromptCreatorForm() {
           </Button>
         </div>
 
-        <div className="col-span-full mt-2">
+        <div className="col-span-full mt-4">
           <p className="text-small text-foreground-500 text-center text-balance">
             Creator is in beta. We're working on adding more options and making
-            the experience better. If you have any suggestions or feedback, join
-            our discord and share it:{" "}
+            the experience better.
+            <br />
+            <br />
+            If you have any suggestions or feedback, join our discord and share
+            it:{" "}
             <Link color="secondary" href="https://discord.gg/By5AnDQDTQ">
               Join
             </Link>

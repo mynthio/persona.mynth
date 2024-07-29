@@ -29,13 +29,10 @@ export default function PromptTextPromptForm() {
         push(`/library/prompts/${personaPromptId}`);
       })}
     >
-      <div className="col-span-full">
-        <h3 className="text-large text-foreground-500">Text prompt</h3>
-        <p className="mt-1 text-foreground-500 text-small">
-          Write character information that will be used to generate persona, it
-          can be short or long, missing details will be generated.
-        </p>
-      </div>
+      <p className="mt-1 text-foreground-500 text-small max-w-xl text-balance">
+        Write character information that will be used to generate persona, it
+        can be short or long, missing details will be generated.
+      </p>
 
       <div className="col-span-full">
         <Textarea

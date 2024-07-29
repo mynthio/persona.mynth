@@ -89,7 +89,7 @@ export default function Sidebar() {
             >
               <ListboxSection>
                 <ListboxItem
-                  key="/library/prompts/new"
+                  key="/library/prompts/creator/basic"
                   className="data-[hover=true]:bg-purple-900/20"
                   startContent={
                     <Sparkles
