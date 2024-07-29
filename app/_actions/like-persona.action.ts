@@ -2,7 +2,7 @@
 
 import { prisma } from "@/prisma/client";
 import { auth } from "@clerk/nextjs/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import "server-only";
 
 export const likePersonaAction = async (personaId: string) => {
@@ -30,6 +30,5 @@ export const likePersonaAction = async (personaId: string) => {
     });
   });
 
-  // revalidatePath("/personas");
-  // revalidatePath(`/personas/${personaId}`);
+  revalidateTag("persona");
 };

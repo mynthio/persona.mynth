@@ -1,7 +1,9 @@
 import {
   array,
+  boolean,
   enums,
   Infer,
+  number,
   object,
   partial,
   size,
@@ -11,20 +13,36 @@ import {
 
 export const CreatorPromptSchema = partial(
   object({
-    style: enums(["realistic", "fantasy", "random"]),
-    // generationStyle: enums(["detailed_realistic", "strict", "roleplay"]),
-    personaName: size(string(), 1, 100),
+    style: enums(["realistic", "fantasy", "anime"]),
+    personaName: size(string(), 0, 100),
     gender: enums(["male", "female", "other", "random"]),
-    age: string(), // TODO: Validate regex, possible values: '<number>-<number>' or '<number>'
-    occupation: string(),
-    personalityTraits: array(string()),
+    age: string(),
+    occupations: array(object({ occupation: string() })),
+    occupationCustom: string(),
+    personalityTraits: array(object({ trait: string() })),
     personalityTraitsCustom: string(),
-    background: string(),
-    educationLevel: string(),
-    hobbies: array(string()),
+    apperance: partial(
+      object({
+        hairLength: string(),
+        hairColor: string(),
+        eyeColor: string(),
+        skinColor: string(),
+        bodyType: string(),
+        custom: string(),
+      })
+    ),
+    hobbies: array(
+      object({
+        hobby: string(),
+      })
+    ),
     hobbiesCustom: string(),
-    culturalBackground: string(),
-    relationship: string(),
+    relationship: array(
+      object({
+        relationship: string(),
+      })
+    ),
+    relationshipCustom: string(),
   })
 );
 

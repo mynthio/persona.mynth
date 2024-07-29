@@ -1,7 +1,10 @@
 "use client";
 
 import { updatePersonaAction } from "@/app/_actions/update-persona.action";
-import { UpdatePersonaSchema } from "@/schemas/update-persona.schema";
+import {
+  UpdatePersonaInput,
+  UpdatePersonaSchema,
+} from "@/schemas/update-persona.schema";
 import { superstructResolver } from "@hookform/resolvers/superstruct";
 import { Button } from "@nextui-org/button";
 import { ListboxItem } from "@nextui-org/listbox";
@@ -14,41 +17,43 @@ import {
   useDisclosure,
 } from "@nextui-org/modal";
 import { Switch } from "@nextui-org/switch";
-import { Globe } from "lucide-react";
+import { PropsOf } from "@nextui-org/system";
+import { Earth, Globe } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-type Props = {
+type Props = PropsOf<typeof Button> & {
   personaId: string;
 };
 
-export default function PublishPersonaButton({ personaId }: Props) {
+export default function PublishPersonaButton({ personaId, ...props }: Props) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const {
     handleSubmit,
     register,
-    formState: { errors },
-  } = useForm({
+    formState: { errors, isSubmitting },
+  } = useForm<UpdatePersonaInput>({
     resolver: superstructResolver(UpdatePersonaSchema),
+    defaultValues: {
+      isNsfw: false,
+      published: true,
+      personaId,
+    },
   });
 
   return (
     <>
-      <ListboxItem
-        key="publish"
-        onSelect={onOpen}
-        startContent={<Globe size={12} />}
-        className="w-full"
-      >
-        Publish
-      </ListboxItem>
+      <Button {...props} onPress={onOpen} isLoading={isSubmitting}>
+        {props.children}
+      </Button>
+
       <Modal
-        backdrop="opaque"
+        // backdrop="blur"
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         classNames={{
-          backdrop:
-            "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20",
+          base: "bg-default-100/60 dark:bg-transparent shadow-none",
+          backdrop: "dark:bg-gradient-to-t from-black to-purple-950/80",
         }}
       >
         <ModalContent>
@@ -76,34 +81,20 @@ export default function PublishPersonaButton({ personaId }: Props) {
                   </p>
 
                   <div>
-                    <input
-                      type="hidden"
-                      {...register("personaId")}
-                      value={personaId}
-                    />
-                  </div>
-
-                  <div>
-                    <input
-                      type="hidden"
-                      placeholder="Persona name"
-                      {...register("published", {
-                        value: true,
-                      })}
-                    />
-                  </div>
-
-                  <div>
                     <Switch title="is NSFW?" {...register("isNsfw")}>
                       is NSFW?
                     </Switch>
                   </div>
                 </ModalBody>
                 <ModalFooter>
-                  <Button color="danger" variant="light" onPress={onClose}>
-                    Close
+                  <Button color="danger" variant="flat" onPress={onClose}>
+                    Cancel
                   </Button>
-                  <Button type="submit" color="primary">
+                  <Button
+                    type="submit"
+                    variant="flat"
+                    startContent={<Earth size={16} />}
+                  >
                     Publish
                   </Button>
                 </ModalFooter>

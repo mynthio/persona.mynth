@@ -2,7 +2,7 @@
 
 import { prisma } from "@/prisma/client";
 import { auth } from "@clerk/nextjs/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import "server-only";
 
 export const bookmarkPersonaAction = async (personaId: string) => {
@@ -16,6 +16,5 @@ export const bookmarkPersonaAction = async (personaId: string) => {
     },
   });
 
-  revalidatePath(`/library/personas`);
-  revalidatePath(`/library/personas/${personaId}`);
+  revalidateTag("persona");
 };

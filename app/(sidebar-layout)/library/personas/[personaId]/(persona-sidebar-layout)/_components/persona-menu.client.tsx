@@ -24,12 +24,56 @@ import { register } from "module";
 import { UpdatePersonaSchema } from "@/schemas/update-persona.schema";
 import { superstructResolver } from "@hookform/resolvers/superstruct";
 import { useForm } from "react-hook-form";
+import { Tab, Tabs } from "@nextui-org/tabs";
+import { useParams, usePathname, useRouter } from "next/navigation";
 
 type Props = {
   personaId: string;
 };
 
 export default function PersonaMenu(props: Props) {
+  const { personaId } = useParams();
+  const pathname = usePathname();
+  const { push } = useRouter();
+
+  return (
+    <Tabs
+      selectedKey={pathname}
+      onSelectionChange={(key) => push(String(key))}
+      variant="underlined"
+    >
+      <Tab
+        key={`/library/personas/${personaId}`}
+        title={
+          <div className="flex items-center gap-2">
+            <BookUser size={12} />
+            <span>Persona</span>
+          </div>
+        }
+      />
+      <Tab
+        key={`/library/personas/${personaId}/chats`}
+        title={
+          <div className="flex items-center space-x-2 px-2">
+            <MessagesSquare size={12} />
+            <span>Chats</span>
+          </div>
+        }
+      />
+      <Tab
+        key={`/library/personas/${personaId}/gallery`}
+        title={
+          <div className="flex items-center space-x-2 px-2">
+            <Images size={12} />
+            <span>Gallery</span>
+          </div>
+        }
+      />
+    </Tabs>
+  );
+}
+
+export function PersonaMenu2(props: Props) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const {

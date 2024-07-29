@@ -54,6 +54,7 @@ export const generatePersonasAction = async (data: unknown) => {
           id: userId,
         },
         data: {
+          userId,
           promptId: prompt.id,
           promptVersion: prompt.xata_version,
           promptInput: prompt.input as any,

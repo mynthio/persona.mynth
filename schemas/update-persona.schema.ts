@@ -1,14 +1,10 @@
-import { assign, boolean, object, partial, string } from "superstruct";
+import { boolean, Infer, object, optional, string } from "superstruct";
 
-export const UpdatePersonaSchema = assign(
-  object({
-    personaId: string(),
-  }),
-  partial(
-    object({
-      name: string(),
-      isNsfw: boolean(),
-      published: boolean(),
-    })
-  )
-);
+export const UpdatePersonaSchema = object({
+  personaId: string(),
+  name: optional(string()),
+  isNsfw: optional(boolean()),
+  published: optional(boolean()),
+});
+
+export type UpdatePersonaInput = Infer<typeof UpdatePersonaSchema>;

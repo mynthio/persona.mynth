@@ -2,6 +2,7 @@ import "server-only";
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { redis } from "@/redis/client";
+import { logger } from "./logger";
 
 function getExpirationSeconds() {
   const now = new Date();
@@ -18,7 +19,7 @@ export async function checkAndUpdateUserTokens(cost: number) {
   }
 
   // Get the user's max tokens from Clerk
-  const dailyTokens = Number(sessionClaims?.["daily-tokens"] || 100);
+  const dailyTokens = Number(sessionClaims?.["dailyTokens"] || 100);
 
   const dateKey = new Date().toISOString().split("T")[0]; // e.g., "2024-07-15"
   const key = `user:${userId}:tokens:${dateKey}`;
@@ -49,10 +50,14 @@ export async function getRemainingTokens() {
     throw new Error("User not authenticated");
   }
 
+  logger.debug("Getting remaining tokens", {
+    dailyTokens: sessionClaims?.["dailyTokens"],
+  });
+
   const dateKey = new Date().toISOString().split("T")[0]; // e.g., "2024-07-15"
   const key = `user:${userId}:tokens:${dateKey}`;
 
-  const dailyTokens = Number(sessionClaims?.["daily-tokens"] || 100);
+  const dailyTokens = Number(sessionClaims?.["dailyTokens"] || 100);
 
   const usedTokensEntry = await redis.get(key).then((v) => parseInt(v) || 0);
   return dailyTokens - usedTokensEntry;

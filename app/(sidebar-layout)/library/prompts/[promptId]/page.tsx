@@ -12,7 +12,49 @@ import { CreatorPrompt, TextPrompt } from "@/schemas/create-prompt.schema";
 import { redis } from "@/redis/client";
 import got from "got";
 import { Suspense } from "react";
+interface NestedObject {
+  [key: string]: any;
+}
+const createNestedList = (
+  obj: NestedObject,
+  depth: number = 0
+): JSX.Element[] => {
+  const listItems: JSX.Element[] = [];
 
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const value = obj[key];
+      if (
+        value === null ||
+        value === undefined ||
+        (typeof value === "string" && value.trim().length === 0)
+      ) {
+        continue; // Skip empty values
+      }
+      if (Array.isArray(value) && value.length === 0) {
+        continue; // Skip empty arrays
+      }
+      if (typeof value === "object" && Object.keys(value).length === 0) {
+        continue; // Skip empty objects
+      }
+      if (typeof value === "object" && value !== null) {
+        listItems.push(
+          <li key={key}>
+            <ul>{createNestedList(value, depth + 1)}</ul>
+          </li>
+        );
+      } else {
+        listItems.push(
+          <li key={key}>
+            {key}: {String(value)}
+          </li>
+        );
+      }
+    }
+  }
+
+  return listItems;
+};
 type Props = {
   params: {
     promptId: string;
@@ -69,21 +111,7 @@ export default async function PromptPage({ params }: Props) {
       <h3 className="text-large text-foreground-500 p-3">{prompt.name}</h3>
 
       <div className="mt-2 px-3">
-        {Object.keys(input).map((inputKey) =>
-          input[inputKey] ? (
-            <>
-              <p>
-                <span className="text-foreground-600">
-                  {inputKey === "textPrompt" ? "Prompt" : inputKey}
-                </span>
-                :{" "}
-                {Array.isArray(input[inputKey])
-                  ? input[inputKey].join(", ")
-                  : input[inputKey]}
-              </p>
-            </>
-          ) : null
-        )}
+        <ul>{createNestedList(input)}</ul>
       </div>
 
       <hr className="my-8 border-foreground-100" />

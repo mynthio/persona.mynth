@@ -1,6 +1,7 @@
 import { Inngest, InngestMiddleware } from "inngest";
 import { PrismaClient } from "@prisma/client";
 import { Redis } from "ioredis";
+import { logger } from "@/lib/logger";
 
 // make Prisma available in the Inngest functions
 const prismaMiddleware = new InngestMiddleware({
@@ -51,5 +52,6 @@ const redisMiddleware = new InngestMiddleware({
 // Create a client to send and receive events
 export const inngest = new Inngest({
   id: "persona-mynth",
+  logger: logger,
   middleware: [prismaMiddleware, redisMiddleware],
 });

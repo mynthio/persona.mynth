@@ -12,6 +12,8 @@ export class TextGenerationModelFactory {
     switch (id) {
       case TextGenerationModelsEnum.MetaLlama3_8bInstruct:
         return new MetaLlama3_8bInstruct();
+      case TextGenerationModelsEnum.MetaLlama3_70bInstruct:
+        return new MetaLlama3_8bInstruct();
       default:
         throw new Error(`Model ${id} not found`);
     }

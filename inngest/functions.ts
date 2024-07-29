@@ -1,7 +1,7 @@
 import { assert } from "superstruct";
 import { inngest } from "./client";
 import { GeneratePersonaEventData } from "@/schemas/generate-persona-event-data.schema";
-import { creatorPrompt, textPrompt } from "@/app/prompts";
+import { creatorPrompt, imagePrompt, textPrompt } from "@/app/prompts";
 import got from "got";
 import { parsePersonaResponse } from "@/lib/parser";
 import { TextGenerationModelFactory } from "@/lib/ai/text-generation-models/text-generation-model-factory";
@@ -17,13 +17,13 @@ export const generatePersona = inngest.createFunction(
     id: "generate-persona",
     throttle: {
       limit: 4,
-      period: "60s",
-      key: "event.data.promptId",
+      period: "90s",
+      key: "event.data.userId",
     },
     concurrency: {
       limit: 15, // For free plan we have 20 connections to db, so we need to be careful
     },
-    retries: 2,
+    retries: 1,
     onFailure: async ({ error, logger, redis, event, step }) => {
       const data = event.data.event.data;
       assert(data, GeneratePersonaEventData);
@@ -65,12 +65,12 @@ export const generatePersona = inngest.createFunction(
     const data = event.data;
     assert(data, GeneratePersonaEventData);
 
-    const userId = event.user.id;
-    if (!userId) throw new Error("Not authenticated");
+    const { userId, promptId, promptInput } = data;
 
-    await step.run("update-persona-generation-status", async () => {
+    const { persona } = await step.run("generate-persona", async () => {
+      // Update redis status first
       await redis.set(
-        `persona_generation:${data.promptId}:${event.id}`,
+        `persona_generation:${promptId}:${event.id}`,
         JSON.stringify({
           status: "pending",
           persona: null,
@@ -78,129 +78,157 @@ export const generatePersona = inngest.createFunction(
         "EX",
         5 * 60 // 5 minutes
       );
-    });
 
-    const { personaId, appearance, persona } = await step.run(
-      "generate-persona",
-      async () => {
-        const prompt =
-          "textPrompt" in data.promptInput
-            ? textPrompt(data.promptInput.textPrompt)
-            : creatorPrompt(data.promptInput);
+      const prompt =
+        "textPrompt" in promptInput
+          ? textPrompt(promptInput.textPrompt)
+          : creatorPrompt(promptInput);
 
-        const model = TextGenerationModelFactory.create(
+      let response = "";
+      let model = TextGenerationModelFactory.create(
+        TextGenerationModelsEnum.MetaLlama3_70bInstruct
+      );
+
+      try {
+        response = await model.generateText(prompt);
+      } catch (error) {
+        logger.error(error);
+      }
+
+      if (!response || response.length === 0) {
+        model = TextGenerationModelFactory.create(
           TextGenerationModelsEnum.MetaLlama3_8bInstruct
         );
 
-        let response = await model.generateText(prompt);
+        response = await model.generateText(prompt);
+      }
 
-        if (!response || response.length === 0) {
-          const res = await got
-            .post(`https://api.hyperbolic.xyz/v1/chat/completions`, {
-              headers: {
-                Authorization: `Bearer ${process.env.HYPERBOLIC_API_KEY}`,
-              },
-              json: {
-                messages: [
-                  {
-                    role: "user",
-                    content: prompt,
-                  },
-                ],
-                model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
-                max_tokens: 2048,
-                temperature: 0.7,
-                top_p: 0.9,
-                stream: false,
-              },
-            })
-            .json();
+      if (!response || response.length === 0) {
+        throw new Error("Failed to generate response");
+      }
 
-          response = res.choices[0].message.content;
-        }
+      const parsedPersonaResponse = parsePersonaResponse(response);
 
-        const parsedPersonaResponse = parsePersonaResponse(response);
-
-        const { persona } = await prisma.personaGeneration.create({
-          data: {
-            inngestEventId: event.id!,
-            model: model.id,
-            promptVersion: data.promptVersion,
-            prompt: {
-              connect: {
-                id: data.promptId,
-              },
+      const { persona } = await prisma.personaGeneration.create({
+        data: {
+          inngestEventId: event.id!,
+          model: model.id,
+          promptVersion: data.promptVersion,
+          prompt: {
+            connect: {
+              id: promptId,
             },
-            status: "done",
-            persona: {
-              create: {
-                name: parsedPersonaResponse.name,
-                gender: parsedPersonaResponse.gender,
-                age: parsedPersonaResponse.age,
-                occupation: parsedPersonaResponse.occupation,
-                summary: parsedPersonaResponse.summary,
-                personalityTraits: parsedPersonaResponse.personalityTraits,
-                interests: parsedPersonaResponse.interests,
-                culturalBackground: parsedPersonaResponse.culturalBackground,
-                appearance: parsedPersonaResponse.appearance,
-                background: parsedPersonaResponse.background,
-                history: parsedPersonaResponse.history,
-                characteristics: parsedPersonaResponse.characteristics,
+          },
+          status: "done",
+          persona: {
+            create: {
+              name: parsedPersonaResponse.name,
+              gender: parsedPersonaResponse.gender,
+              age: parsedPersonaResponse.age,
+              occupation: parsedPersonaResponse.occupation,
+              summary: parsedPersonaResponse.summary || "",
+              personalityTraits: parsedPersonaResponse.personalityTraits,
+              culturalBackground: "",
+              interests: parsedPersonaResponse.interests,
+              appearance: parsedPersonaResponse.appearance || "",
+              background: parsedPersonaResponse.background || "",
+              history: parsedPersonaResponse.history || "",
+              characteristics: parsedPersonaResponse.characteristics || "",
 
-                creator: {
-                  connect: {
-                    id: userId,
-                  },
+              creator: {
+                connect: {
+                  id: userId,
                 },
               },
             },
           },
-          select: {
-            persona: {
-              select: {
-                id: true,
-              },
-            },
-          },
+        },
+        select: {
+          persona: true,
+        },
+      });
+
+      const personaId = persona?.id;
+      if (!personaId) throw new Error("Failed to create persona");
+
+      await logsnag.track({
+        channel: "personas",
+        event: "New Persona",
+        user_id: userId,
+        icon: "🧑",
+        notify: false,
+        tags: {
+          "persona-id": personaId,
+        },
+      });
+
+      await redis
+        .set(
+          `persona_generation:${data.promptId}:${event.id}`,
+          JSON.stringify({
+            status: "pending",
+            persona: persona,
+          }),
+          "EX",
+          120
+        )
+        .catch((error) => {
+          logger.error(error);
+          // We don't want to fail the function if we can't update redis
+          // it's not a big issue, not worth to retry and not worth for separate step
         });
 
-        const personaId = persona?.id;
-        if (!personaId) throw new Error("Failed to create persona");
+      return {
+        persona,
+      };
+    });
 
-        await logsnag.track({
-          channel: "personas",
-          event: "New Persona",
-          user_id: userId,
-          icon: "🧑",
-          notify: false,
-        });
+    const personaImagePrompt = await step.run(
+      "generate-persona-image-prompt",
+      async () => {
+        let model = TextGenerationModelFactory.create(
+          TextGenerationModelsEnum.MetaLlama3_70bInstruct
+        );
 
-        return {
-          personaId,
-          appearance: parsedPersonaResponse.appearancePrompt,
-          persona: {
-            id: personaId,
-            name: parsedPersonaResponse.name,
-            gender: parsedPersonaResponse.gender,
-            age: parsedPersonaResponse.age,
-            occupation: parsedPersonaResponse.occupation,
-            summary: parsedPersonaResponse.summary,
-          },
-        };
+        let response = "";
+
+        try {
+          response = await model.generateText(
+            imagePrompt(persona.appearance, {
+              apperanceDetails:
+                "apperance" in promptInput ? promptInput.apperance : null,
+              age: "age" in promptInput ? promptInput.age : null,
+              gender: "gender" in promptInput ? promptInput.gender : null,
+            })
+          );
+        } catch (error) {
+          logger.error(error);
+        }
+
+        model = TextGenerationModelFactory.create(
+          TextGenerationModelsEnum.MetaLlama3_8bInstruct
+        );
+
+        try {
+          response = await model.generateText(
+            imagePrompt(persona.appearance, {
+              apperanceDetails:
+                "apperance" in promptInput ? promptInput.apperance : null,
+              age: "age" in promptInput ? promptInput.age : null,
+              gender: "gender" in promptInput ? promptInput.gender : null,
+            })
+          );
+        } catch (error) {
+          logger.error(error);
+        }
+
+        if (!response || response.length === 0) {
+          throw new Error("Failed to generate response");
+        }
+
+        return response;
       }
     );
-
-    await step.run("update-persona-generation-status-completed", async () => {
-      await redis.set(
-        `persona_generation:${data.promptId}:${event.id}`,
-        JSON.stringify({
-          status: "pending",
-          persona: persona,
-        }),
-        "EX",
-        120
-      );
-    });
 
     await step.run("generate-persona-image", async () => {
       try {
@@ -215,20 +243,14 @@ export const generatePersona = inngest.createFunction(
         let imgBuffer: Buffer | null = null;
 
         try {
-          imgBuffer = await model.generateImage(
-            appearance +
-              ", realistic, ultra hd, 8k, high quality, (photorealism)+",
-            {
-              width: 1024,
-              height: 1024,
-              negativePrompt:
-                "low quality, drawing, bad anatomy, cartoon, painting",
-            }
-          );
+          imgBuffer = await model.generateImage(personaImagePrompt, {
+            width: 1024,
+            height: 1024,
+          });
         } catch (error) {
           logger.error(error);
 
-          imgBuffer = await fallbackModel.generateImage(appearance, {
+          imgBuffer = await fallbackModel.generateImage(personaImagePrompt, {
             width: 1024,
             height: 1024,
           });
@@ -252,7 +274,7 @@ export const generatePersona = inngest.createFunction(
          * because of the file size and issue while returning it from step
          */
         await got.put(
-          `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/personas/${personaId}/persona-${personaId}.webp`,
+          `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/personas/${persona.id}/persona-${persona.id}.webp`,
           {
             headers: {
               AccessKey: process.env.BUNNY_CDN_API_KEY,
@@ -270,27 +292,31 @@ export const generatePersona = inngest.createFunction(
     await step.run("update-persona-image-url", async () => {
       await prisma.persona.update({
         where: {
-          id: personaId,
+          id: persona.id,
         },
         data: {
-          mainImageUrl: `https://${process.env.BUNNY_CDN_HOST}/personas/${personaId}/persona-${personaId}.webp`,
+          mainImageUrl: `https://${process.env.BUNNY_CDN_HOST}/personas/${persona.id}/persona-${persona.id}.webp`,
         },
       });
-    });
 
-    await step.run("update-persona-generation-status-completed", async () => {
-      await redis.set(
-        `persona_generation:${data.promptId}:${event.id}`,
-        JSON.stringify({
-          status: "done",
-          persona: {
-            ...persona,
-            mainImageUrl: `https://${process.env.BUNNY_CDN_HOST}/personas/${personaId}/persona-${personaId}.webp`,
-          },
-        }),
-        "EX",
-        10
-      );
+      await redis
+        .set(
+          `persona_generation:${data.promptId}:${event.id}`,
+          JSON.stringify({
+            status: "done",
+            persona: {
+              ...persona,
+              mainImageUrl: `https://${process.env.BUNNY_CDN_HOST}/personas/${persona.id}/persona-${persona.id}.webp`,
+            },
+          }),
+          "EX",
+          10
+        )
+        .catch((error) => {
+          logger.error(error);
+          // We don't want to fail the function if we can't update redis
+          // it's not a big issue, not worth to retry and not worth for separate step
+        });
     });
   }
 );

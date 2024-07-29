@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
-import Chat from "./chat.client";
 import { prisma } from "@/prisma/client";
+import dynamic from "next/dynamic";
+const Chat = dynamic(() => import("./chat.client"), { ssr: false });
 
 type Props = {
   params: {

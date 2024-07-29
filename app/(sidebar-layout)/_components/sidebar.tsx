@@ -11,30 +11,36 @@ import {
   Menu,
   Package,
   PlusIcon,
+  PowerOff,
   Sparkles,
   Terminal,
-  User,
+  Users,
   X,
 } from "lucide-react";
 import { dark } from "@clerk/themes";
 
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { SignInButton, useClerk, UserButton, useUser } from "@clerk/nextjs";
 
 import { Image } from "@nextui-org/image";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
 import { Listbox, ListboxSection, ListboxItem } from "@nextui-org/listbox";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@nextui-org/button";
+import { Button, ButtonGroup } from "@nextui-org/button";
 import useSWR from "swr";
+import { User } from "@nextui-org/user";
 
 export default function Sidebar() {
   const { isLoaded, isSignedIn, user } = useUser();
+  const { openUserProfile, signOut, openSignIn } = useClerk();
   const { push } = useRouter();
+  const pathname = usePathname();
 
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const { data, isLoading } = useSWR(isSignedIn ? "/api/tokens" : null);
+  const { data, isLoading } = useSWR(
+    isLoaded && isSignedIn && user ? "/api/tokens" : null
+  );
 
   return (
     <>
@@ -51,12 +57,15 @@ export default function Sidebar() {
 
       <aside
         id="default-sidebar"
-        className={`fixed p-8 pr-4 top-0 left-0 z-40 w-96 h-screen transition-transform lg:translate-x-0 ${
+        className={`fixed top-0 pr-8 left-0 z-40 w-80 h-screen transition-transform lg:translate-x-0 ${
           isOpen ? "" : "-translate-x-full"
         }`}
         aria-label="Sidebar"
       >
-        <Card className="h-full dark:bg-default-100/60" isBlurred>
+        <Card
+          className="h-full shadow-none m-0 rounded-none border-0 border-r border-foreground-500/10 lg:backdrop-blur-sm dark:bg-background-900/90 lg:dark:bg-default-100/30"
+          isBlurred
+        >
           <CardHeader>
             <Link href="/">
               <Image
@@ -70,122 +79,105 @@ export default function Sidebar() {
 
           <CardBody>
             <Listbox
+              selectedKeys={pathname}
               aria-label="Actions"
               onAction={(key) => push(key as string)}
+              itemClasses={{
+                base: "data-[hover=true]:bg-default-100/30 py-3 rounded-xl",
+                title: "text-[1.02rem] text-foreground-600/90",
+              }}
             >
-              <ListboxSection showDivider>
+              <ListboxSection>
                 <ListboxItem
                   key="/library/prompts/new"
-                  color="success"
-                  className="text-foreground-500 py-2"
-                  classNames={{
-                    title: "text-[1.05rem] font-light",
-                  }}
+                  className="data-[hover=true]:bg-purple-900/20"
                   startContent={
-                    <Sparkles size={16} className="flex-shrink-0" />
+                    <Sparkles
+                      size={24}
+                      strokeWidth={1}
+                      className="mr-1 text-purple-500"
+                    />
                   }
                 >
-                  Generate Persona
+                  New Persona
                 </ListboxItem>
               </ListboxSection>
 
-              <ListboxSection title="Explore Public Creations" showDivider>
+              <ListboxSection title="Public">
                 <ListboxItem
                   key="/personas"
-                  className="text-foreground-500 py-2"
-                  classNames={{
-                    title: "text-[1.05rem] font-light",
-                  }}
-                  startContent={<Globe size={16} className="flex-shrink-0" />}
+                  startContent={
+                    <Users size={24} strokeWidth={1} className="mr-1" />
+                  }
                 >
                   Personas
                 </ListboxItem>
               </ListboxSection>
 
-              <ListboxSection title={user?.username || ""}>
+              <ListboxSection title={user?.username || "Library"}>
                 <ListboxItem
-                  key="/library"
-                  className="text-foreground-500 py-2"
-                  classNames={{
-                    title: "text-[1.05rem] font-light",
-                  }}
+                  key="/library/personas"
                   startContent={
-                    <CircleUserRound size={16} className="flex-shrink-0" />
+                    <Users size={24} strokeWidth={1} className="mr-1" />
                   }
                 >
-                  Library
+                  Personas
+                </ListboxItem>
+                <ListboxItem
+                  key="/library/prompts"
+                  startContent={
+                    <Terminal size={24} strokeWidth={1} className="mr-1" />
+                  }
+                >
+                  Prompts
                 </ListboxItem>
 
                 <ListboxItem
                   key="/tokens"
-                  className="text-foreground-500 py-2"
-                  classNames={{
-                    title: "text-[1.05rem] font-light",
-                  }}
-                  startContent={<Coins size={16} className="flex-shrink-0" />}
+                  startContent={
+                    <Coins size={24} strokeWidth={1} className="mr-1" />
+                  }
                 >
-                  {!isLoading && data
-                    ? `${data.remainingTokens}/${data.dailyTokens} tokens`
+                  {!isLoading && data?.remainingTokens
+                    ? `${data.remainingTokens} tokens`
                     : ``}
                 </ListboxItem>
               </ListboxSection>
             </Listbox>
           </CardBody>
 
-          <CardFooter className="flex-col">
-            <div className="w-full">
-              {isLoaded &&
-                (isSignedIn ? (
-                  <UserButton
-                    showName
-                    appearance={{
-                      baseTheme: dark,
-                      elements: {
-                        userButtonOuterIdentifier: {
-                          color: "hsl(var(--nextui-foreground-500)))",
-                        },
-                        rootBox: {
-                          width: "100%",
-                          marginBottom: "1.5rem",
-                        },
-                        button: {
-                          width: "100%",
-                        },
-                      },
+          <CardFooter>
+            {isLoaded && isSignedIn && user && (
+              <ButtonGroup variant="light" size="lg" fullWidth>
+                <Button
+                  onPress={() => openUserProfile()}
+                  className="justify-start p-0 pl-2"
+                >
+                  <User
+                    name={user.username}
+                    avatarProps={{
+                      size: "sm",
+                      className: "rounded-md",
+                      src: user.imageUrl,
                     }}
                   />
-                ) : (
-                  <div className="mb-2">
-                    <SignInButton>
-                      <Button
-                        variant="bordered"
-                        className="w-full text-foreground-600"
-                      >
-                        Sign in
-                      </Button>
-                    </SignInButton>
-                  </div>
-                ))}
-            </div>
+                </Button>
+                <Button isIconOnly onPress={() => signOut()}>
+                  <PowerOff size={14} />
+                </Button>
+              </ButtonGroup>
+            )}
 
-            <div className="grid grid-cols-2 gap-2 w-full">
+            {isLoaded && !isSignedIn && (
               <Button
-                variant="bordered"
-                as={Link}
-                href="https://discord.gg/By5AnDQDTQ"
-                target="_blank"
+                className="w-full"
+                variant="flat"
+                size="lg"
+                onPress={() => openSignIn()}
               >
-                <img src="/discord-mark-blue.svg" alt="Discord" width={20} />
+                Sign in
               </Button>
-              <Button
-                variant="bordered"
-                as={Link}
-                href="https://github.com/mynthio/persona.mynth"
-                target="_blank"
-              >
-                <img src="/github-mark-white.svg" alt="Discord" width={20} />
-              </Button>
-            </div>
+            )}
           </CardFooter>
         </Card>
       </aside>

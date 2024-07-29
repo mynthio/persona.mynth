@@ -7,6 +7,9 @@ import { Link } from "@nextui-org/link";
 import PersonaChat from "./_components/persona-chat.client";
 
 import PersonaMenu from "./_components/persona-menu.client";
+import { Button } from "@nextui-org/button";
+import { Earth, MessagesSquare, Terminal } from "lucide-react";
+import NewChatButton from "./chats/_components/new-chat-button";
 
 type Props = {
   children: React.ReactNode;
@@ -29,6 +32,17 @@ export default async function LibraryPersonaLayout({
     },
     include: {
       creator: true,
+      chats: {
+        take: 1,
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+      personaGeneration: {
+        select: {
+          promptId: true,
+        },
+      },
     },
   });
 
@@ -37,155 +51,81 @@ export default async function LibraryPersonaLayout({
   return (
     <>
       <div className="xl:flex gap-10">
-        <div className="xl:max-w-sm">
+        <div className="xl:max-w-sm sm:flex max-xl:gap-4 xl:block">
           <Image
             isBlurred
             src={persona.mainImageUrl || ""}
             alt={persona.name}
-            className="m-4 w-80 max-xl:w-52"
+            className="m-4 w-80 sm:w-full max-xl:w-52 xl:max-w-64"
           />
 
-          {/* <div className="px-4">
-            <Chip size="sm" variant="light" className="text-foreground-500">
-              {persona.published ? <Globe size={12} /> : <Lock size={12} />}
-            </Chip>
-            <Chip size="sm" variant="light" className="text-foreground-500">
-              AI Generated
-            </Chip>
-            <Chip size="sm" variant="light" className="text-foreground-500">
-              by {persona.creator.username}
-            </Chip>
-            <h1 className="text-3xl font-thin text-foreground-600 mt-2">
-              {persona.name}
-            </h1>
-            <p className="font-light text-small text-foreground-500 max-w-xl mt-2">
-              {persona.summary}
-            </p>
-          </div> */}
+          <div className="m-4 max-xl:max-w-60 w-full mt-4 flex sm:flex-col flex-wrap gap-2">
+            {persona.chats.length > 0 ? (
+              <Button
+                as={Link}
+                href={`/library/personas/${persona.id}/chats`}
+                variant="light"
+                startContent={<MessagesSquare size={12} />}
+                className="xl:w-full bg-foreground-400/20"
+              >
+                Continue chat
+              </Button>
+            ) : (
+              <NewChatButton personaId={persona.id} />
+              // <Button
+              //   as={Link}
+              //   href={`/library/personas/${persona.id}`}
+              //   variant="light"
+              //   startContent={<MessagesSquare size={12} />}
+              //   className="xl:w-full bg-foreground-400/20"
+              // >
+              //   Start chatting
+              // </Button>
+            )}
 
-          <div className="m-4 w-full mt-10 space-x-2 xl:space-y-2 xl:space-x-0">
-            <PersonaMenu personaId={persona.id} />
-            {/* <Button
-              as={Link}
-              href={`/library/personas/${persona.id}`}
-              variant="ghost"
-              startContent={<BookUser size={12} />}
-              className="xl:w-full"
-            >
-              Persona
-            </Button>
-            <Button
-              as={Link}
-              href={`/library/personas/${persona.id}/chats`}
-              variant="ghost"
-              endContent={<MessageSquare size={12} />}
-              className="xl:w-full"
-            >
-              Chats
-            </Button>
-            <Button
-              variant="ghost"
-              endContent={<Images size={12} />}
-              className="xl:w-full"
-            >
-              Gallery
-            </Button>
             {persona.published ? (
               <Button
                 as={Link}
                 href={`/personas/${persona.id}`}
-                variant="ghost"
-                endContent={<ExternalLink size={12} />}
-                className="xl:w-full"
+                variant="light"
+                startContent={<Earth size={12} />}
+                className="xl:w-full text-foreground-700"
               >
-                Public version
+                View public persona
               </Button>
             ) : (
-              <PublishPersonaButton personaId={persona.id} />
-            )} */}
+              <PublishPersonaButton
+                personaId={persona.id}
+                variant="light"
+                startContent={<Earth size={12} />}
+                className="xl:w-full text-foreground-700"
+              >
+                Publish Persona
+              </PublishPersonaButton>
+            )}
+
+            {persona.personaGeneration?.promptId && (
+              <Button
+                as={Link}
+                href={`/library/prompts/${persona.personaGeneration.promptId}`}
+                variant="light"
+                startContent={<Terminal size={12} />}
+                className="xl:w-full text-foreground-700"
+              >
+                View prompt
+              </Button>
+            )}
           </div>
         </div>
 
-        <div className="p-3 w-full mt-3">{children}</div>
+        <div className="w-full">
+          <PersonaMenu personaId={persona.id} />
+
+          <hr className="mt-6 border-none" />
+
+          <div className="px-2">{children}</div>
+        </div>
       </div>
     </>
-  );
-
-  return (
-    <Card className="bg-default-100/60 dark:bg-default-100/60" isBlurred>
-      <CardHeader className="px-8 py-4 mt-6 justify-between items-center">
-        <h2 className="text-2xl font-light text-foreground-500">
-          {persona.name} ({persona.age})
-        </h2>
-        <div>
-          {persona.published ? (
-            <Link color="secondary" href={`/personas/${persona.id}`}>
-              View public persona
-            </Link>
-          ) : (
-            <PublishPersonaButton personaId={persona.id} />
-          )}
-        </div>
-      </CardHeader>
-
-      <CardBody className="px-8 py-4">
-        <div>
-          <PersonaChat personaId={persona.id} />
-        </div>
-        <div className="space-y-2 text-foreground-600 mt-6">
-          <i className="text-foreground-600 font-light">{persona.summary}</i>
-          <p>
-            <b>Gender:</b> {persona.gender}
-          </p>
-          <p>
-            <b>Occupation:</b> {persona.occupation}
-          </p>
-          <p>
-            <b>Personality Traits:</b> {persona.personalityTraits}
-          </p>
-          <p>
-            <b>Interests:</b> {persona.interests}
-          </p>
-          <p>
-            <b>Cultural Background:</b> {persona.culturalBackground}
-          </p>
-          <p>
-            <b>Appearance:</b> {persona.appearance}
-          </p>
-          <p>
-            <b>Background:</b> {persona.background}
-          </p>
-          <p>
-            <b>History:</b> {persona.history}
-          </p>
-          <p>
-            <b>Characteristics:</b> {persona.characteristics}
-          </p>
-        </div>
-
-        <hr className="my-6 border-foreground-300" />
-
-        <h5 className="text-large">Gallery</h5>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
-          <Link
-            href={persona.mainImageUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="w-full object-cover"
-              src={persona.mainImageUrl}
-              alt={persona.name}
-            />
-          </Link>
-        </div>
-
-        <p className="text-foreground-600 mt-6">
-          Soon, we will add possibility to generate more images for single
-          persona.
-        </p>
-      </CardBody>
-    </Card>
   );
 }

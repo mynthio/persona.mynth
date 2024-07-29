@@ -1,87 +1,106 @@
 "use client";
 
-import { GetPersonasReturn } from "@/app/_services/personas.service";
-import { fetcher } from "@/app/_utils/utils";
-import { useRouter, useSearchParams } from "next/navigation";
-import useSWR from "swr";
-import PublicPersonaCard from "./public-persona-card.client";
-import { Pagination } from "@nextui-org/pagination";
-import React from "react";
+import { Earth, Lock } from "lucide-react";
 
-// Accept personas fetched from server component
-type Props = {
-  overwriteFilters?: {
-    nsfw?: boolean;
-    promptId?: string;
-    creatorId?: string;
-    published?: boolean;
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import PersonasInfiniteLoader from "@/app/_components/personas/personas-infinite-loader";
+import {
+  PersonaCard,
+  PersonaCardBackgroundImage,
+  PersonaCardBody,
+  PersonaCardFooter,
+  PersonaCardHeader,
+  PersonaCardTitle,
+} from "@/app/_components/personas/persona-card.client";
+import { GetUserPersonasData } from "@/app/_services/personas.service";
+import {
+  PersonaBookmarkButton,
+  PersonaCreatorButton,
+} from "@/app/_components/personas/persona-buttons.client";
+import { useUser } from "@clerk/nextjs";
+import { useSearchParams } from "next/navigation";
+import { PERSONAS_PER_PAGE } from "@/app/_config/constants";
+
+dayjs.extend(relativeTime);
+
+const getKey =
+  (searchParams: URLSearchParams) =>
+  (pageIndex: number, previousPageData: any) => {
+    // reached the end
+    if (previousPageData && !previousPageData.data) return null;
+
+    // first page, we don't have `previousPageData`
+    if (pageIndex === 0)
+      return `/api/personas?limit=${PERSONAS_PER_PAGE}&filter=${searchParams.get(
+        "filter"
+      )}`;
+
+    return `/api/personas?cursor=${
+      previousPageData.nextCursor
+    }&limit=${PERSONAS_PER_PAGE}&filter=${searchParams.get("filter")}`;
   };
+
+type Props = {
+  initialData?: any;
 };
 
-export default function Personas({ overwriteFilters }: Props) {
-  const { push } = useRouter();
+export default function Personas({ initialData }: Props) {
+  const { user } = useUser();
+
   const searchParams = useSearchParams();
 
-  console.log({ searchParams: searchParams.get("nsfw") });
-
-  const page = Number(searchParams.get("page"));
-
-  const { data, isLoading } = useSWR<{
-    count: number;
-    personas: GetPersonasReturn;
-  }>(
-    `/api/personas?page=${page > 0 ? page : 1}&nswf=${
-      overwriteFilters?.nsfw === undefined
-        ? searchParams.get("nsfw") === "true"
-        : overwriteFilters.nsfw
-    }&${
-      overwriteFilters?.promptId
-        ? `promptId=${overwriteFilters.promptId}`
-        : `promptId=${searchParams.get("promptId")}`
-    }&creatorId=${
-      overwriteFilters?.creatorId
-        ? overwriteFilters.creatorId
-        : searchParams.get("creatorId")
-    }&published=${
-      overwriteFilters?.published === undefined
-        ? searchParams.get("published") === "true"
-        : overwriteFilters.published
-    }`,
-    fetcher
-  );
-
-  // TODO: Fetch count separetely to avoid re-renders etc.
-  const count = React.useMemo(() => data?.count || 0, [data]);
-
   return (
-    <>
-      {!isLoading && data && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {data.personas.map((persona) => (
-            <PublicPersonaCard
-              key={persona.id}
-              persona={{
-                ...persona,
-                isLiked: !!persona.likes?.length,
-                isBookmarked: !!persona.bookmarks?.length,
-              }}
-            />
-          ))}
-        </div>
-      )}
+    <PersonasInfiniteLoader<GetUserPersonasData>
+      getKey={getKey(searchParams)}
+      itemSize={400}
+      className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+    >
+      {({ persona }) => (
+        <PersonaCard key={persona.id}>
+          <PersonaCardHeader
+            chips={[
+              {
+                icon: persona.published ? (
+                  <Earth size={16} />
+                ) : (
+                  <Lock size={16} />
+                ),
+              },
+              {
+                label: dayjs(persona.createdAt).fromNow(),
+              },
+            ]}
+          />
 
-      <Pagination
-        className="mt-6"
-        showControls
-        total={Math.ceil(count / 20)}
-        initialPage={page > 0 ? page : 1}
-        color="secondary"
-        onChange={(newPage) => {
-          const sp = new URLSearchParams(searchParams);
-          sp.set("page", newPage.toString());
-          push(`/personas?${sp.toString()}`);
-        }}
-      />
-    </>
+          <PersonaCardBody>
+            <PersonaCardTitle
+              href={`/library/personas/${persona.id}`}
+              title={persona.name}
+              subtitle={persona.summary}
+            />
+          </PersonaCardBody>
+
+          <PersonaCardFooter>
+            {user?.username && (
+              <PersonaCreatorButton username={user.username} />
+            )}
+
+            <PersonaBookmarkButton
+              className="ml-auto"
+              personaId={persona.id}
+              bookmarked={persona.bookmarked}
+            />
+          </PersonaCardFooter>
+
+          {persona.mainImageUrl && (
+            <PersonaCardBackgroundImage
+              alt={`Persona ${persona.name} main image`}
+              imageSrc={persona.mainImageUrl}
+            />
+          )}
+        </PersonaCard>
+      )}
+    </PersonasInfiniteLoader>
   );
 }

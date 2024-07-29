@@ -1,9 +1,25 @@
 import { countPersonaGenerations } from "../_services/persona-generations.service";
-import { getPersonas } from "../_services/personas.service";
+import { getPersonas, getPublicPersonas } from "../_services/personas.service";
 import { auth } from "@clerk/nextjs/server";
 import PublicPersonaCard from "../_components/personas/public-persona-card.client";
 import { Suspense } from "react";
 import { BackgroundBeams } from "../_components/ui/background-beams";
+import {
+  PersonaCard,
+  PersonaCardBody,
+  PersonaCardFooter,
+  PersonaCardHeader,
+  PersonaCardTitle,
+} from "../_components/personas/persona-card.client";
+import { PersonaCardBackgroundImage } from "../_components/personas/persona-card.client";
+import {
+  PersonaBookmarkButton,
+  PersonaCreatorButton,
+  PersonaLikeButton,
+} from "../_components/personas/persona-buttons.client";
+import { Button } from "@nextui-org/button";
+import { Link } from "@nextui-org/react";
+import { ArrowRight } from "lucide-react";
 
 export const revalidate = 1800; // 30 minutes
 
@@ -12,11 +28,9 @@ export default async function Home() {
 
   const [personasGenerationsCount, recentPersonas] = await Promise.all([
     countPersonaGenerations(),
-    getPersonas({
-      page: 1,
-      published: true,
-      showNsfw: false,
-      userId,
+    getPublicPersonas({
+      userId: userId ?? undefined,
+      limit: 6,
     }),
   ]);
 
@@ -34,21 +48,60 @@ export default async function Home() {
       </div>
 
       <div className="mt-20">
-        <h2 className="text-3xl font-bold">Recently published personas</h2>
-
         <div className="w-full mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {recentPersonas.map((persona) => (
-            <PublicPersonaCard
-              showFooter={false}
-              path="/personas"
-              key={persona.id}
-              persona={{
-                ...persona,
-                isLiked: !!persona.likes?.length,
-                isBookmarked: !!persona.bookmarks?.length,
-              }}
-            />
+            <PersonaCard key={persona.id}>
+              <PersonaCardHeader
+                chips={[
+                  {
+                    label: "AI",
+                  },
+                ]}
+              />
+
+              {persona.mainImageUrl && (
+                <PersonaCardBackgroundImage
+                  alt={`Persona ${persona.name} main image`}
+                  imageSrc={persona.mainImageUrl}
+                />
+              )}
+
+              <PersonaCardBody>
+                <PersonaCardTitle
+                  href={`/personas/${persona.id}`}
+                  title={persona.name}
+                  subtitle={persona.summary}
+                />
+              </PersonaCardBody>
+
+              <PersonaCardFooter>
+                <PersonaCreatorButton username={persona.creator.username} />
+                <div>
+                  <PersonaLikeButton
+                    personaId={persona.id}
+                    likes={persona.likesCount}
+                    liked={persona.liked}
+                  />
+                  <PersonaBookmarkButton
+                    personaId={persona.id}
+                    bookmarked={persona.bookmarked}
+                  />
+                </div>
+              </PersonaCardFooter>
+            </PersonaCard>
           ))}
+        </div>
+
+        <div className="flex justify-center mt-10">
+          <Button
+            as={Link}
+            href="/personas"
+            color="secondary"
+            variant="shadow"
+            endContent={<ArrowRight size={16} />}
+          >
+            Discover public personas
+          </Button>
         </div>
       </div>
       <Suspense>

@@ -75,6 +75,7 @@ export const getPersonaCount = async (args: GetPersonasArgs2) => {
 
 type GetPublicPersonaArgs = {
   personaId: string;
+  userId?: string;
 };
 
 export const getPublicPersona = async (args: GetPublicPersonaArgs) =>
@@ -92,6 +93,12 @@ export const getPublicPersona = async (args: GetPublicPersonaArgs) =>
               imageUrl: true,
             },
           },
+          ...(args.userId
+            ? {
+                likes: { where: { userId: args.userId } },
+                bookmarks: { where: { userId: args.userId } },
+              }
+            : {}),
         },
       });
     },
@@ -99,7 +106,7 @@ export const getPublicPersona = async (args: GetPublicPersonaArgs) =>
     {
       tags: ["persona", `persona:${args.personaId}`],
       revalidate: 5 * 60,
-    },
+    }
   )(args);
 
 type GetPersonasArgs = {
@@ -107,58 +114,84 @@ type GetPersonasArgs = {
 };
 
 type GetPublicPersonasArgs = {
-  userId: string;
+  userId?: string;
+  filter?: "bookmarked";
+  limit: number;
+  cursor?: string;
 };
 
-export const getPublicPersonas = cache(async (args: GetPersonasArgs) => {
+export const getPublicPersonas = async ({
+  userId,
+  filter,
+  limit,
+  cursor,
+}: GetPublicPersonasArgs) => {
   const results = await prisma.persona.findMany({
     where: {
       published: true,
+      ...(filter === "bookmarked" && userId
+        ? { bookmarks: { some: { userId } } }
+        : {}),
     },
     orderBy: {
-      createdAt: "desc",
+      publishedAt: "desc",
     },
     select: {
       id: true,
       name: true,
       summary: true,
+      mainImageUrl: true,
 
       createdAt: true,
+      publishedAt: true,
 
       personaGenerationId: true,
 
-      published: true,
-
       likesCount: true,
-      likes: {
-        where: {
-          userId: args.userId,
+
+      creator: {
+        select: {
+          username: true,
+          imageUrl: true,
         },
       },
 
-      bookmarks: {
-        where: {
-          userId: args.userId,
-        },
-      },
+      ...(userId
+        ? { likes: { where: { userId } }, bookmarks: { where: { userId } } }
+        : {}),
     },
+    take: limit,
+    ...(cursor
+      ? {
+          cursor: {
+            id: cursor,
+          },
+          skip: 1,
+        }
+      : {}),
   });
 
   return results.map((result) => ({
     id: result.id,
     name: result.name,
     summary: result.summary,
+    mainImageUrl: result.mainImageUrl,
+
+    createdAt: result.createdAt,
+    publishedAt: result.publishedAt,
 
     personaGenerationId: result.personaGenerationId,
 
-    published: result.published,
+    published: true,
 
-    likes: result.likesCount,
+    creator: result.creator,
+
+    likesCount: result.likesCount,
     liked: result.likes.length > 0,
 
     bookmarked: result.bookmarks.length > 0,
   }));
-});
+};
 
 export type GetPublicPersonasData = Awaited<
   ReturnType<typeof getPublicPersonas>
@@ -176,17 +209,31 @@ export const getUserPersonas = cache(async (args: GetPersonasArgs) => {
       id: true,
       name: true,
       summary: true,
+      mainImageUrl: true,
 
       createdAt: true,
 
       personaGenerationId: true,
+
+      bookmarks: { where: { userId: args.userId } },
 
       published: true,
       likesCount: true,
     },
   });
 
-  return results;
+  return results.map((result) => ({
+    id: result.id,
+    name: result.name,
+    summary: result.summary,
+    mainImageUrl: result.mainImageUrl,
+
+    personaGenerationId: result.personaGenerationId,
+
+    published: result.published,
+
+    bookmarked: result.bookmarks.length > 0,
+  }));
 });
 
 export type GetUserPersonasData = Awaited<ReturnType<typeof getUserPersonas>>;

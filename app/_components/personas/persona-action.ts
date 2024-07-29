@@ -1,5 +1,5 @@
 import React from "react";
-import { PersonaContext } from "./persona-context";
+
 import { likePersonaAction } from "@/app/_actions/like-persona.action";
 import { unLikePersonaAction } from "@/app/_actions/unlike-persona.action";
 import { unBookmarkPersonaAction } from "@/app/_actions/un-bookmark-persona.action copy";

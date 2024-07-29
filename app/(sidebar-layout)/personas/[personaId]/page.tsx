@@ -1,10 +1,16 @@
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import { Image } from "@nextui-org/image";
-import { Link } from "@nextui-org/react";
+import { Button, Link, User } from "@nextui-org/react";
 import PersonaComments from "./_components/persona-comments.client";
 import CreatePersonaCommentForm from "./_components/create-persona-comment-form.client";
 import { getPublicPersona } from "@/app/_services/personas.service";
 import { Metadata } from "next";
+import { Copy, Earth, MessagesSquare } from "lucide-react";
+import {
+  PersonaBookmarkButton,
+  PersonaLikeButton,
+} from "@/app/_components/personas/persona-buttons.client";
+import { auth } from "@clerk/nextjs/server";
 
 type Props = {
   params: {
@@ -38,75 +44,84 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PersonaPage({ params }: Props) {
-  const persona = await getPublicPersona({ personaId: params.personaId });
+  const { userId } = auth();
+  const persona = await getPublicPersona({
+    personaId: params.personaId,
+    userId: userId ?? undefined,
+  });
   if (!persona) return <div>Persona not found</div>; // TODO: Move to component or handle 404
 
   return (
-    <Card className="bg-default-100/60 dark:bg-default-100/60" isBlurred>
-      <CardHeader className="px-8 py-4 mt-6 justify-between items-center">
-        <h2 className="text-2xl font-light text-foreground-500">
-          {persona.name} ({persona.age})
-        </h2>
-      </CardHeader>
+    <div className="xl:flex gap-10">
+      <div className="xl:max-w-72 w-full">
+        <Image
+          isBlurred
+          src={persona.mainImageUrl || ""}
+          alt={persona.name}
+          className="m-4 w-80 max-xl:w-52"
+        />
 
-      <CardBody className="px-8 py-4">
-        <div className="space-y-2 text-foreground-600">
-          <i className="text-foreground-600 font-light">{persona.summary}</i>
-          <p>
-            <b>Gender:</b> {persona.gender}
-          </p>
-          <p>
-            <b>Occupation:</b> {persona.occupation}
-          </p>
-          <p>
-            <b>Personality Traits:</b> {persona.personalityTraits}
-          </p>
-          <p>
-            <b>Interests:</b> {persona.interests}
-          </p>
-          <p>
-            <b>Cultural Background:</b> {persona.culturalBackground}
-          </p>
-          <p>
-            <b>Appearance:</b> {persona.appearance}
-          </p>
-          <p>
-            <b>Background:</b> {persona.background}
-          </p>
-          <p>
-            <b>History:</b> {persona.history}
-          </p>
-          <p>
-            <b>Characteristics:</b> {persona.characteristics}
-          </p>
-        </div>
-
-        <hr className="my-6 border-foreground-300" />
-
-        <h3 className="text-large text-foreground-500 p-3">Gallery</h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
-          <Link
-            href={persona.mainImageUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="w-full object-cover"
-              src={persona.mainImageUrl}
-              alt={persona.name}
+        <div className="m-4 w-full mt-4 space-x-2 xl:space-y-2 xl:space-x-0">
+          <div className="flex justify-between items-center">
+            <User
+              name={persona.creator.username}
+              avatarProps={{
+                size: "sm",
+                src: persona.creator.imageUrl ?? undefined,
+              }}
             />
-          </Link>
+
+            <div className="flex items-center gap-2 justify-end">
+              <PersonaLikeButton
+                className="bg-foreground-500/10"
+                likes={persona.likesCount}
+                personaId={persona.id}
+                liked={persona.likes?.length > 0}
+              />
+
+              <PersonaBookmarkButton
+                className="bg-foreground-500/10"
+                bookmarked={persona.bookmarks?.length > 0}
+                personaId={persona.id}
+              />
+            </div>
+          </div>
+
+          {/* TODO: <div className="pt-2">
+            <Button variant="flat" fullWidth startContent={<Copy size={12} />}>
+              Copy to library
+            </Button>
+            <p className="text-small text-foreground-500 text-balance text-center mt-4">
+              To interact with public persona, copy it to your library first.
+            </p>
+          </div> */}
         </div>
+      </div>
 
-        <hr className="my-6 border-foreground-300" />
+      <div className="w-full">
+        <hr className="mt-6 border-none" />
 
-        <h3 className="text-large text-foreground-500 p-3">Comments</h3>
+        <div className="px-2">
+          <h1 className="text-5xl font-thin text-foreground-600">
+            {persona.name}
+          </h1>
+          <p className="font-light text-small text-foreground-500 max-w-xl mt-2">
+            {persona.summary}
+          </p>
 
-        <PersonaComments personaId={persona.id} />
-        <hr className="my-2 border-transparent" />
-        <CreatePersonaCommentForm personaId={persona.id} />
-      </CardBody>
-    </Card>
+          <ul className="font-light text-balance text-foreground-600  max-w-xl mt-4 space-y-2">
+            <li>Age: {persona.age}</li>
+            <li>Gender: {persona.gender}</li>
+            <li>Occupations/Proffesions: {persona.occupation}</li>
+            <li>Personality Traits: {persona.personalityTraits}</li>
+            <li>Interests: {persona.interests}</li>
+            <li>Appearance: {persona.appearance}</li>
+            <li>Background: {persona.background}</li>
+            <li>History: {persona.history}</li>
+            <li>Characteristics: {persona.characteristics}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   );
 }

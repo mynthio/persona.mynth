@@ -1,14 +1,9 @@
 "use client";
 
 import { bookmarkPersonaAction } from "@/app/_actions/bookmark-persona.action";
-import { likePersonaAction } from "@/app/_actions/like-persona.action";
 import { unBookmarkPersonaAction } from "@/app/_actions/un-bookmark-persona.action copy";
-import { unLikePersonaAction } from "@/app/_actions/unlike-persona.action";
-import { GetPersonasReturn } from "@/app/_services/personas.service";
 import { Button } from "@nextui-org/button";
-import { Bookmark, Heart } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import { useSWRConfig } from "swr";
+import { Bookmark } from "lucide-react";
 import { PersonaContext } from "./personas.client";
 import React from "react";
 
@@ -21,12 +16,6 @@ export default function PersonaBookmarkButton({
   personaId,
   isBookmarked,
 }: Props) {
-  const { mutate } = useSWRConfig();
-
-  const searchParams = useSearchParams();
-
-  const page = Number(searchParams.get("page"));
-
   const { mutatePersona } = React.useContext(PersonaContext) || {};
 
   return (

@@ -23,7 +23,7 @@ export default function PersonasFilters() {
       sp.set(key, value);
     }
 
-    push(`?${sp.toString()}`);
+    window.history.pushState(null, "", `?${sp.toString()}`);
   };
 
   return (

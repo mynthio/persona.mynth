@@ -40,14 +40,6 @@ export default async function PersonaChatsPage({ params }: Props) {
 
   return (
     <>
-      <div className="flex justify-end w-full gap-4 items-center">
-        <NewChatButton personaId={params.personaId} />
-      </div>
-
-      <hr className="my-6 border-foreground-100" />
-
-      <LocalChatItem personaId={params.personaId} />
-
       {chats.map((chat) => (
         <section key={chat.id}>
           <Chip startContent={<Clock size={12} />} variant="light">

@@ -13,6 +13,6 @@ export async function GET(request: Request) {
 
   return Response.json({
     remainingTokens,
-    dailyTokens: Number(sessionClaims?.["daily-tokens"] ?? 100),
+    dailyTokens: Number(sessionClaims?.["dailyTokens"] ?? 100),
   });
 }
