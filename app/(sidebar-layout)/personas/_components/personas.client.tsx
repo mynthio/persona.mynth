@@ -83,22 +83,26 @@ export default function Personas({ initialData }: Props) {
           </PersonaCardBody>
 
           <PersonaCardFooter>
-            {user?.username && (
-              <PersonaCreatorButton username={user.username} />
-            )}
+            <div>
+              {user?.username && (
+                <PersonaCreatorButton username={user.username} />
+              )}
+            </div>
 
-            <PersonaLikeButton
-              className="ml-auto"
-              personaId={persona.id}
-              likes={persona.likesCount}
-              liked={persona.liked}
-            />
+            <div>
+              <PersonaLikeButton
+                className="ml-auto"
+                personaId={persona.id}
+                likes={persona.likesCount}
+                liked={persona.liked}
+              />
 
-            <PersonaBookmarkButton
-              className="ml-auto"
-              personaId={persona.id}
-              bookmarked={persona.bookmarked}
-            />
+              <PersonaBookmarkButton
+                className="ml-auto"
+                personaId={persona.id}
+                bookmarked={persona.bookmarked}
+              />
+            </div>
           </PersonaCardFooter>
 
           {persona.mainImageUrl && (
