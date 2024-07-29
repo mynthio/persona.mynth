@@ -17,6 +17,7 @@ import { GetUserPersonasData } from "@/app/_services/personas.service";
 import {
   PersonaBookmarkButton,
   PersonaCreatorButton,
+  PersonaLikeButton,
 } from "@/app/_components/personas/persona-buttons.client";
 import { useUser } from "@clerk/nextjs";
 import { useSearchParams } from "next/navigation";
@@ -68,14 +69,14 @@ export default function Personas({ initialData }: Props) {
                 ),
               },
               {
-                label: dayjs(persona.createdAt).fromNow(),
+                label: dayjs(persona.publishedAt).fromNow(),
               },
             ]}
           />
 
           <PersonaCardBody>
             <PersonaCardTitle
-              href={`/library/personas/${persona.id}`}
+              href={`/personas/${persona.id}`}
               title={persona.name}
               subtitle={persona.summary}
             />
@@ -85,6 +86,13 @@ export default function Personas({ initialData }: Props) {
             {user?.username && (
               <PersonaCreatorButton username={user.username} />
             )}
+
+            <PersonaLikeButton
+              className="ml-auto"
+              personaId={persona.id}
+              likes={persona.likesCount}
+              liked={persona.liked}
+            />
 
             <PersonaBookmarkButton
               className="ml-auto"

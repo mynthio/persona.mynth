@@ -212,13 +212,16 @@ export const getUserPersonas = cache(async (args: GetPersonasArgs) => {
       mainImageUrl: true,
 
       createdAt: true,
+      publishedAt: true,
 
       personaGenerationId: true,
+
+      likesCount: true,
+      likes: { where: { userId: args.userId } },
 
       bookmarks: { where: { userId: args.userId } },
 
       published: true,
-      likesCount: true,
     },
   });
 
@@ -231,8 +234,12 @@ export const getUserPersonas = cache(async (args: GetPersonasArgs) => {
     personaGenerationId: result.personaGenerationId,
 
     published: result.published,
+    publishedAt: result.publishedAt,
 
     bookmarked: result.bookmarks.length > 0,
+
+    liked: result.likes.length > 0,
+    likesCount: result.likesCount,
   }));
 });
 
