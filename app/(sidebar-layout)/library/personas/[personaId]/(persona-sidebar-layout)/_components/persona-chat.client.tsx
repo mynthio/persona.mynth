@@ -56,7 +56,7 @@ export default function PersonaChat({ personaId }: Props) {
 
                 <Button
                   as={Link}
-                  href="https://discord.gg/By5AnDQDTQ"
+                  href="https://discord.gg/BcEFDbEHPg"
                   target="_blank"
                 >
                   Join Discord

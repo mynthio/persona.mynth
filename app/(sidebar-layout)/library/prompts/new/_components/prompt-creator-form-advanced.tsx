@@ -525,7 +525,7 @@ export default function PromptCreatorForm() {
             Creator is in beta. We're working on adding more options and making
             the experience better. If you have any suggestions or feedback, join
             our discord and share it:{" "}
-            <Link color="secondary" href="https://discord.gg/By5AnDQDTQ">
+            <Link color="secondary" href="https://discord.gg/BcEFDbEHPg">
               Join
             </Link>
           </p>
