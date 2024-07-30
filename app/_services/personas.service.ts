@@ -183,9 +183,9 @@ export const getPublicPersonas = async ({
     creator: result.creator,
 
     likesCount: result.likesCount,
-    liked: result.likes.length > 0,
+    liked: result.likes?.length > 0,
 
-    bookmarked: result.bookmarks.length > 0,
+    bookmarked: result.bookmarks?.length > 0,
   }));
 };
 
@@ -244,9 +244,9 @@ export const getUserPersonas = cache(async (args: GetUserPersonasArgs) => {
     published: result.published,
     publishedAt: result.publishedAt,
 
-    bookmarked: result.bookmarks.length > 0,
+    bookmarked: result.bookmarks?.length > 0,
 
-    liked: result.likes.length > 0,
+    liked: result.likes?.length > 0,
     likesCount: result.likesCount,
   }));
 });
