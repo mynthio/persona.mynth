@@ -222,8 +222,6 @@ export const getUserPersonas = cache(async (args: GetUserPersonasArgs) => {
       personaGenerationId: true,
 
       likesCount: true,
-      likes: { where: { userId: args.userId } },
-
       bookmarks: { where: { userId: args.userId } },
 
       published: true,
@@ -245,8 +243,6 @@ export const getUserPersonas = cache(async (args: GetUserPersonasArgs) => {
     publishedAt: result.publishedAt,
 
     bookmarked: result.bookmarks?.length > 0,
-
-    liked: result.likes?.length > 0,
     likesCount: result.likesCount,
   }));
 });
