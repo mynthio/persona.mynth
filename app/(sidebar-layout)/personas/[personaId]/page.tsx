@@ -1,6 +1,8 @@
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import { Image } from "@nextui-org/image";
 import { Button, Link, User } from "@nextui-org/react";
+import { Tooltip } from "@nextui-org/tooltip";
+
 import PersonaComments from "./_components/persona-comments.client";
 import CreatePersonaCommentForm from "./_components/create-persona-comment-form.client";
 import { getPublicPersona } from "@/app/_services/personas.service";
@@ -11,6 +13,7 @@ import {
   PersonaLikeButton,
 } from "@/app/_components/personas/persona-buttons.client";
 import { auth } from "@clerk/nextjs/server";
+import CopyPersonaButton from "./_components/copy-persona-button.client";
 
 type Props = {
   params: {
@@ -86,6 +89,17 @@ export default async function PersonaPage({ params }: Props) {
               />
             </div>
           </div>
+
+          {userId && (
+            <div className="pt-4">
+              <CopyPersonaButton
+                fullWidth
+                variant="flat"
+                personaId={persona.id}
+                startContent={<Copy size={12} />}
+              />
+            </div>
+          )}
 
           {/* TODO: <div className="pt-2">
             <Button variant="flat" fullWidth startContent={<Copy size={12} />}>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Earth, Lock } from "lucide-react";
+import { Copy, Earth, Lock } from "lucide-react";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -61,6 +61,14 @@ export default function Personas({ initialData }: Props) {
               {
                 label: dayjs(persona.createdAt).fromNow(),
               },
+              ...(!persona.original
+                ? [
+                    {
+                      icon: <Copy size={16} />,
+                      label: "Copy",
+                    },
+                  ]
+                : []),
             ]}
           />
 

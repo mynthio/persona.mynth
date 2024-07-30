@@ -41,7 +41,11 @@ export default function NewChatButton({ personaId }: Props) {
 
   return (
     <>
-      <Button endContent={<Plus size={12} />} variant="light" onClick={onOpen}>
+      <Button
+        startContent={<Plus size={12} />}
+        variant="light"
+        onClick={onOpen}
+      >
         Start new chat
       </Button>
 

@@ -1,10 +1,8 @@
 import { prisma } from "@/prisma/client";
 import { auth } from "@clerk/nextjs/server";
-import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import PublishPersonaButton from "./_components/publish-persona-button.client";
 import { Image } from "@nextui-org/image";
 import { Link } from "@nextui-org/link";
-import PersonaChat from "./_components/persona-chat.client";
 
 import PersonaMenu from "./_components/persona-menu.client";
 import { Button } from "@nextui-org/button";
@@ -83,25 +81,36 @@ export default async function LibraryPersonaLayout({
               // </Button>
             )}
 
-            {persona.published ? (
+            {persona.original &&
+              (persona.published ? (
+                <Button
+                  as={Link}
+                  href={`/personas/${persona.id}`}
+                  variant="light"
+                  startContent={<Earth size={12} />}
+                  className="xl:w-full text-foreground-700"
+                >
+                  View public persona
+                </Button>
+              ) : (
+                <PublishPersonaButton
+                  personaId={persona.id}
+                  variant="light"
+                  startContent={<Earth size={12} />}
+                  className="xl:w-full text-foreground-700"
+                >
+                  Publish Persona
+                </PublishPersonaButton>
+              ))}
+
+            {!persona.original && (
               <Button
                 as={Link}
-                href={`/personas/${persona.id}`}
+                href={`/personas/${persona.originalPersonaId}`}
                 variant="light"
-                startContent={<Earth size={12} />}
-                className="xl:w-full text-foreground-700"
               >
-                View public persona
+                View original persona
               </Button>
-            ) : (
-              <PublishPersonaButton
-                personaId={persona.id}
-                variant="light"
-                startContent={<Earth size={12} />}
-                className="xl:w-full text-foreground-700"
-              >
-                Publish Persona
-              </PublishPersonaButton>
             )}
 
             {persona.personaGeneration?.promptId && (

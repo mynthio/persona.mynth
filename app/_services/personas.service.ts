@@ -109,10 +109,6 @@ export const getPublicPersona = async (args: GetPublicPersonaArgs) =>
     }
   )(args);
 
-type GetPersonasArgs = {
-  userId: string;
-};
-
 type GetPublicPersonasArgs = {
   userId?: string;
   filter?: "bookmarked";
@@ -197,7 +193,14 @@ export type GetPublicPersonasData = Awaited<
   ReturnType<typeof getPublicPersonas>
 >;
 
-export const getUserPersonas = cache(async (args: GetPersonasArgs) => {
+type GetUserPersonasArgs = {
+  userId: string;
+  filter?: "bookmarked";
+  limit: number;
+  cursor?: string;
+};
+
+export const getUserPersonas = cache(async (args: GetUserPersonasArgs) => {
   const results = await prisma.persona.findMany({
     where: {
       creatorId: args.userId,
@@ -210,6 +213,8 @@ export const getUserPersonas = cache(async (args: GetPersonasArgs) => {
       name: true,
       summary: true,
       mainImageUrl: true,
+
+      original: true,
 
       createdAt: true,
       publishedAt: true,
@@ -230,6 +235,9 @@ export const getUserPersonas = cache(async (args: GetPersonasArgs) => {
     name: result.name,
     summary: result.summary,
     mainImageUrl: result.mainImageUrl,
+
+    original: result.original,
+    createdAt: result.createdAt,
 
     personaGenerationId: result.personaGenerationId,
 

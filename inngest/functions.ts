@@ -230,64 +230,69 @@ export const generatePersona = inngest.createFunction(
       }
     );
 
-    await step.run("generate-persona-image", async () => {
-      try {
-        const model = TextToImgModelFactory.create(
-          TextToImgModelsEnum.StabilityAIStableDiffusionXL10
-        );
-
-        const fallbackModel = TextToImgModelFactory.create(
-          TextToImgModelsEnum.StabilityAIStableDiffusionXLBase10
-        );
-
-        let imgBuffer: Buffer | null = null;
-
+    const { imageModelId } = await step.run(
+      "generate-persona-image",
+      async () => {
         try {
-          imgBuffer = await model.generateImage(personaImagePrompt, {
-            width: 1024,
-            height: 1024,
-          });
+          let model = TextToImgModelFactory.create(
+            TextToImgModelsEnum.StabilityAIStableDiffusionXL10
+          );
+
+          let imgBuffer: Buffer | null = null;
+
+          try {
+            imgBuffer = await model.generateImage(personaImagePrompt, {
+              width: 1024,
+              height: 1024,
+            });
+          } catch (error) {
+            logger.error(error);
+
+            model = TextToImgModelFactory.create(
+              TextToImgModelsEnum.StabilityAIStableDiffusionXLBase10
+            );
+
+            imgBuffer = await model.generateImage(personaImagePrompt, {
+              width: 1024,
+              height: 1024,
+            });
+          }
+
+          if (!imgBuffer) throw new Error("Failed to generate image");
+
+          // Optimize image
+          const optimizedImageBuffer = await sharp(imgBuffer)
+            .resize({
+              width: 1024,
+              height: 1024,
+            })
+            .webp({
+              quality: 80,
+            })
+            .toBuffer();
+
+          /**
+           * We need to upload image in the same step as we generate it
+           * because of the file size and issue while returning it from step
+           */
+          await got.put(
+            `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/personas/${persona.id}/persona-${persona.id}.webp`,
+            {
+              headers: {
+                AccessKey: process.env.BUNNY_CDN_API_KEY,
+                "Content-Type": "application/octet-stream",
+              },
+              body: Buffer.from(optimizedImageBuffer),
+            }
+          );
+
+          return { imageModelId: model.id };
         } catch (error) {
           logger.error(error);
-
-          imgBuffer = await fallbackModel.generateImage(personaImagePrompt, {
-            width: 1024,
-            height: 1024,
-          });
+          throw error;
         }
-
-        if (!imgBuffer) throw new Error("Failed to generate image");
-
-        // Optimize image
-        const optimizedImageBuffer = await sharp(imgBuffer)
-          .resize({
-            width: 1024,
-            height: 1024,
-          })
-          .webp({
-            quality: 80,
-          })
-          .toBuffer();
-
-        /**
-         * We need to upload image in the same step as we generate it
-         * because of the file size and issue while returning it from step
-         */
-        await got.put(
-          `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/personas/${persona.id}/persona-${persona.id}.webp`,
-          {
-            headers: {
-              AccessKey: process.env.BUNNY_CDN_API_KEY,
-              "Content-Type": "application/octet-stream",
-            },
-            body: Buffer.from(optimizedImageBuffer),
-          }
-        );
-      } catch (error) {
-        logger.error(error);
-        throw error;
       }
-    });
+    );
 
     await step.run("update-persona-image-url", async () => {
       await prisma.persona.update({
@@ -296,6 +301,13 @@ export const generatePersona = inngest.createFunction(
         },
         data: {
           mainImageUrl: `https://${process.env.BUNNY_CDN_HOST}/personas/${persona.id}/persona-${persona.id}.webp`,
+          images: {
+            create: {
+              imageUrl: `https://${process.env.BUNNY_CDN_HOST}/personas/${persona.id}/persona-${persona.id}.webp`,
+              prompt: personaImagePrompt,
+              model: imageModelId,
+            },
+          },
         },
       });
 

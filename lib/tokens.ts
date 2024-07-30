@@ -1,8 +1,7 @@
 import "server-only";
 
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { redis } from "@/redis/client";
-import { logger } from "./logger";
 
 function getExpirationSeconds() {
   const now = new Date();
@@ -49,10 +48,6 @@ export async function getRemainingTokens() {
   if (!userId) {
     throw new Error("User not authenticated");
   }
-
-  logger.debug("Getting remaining tokens", {
-    dailyTokens: sessionClaims?.["dailyTokens"],
-  });
 
   const dateKey = new Date().toISOString().split("T")[0]; // e.g., "2024-07-15"
   const key = `user:${userId}:tokens:${dateKey}`;

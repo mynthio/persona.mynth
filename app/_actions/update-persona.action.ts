@@ -13,12 +13,11 @@ export const updatePersonaAction = async (data: unknown) => {
 
   assert(data, UpdatePersonaSchema);
 
-  console.log(data);
-
   await prisma.persona.update({
     where: {
       id: data.personaId,
       creatorId: userId,
+      ...(data.published === true ? { original: true } : {}), // Allow publishing only if it's not a copy
     },
     data: {
       name: data.name,

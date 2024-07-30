@@ -65,7 +65,7 @@ model PersonaGeneration {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  prompt   PersonaPrompt @relation(fields: [promptId], references: [id])
+  prompt   PersonaPrompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
   promptId String
 
   persona Persona?
@@ -137,8 +137,15 @@ model Persona {
   images Image[]
   chats  Chat[]
 
-  personaGeneration   PersonaGeneration? @relation(fields: [personaGenerationId], references: [id])
+  personaGeneration   PersonaGeneration? @relation(fields: [personaGenerationId], references: [id], onDelete: Cascade)
   personaGenerationId String?            @unique
+
+  // Copies and original personas
+  original          Boolean   @default(true)
+  originalPersonaId String? // Reference to the original persona if this is a copy
+  originalPersona   Persona?  @relation("persona_copied_from", fields: [originalPersonaId], references: [id])
+  copies            Persona[] @relation("persona_copied_from")
+  copiesCount       Int       @default(0)
 
   // Xata fields
   xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
@@ -167,7 +174,7 @@ model PersonaLike {
 }
 
 model PersonaBookmark {
-  persona   Persona @relation(fields: [personaId], references: [id])
+  persona   Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
   personaId String
 
   user   User   @relation(fields: [userId], references: [id])
@@ -193,7 +200,7 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  persona   Persona @relation(fields: [personaId], references: [id])
+  persona   Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
   personaId String
 
   user   User   @relation(fields: [userId], references: [id])
@@ -214,7 +221,7 @@ model Image {
 
   imageUrl String
 
-  persona   Persona? @relation(fields: [personaId], references: [id])
+  persona   Persona? @relation(fields: [personaId], references: [id], onDelete: Cascade)
   personaId String?
 
   // Xata fields
@@ -229,7 +236,7 @@ model Chat {
 
   createdAt DateTime @default(now())
 
-  persona   Persona? @relation(fields: [personaId], references: [id])
+  persona   Persona? @relation(fields: [personaId], references: [id], onDelete: Cascade)
   personaId String?
 
   published     Boolean @default(false)
@@ -242,7 +249,7 @@ model Chat {
 
   messages ChatMessage[]
 
-  user   User?   @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String?
 
   // Xata fields
@@ -260,7 +267,7 @@ model ChatMessage {
   role    String // Can be "user" or "assistant" or "system"
   content String
 
-  chat   Chat?   @relation(fields: [chatId], references: [id])
+  chat   Chat?   @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId String?
 
   // Xata fields
