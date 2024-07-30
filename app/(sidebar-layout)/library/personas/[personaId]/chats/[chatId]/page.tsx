@@ -3,6 +3,8 @@ import { auth } from "@clerk/nextjs/server";
 import Chat from "./chat.client";
 import { Chip } from "@nextui-org/chip";
 
+export const maxDuration = 180;
+
 type Props = {
   params: {
     personaId: string;

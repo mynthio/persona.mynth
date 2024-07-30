@@ -11,8 +11,6 @@ import { auth } from "@clerk/nextjs/server";
 import { getPersonaChat } from "../_services/persona-chats.service";
 import { logger } from "@/lib/logger";
 
-export const maxDuration = 180;
-
 export const chatAction = async (data: {
   messages: CoreMessage[];
   isLocal?: boolean;
