@@ -173,7 +173,11 @@ export default function Sidebar() {
                 className="w-full"
                 variant="flat"
                 size="lg"
-                onPress={() => openSignIn()}
+                onPress={() =>
+                  openSignIn({
+                    fallbackRedirectUrl: "https://persona.mynth.io",
+                  })
+                }
               >
                 Sign in
               </Button>
