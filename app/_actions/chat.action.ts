@@ -41,9 +41,6 @@ export const chatAction = async (data: {
       ? {}
       : {
           onFinish: async (finalResult) => {
-            if (finalResult.finishReason !== "stop") return;
-            if (finalResult.text.length < 1) return;
-
             logger.info("Chat response generation onFinish callback", {
               data: JSON.stringify({
                 finishReason: finalResult.finishReason,
@@ -61,6 +58,9 @@ export const chatAction = async (data: {
                 },
               },
             });
+
+            if (finalResult.finishReason !== "stop") return;
+            if (finalResult.text.length < 1) return;
 
             await prisma.chat.update({
               where: {
@@ -90,7 +90,7 @@ export const chatAction = async (data: {
           },
         }),
   }).catch((e) => {
-    console.error(e);
+    logger.error(e);
     return { textStream: e.message };
   });
 
