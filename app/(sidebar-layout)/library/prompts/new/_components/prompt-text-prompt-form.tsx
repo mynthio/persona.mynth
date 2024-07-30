@@ -2,6 +2,7 @@
 
 import { createPromptAction } from "@/app/_actions/create-prompt.action";
 import { TextPromptSchema } from "@/schemas/create-prompt.schema";
+import { useAuth } from "@clerk/nextjs";
 import { superstructResolver } from "@hookform/resolvers/superstruct";
 import { Button } from "@nextui-org/button";
 import { Textarea } from "@nextui-org/input";
@@ -9,6 +10,8 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 export default function PromptTextPromptForm() {
+  const { isSignedIn } = useAuth();
+
   const {
     register,
     handleSubmit,
@@ -51,9 +54,9 @@ export default function PromptTextPromptForm() {
         <Button
           type="submit"
           isLoading={isSubmitting}
-          isDisabled={isSubmitting}
+          isDisabled={!isSignedIn || isSubmitting}
         >
-          Save
+          {isSignedIn ? "Save" : "Sign in to save"}
         </Button>
         <p className="text-small text-foreground-500 mt-2">
           After that you can start generating personas based on this prompt

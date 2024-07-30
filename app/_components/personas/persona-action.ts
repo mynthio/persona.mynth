@@ -4,6 +4,8 @@ import { likePersonaAction } from "@/app/_actions/like-persona.action";
 import { unLikePersonaAction } from "@/app/_actions/unlike-persona.action";
 import { unBookmarkPersonaAction } from "@/app/_actions/un-bookmark-persona.action copy";
 import { bookmarkPersonaAction } from "@/app/_actions/bookmark-persona.action";
+import { useAuth } from "@clerk/nextjs";
+import { toast } from "sonner";
 
 type Args = {
   personaId: string;
@@ -12,6 +14,8 @@ type Args = {
 };
 
 export const usePersonaLikeAction = (args: Args) => {
+  const { isSignedIn } = useAuth();
+
   const [likes, setLikes] = React.useState<number>(args.likes);
   const [liked, setliked] = React.useState<boolean>(args.liked);
   const [loading, setLoading] = React.useState<boolean>(false);
@@ -21,6 +25,9 @@ export const usePersonaLikeAction = (args: Args) => {
     liked,
     loading,
     onPress: async () => {
+      if (!isSignedIn)
+        return toast.error("You need to be signed in to like persona");
+
       setLoading(true);
 
       const action = liked ? unLikePersonaAction : likePersonaAction;
@@ -42,6 +49,8 @@ type UsePersonaBookmarkActionArgs = {
 export const usePersonaBookmarkAction = (
   args: UsePersonaBookmarkActionArgs
 ) => {
+  const { isSignedIn } = useAuth();
+
   const [bookmarked, setBookmarked] = React.useState<boolean>(args.bookmarked);
   const [loading, setLoading] = React.useState<boolean>(false);
 
@@ -49,6 +58,9 @@ export const usePersonaBookmarkAction = (
     bookmarked,
     loading,
     onPress: async () => {
+      if (!isSignedIn)
+        return toast.error("You need to be signed in to bookmark persona");
+
       setLoading(true);
 
       const action = bookmarked

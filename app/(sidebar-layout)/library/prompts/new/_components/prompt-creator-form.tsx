@@ -21,6 +21,7 @@ import {
   useForm,
   useFormContext,
 } from "react-hook-form";
+import { useAuth } from "@clerk/nextjs";
 
 const predefinedAges = [
   { value: "5-12", label: "Child (5-12)", nsfwVisible: false },
@@ -496,6 +497,8 @@ function RelationshipSection() {
 }
 
 export default function PromptCreatorForm() {
+  const { isSignedIn } = useAuth();
+
   const { push } = useRouter();
 
   const formMethods = useForm<CreatorPrompt>({
@@ -524,7 +527,7 @@ export default function PromptCreatorForm() {
           push(`/library/prompts/${personaPromptId}`);
         })}
       >
-        <Accordion fullWidth className="mt-20">
+        <Accordion fullWidth className="mt-10">
           <AccordionItem
             key="settings"
             aria-label="Settings"
@@ -656,9 +659,9 @@ export default function PromptCreatorForm() {
             variant="shadow"
             color="secondary"
             isLoading={isSubmitting}
-            isDisabled={isSubmitting}
+            isDisabled={!isSignedIn || isSubmitting}
           >
-            Create
+            {isSignedIn ? "Create" : "Sign in to create"}
           </Button>
         </div>
 

@@ -14,7 +14,7 @@ export default async function NewPromptPage() {
       <div className="flex justify-between items-center">
         <div className="flex items-start gap-2">
           <h1 className="text-4xl font-thin text-foreground-500">
-            Prompt Creator
+            Persona Creator
           </h1>
 
           <Chip variant="shadow" color="danger" size="sm">

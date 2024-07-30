@@ -7,13 +7,22 @@ import PersonaComments from "./_components/persona-comments.client";
 import CreatePersonaCommentForm from "./_components/create-persona-comment-form.client";
 import { getPublicPersona } from "@/app/_services/personas.service";
 import { Metadata } from "next";
-import { Copy, Earth, MessagesSquare } from "lucide-react";
+import {
+  CalendarRange,
+  Copy,
+  Earth,
+  MessagesSquare,
+  NotepadText,
+  PersonStanding,
+} from "lucide-react";
 import {
   PersonaBookmarkButton,
   PersonaLikeButton,
 } from "@/app/_components/personas/persona-buttons.client";
 import { auth } from "@clerk/nextjs/server";
 import CopyPersonaButton from "./_components/copy-persona-button.client";
+import { Suspense } from "react";
+import PersonaComment from "./_components/persona-comment.client";
 
 type Props = {
   params: {
@@ -90,16 +99,24 @@ export default async function PersonaPage({ params }: Props) {
             </div>
           </div>
 
-          {userId && (
-            <div className="pt-4">
-              <CopyPersonaButton
-                fullWidth
-                variant="flat"
-                personaId={persona.id}
-                startContent={<Copy size={12} />}
-              />
-            </div>
-          )}
+          <div className="pt-4">
+            <CopyPersonaButton
+              fullWidth
+              variant="flat"
+              personaId={persona.id}
+              startContent={<Copy size={12} />}
+              isDisabled={!userId}
+            >
+              {userId ? "Copy to your library" : "Sign in to copy"}
+            </CopyPersonaButton>
+
+            {persona.copiesCount > 0 && (
+              <p className="text-center mt-4 text-balance text-foreground-500 text-small">
+                {persona.copiesCount}{" "}
+                {persona.copiesCount > 1 ? "copies" : "copy"}
+              </p>
+            )}
+          </div>
 
           {/* TODO: <div className="pt-2">
             <Button variant="flat" fullWidth startContent={<Copy size={12} />}>
@@ -112,29 +129,94 @@ export default async function PersonaPage({ params }: Props) {
         </div>
       </div>
 
-      <div className="w-full">
+      <div className="w-full max-w-xl">
         <hr className="mt-6 border-none" />
 
         <div className="px-2">
           <h1 className="text-5xl font-thin text-foreground-600">
             {persona.name}
           </h1>
-          <p className="font-light text-small text-foreground-500 max-w-xl mt-2">
-            {persona.summary}
+          <p className="font-light text-small text-foreground-500 mt-2">
+            <span className="capitalize mr-6">
+              <PersonStanding className="inline mr-1" size={14} />
+              {persona.gender}
+            </span>
+            <span>
+              <CalendarRange className="inline mr-1" size={14} />
+              {persona.age}
+            </span>
           </p>
 
-          <ul className="font-light text-balance text-foreground-600  max-w-xl mt-4 space-y-2">
-            <li>Age: {persona.age}</li>
-            <li>Gender: {persona.gender}</li>
-            <li>Occupations/Proffesions: {persona.occupation}</li>
-            <li>Personality Traits: {persona.personalityTraits}</li>
-            <li>Interests: {persona.interests}</li>
-            <li>Appearance: {persona.appearance}</li>
-            <li>Background: {persona.background}</li>
-            <li>History: {persona.history}</li>
-            <li>Characteristics: {persona.characteristics}</li>
-          </ul>
+          <p className="font-light text-small text-foreground-500 mt-2 text-balance">
+            <span>
+              <NotepadText className="inline mr-1" size={14} />
+              {persona.summary}
+            </span>
+          </p>
+
+          <div className="text-foreground-600 mt-8 space-y-4">
+            <section>
+              <h2 className="text-xl font-light text-foreground-500">
+                Occupations/Proffesions
+              </h2>
+              <p className="text-foreground-600 mt-1">{persona.occupation}</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-light text-foreground-500">
+                Personality Traits
+              </h2>
+              <p className="text-foreground-600 mt-1">
+                {persona.personalityTraits}
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-light text-foreground-500">
+                Interests
+              </h2>
+              <p className="text-foreground-600 mt-1">{persona.interests}</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-light text-foreground-500">
+                Appearance
+              </h2>
+              <p className="text-foreground-600 mt-1">{persona.appearance}</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-light text-foreground-500">
+                Background
+              </h2>
+              <p className="text-foreground-600 mt-1">{persona.background}</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-light text-foreground-500">
+                History
+              </h2>
+              <p className="text-foreground-600 mt-1">{persona.history}</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-light text-foreground-500">
+                Characteristics
+              </h2>
+              <p className="text-foreground-600 mt-1">
+                {persona.characteristics}
+              </p>
+            </section>
+          </div>
         </div>
+
+        <Suspense>
+          <div className="mt-10">
+            <PersonaComments personaId={persona.id} />
+            <hr className="mt-6 border-none" />
+            <CreatePersonaCommentForm personaId={persona.id} />
+          </div>
+        </Suspense>
       </div>
     </div>
   );

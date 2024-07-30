@@ -62,7 +62,7 @@ export default function CreatePersonaCommentForm({ personaId }: Props) {
         disabled={!isSignedIn}
         type="submit"
         className="w-full mt-2"
-        variant="shadow"
+        variant="flat"
         isDisabled={formState.isSubmitting}
         isLoading={formState.isSubmitting}
       >

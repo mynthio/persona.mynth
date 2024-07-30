@@ -36,7 +36,7 @@ export default function CopyPersonaButton({ personaId, ...props }: Props) {
   return (
     <>
       <Button {...props} onPress={onOpen}>
-        Copy to your library
+        {props.children}
       </Button>
 
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>

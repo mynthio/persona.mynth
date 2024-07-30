@@ -14,7 +14,12 @@ export default async function SidebarLayout({ children }: Props) {
     <>
       <div className="bg-gradient-to-tl from-purple-950/50 to-black fixed top-0 left-0 -z-50 w-full h-full" />
 
-      <Toaster />
+      <Toaster
+        toastOptions={{
+          className:
+            "bg-[#1a0436] text-foreground-300 text-small rounded-lg px-6 py-4 border-[#250947] shadow-xl shadow-foreground-100/10",
+        }}
+      />
       <Sidebar />
 
       <main className="lg:ml-80 pl-4 p-8">{children}</main>
