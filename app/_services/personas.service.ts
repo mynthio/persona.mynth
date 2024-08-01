@@ -200,7 +200,7 @@ type GetUserPersonasArgs = {
   cursor?: string;
 };
 
-export const getUserPersonas = cache(async (args: GetUserPersonasArgs) => {
+export const getUserPersonas = async (args: GetUserPersonasArgs) => {
   const results = await prisma.persona.findMany({
     where: {
       creatorId: args.userId,
@@ -208,6 +208,15 @@ export const getUserPersonas = cache(async (args: GetUserPersonasArgs) => {
     orderBy: {
       createdAt: "desc",
     },
+    take: args.limit,
+    ...(args.cursor
+      ? {
+          cursor: {
+            id: args.cursor,
+          },
+          skip: 1,
+        }
+      : {}),
     select: {
       id: true,
       name: true,
@@ -245,6 +254,6 @@ export const getUserPersonas = cache(async (args: GetUserPersonasArgs) => {
     bookmarked: result.bookmarks?.length > 0,
     likesCount: result.likesCount,
   }));
-});
+};
 
 export type GetUserPersonasData = Awaited<ReturnType<typeof getUserPersonas>>;
