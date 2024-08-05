@@ -23,7 +23,7 @@ export default async function PersonaLocalChatPage({ params }: Props) {
   if (!persona) return <div>Persona not found</div>; // TODO: Move to component or handle 404
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-xl mx-auto">
       <h2 className="text-2xl font-light text-foreground-500 text-center">
         Local chat with {persona.name}
       </h2>

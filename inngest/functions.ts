@@ -8,9 +8,18 @@ import { TextGenerationModelFactory } from "@/lib/ai/text-generation-models/text
 import { TextGenerationModelsEnum } from "@/lib/ai/text-generation-models/enums/text-generation-models.enum";
 import { TextToImgModelFactory } from "@/lib/ai/text-to-img-models/text-to-img-model.factory";
 import { TextToImgModelsEnum } from "@/lib/ai/text-to-img-models/enums/text-to-img-models.enum";
-
+import { nanoid } from "nanoid";
 import sharp from "sharp";
 import { logsnag } from "@/lib/logsnag.server";
+import { GeneratePersonaImageEventDataSchema } from "@/schemas/generate-persona-image-event-data.schema";
+import { NonRetriableError } from "inngest";
+import { realisticPortraitPrompt } from "@/lib/ai/prompts-creator/prompts-data/realistic-portrait-prompts.data";
+import { animePortraitPrompt } from "@/lib/ai/prompts-creator/prompts-data/anime-portrait-prompts.data";
+import { PersonaImageStyleEnum } from "@/enums/persona-image-style.enum";
+import { PersonaImageQualityEnum } from "@/enums/persona-image-quality.enum";
+import { PersonaImageFrameEnum } from "@/enums/persona-image-frame.enum";
+import { realisticFullBodyPrompt } from "@/lib/ai/prompts-creator/prompts-data/realistic-full-body-prompts.data";
+import { animeFullBodyPrompt } from "@/lib/ai/prompts-creator/prompts-data/anime-full-body-prompts.data";
 
 export const generatePersona = inngest.createFunction(
   {
@@ -192,15 +201,14 @@ export const generatePersona = inngest.createFunction(
 
         let response = "";
 
+        const prompt = realisticPortraitPrompt({
+          apperance: persona.appearance,
+          age: persona.age,
+          gender: persona.gender,
+        });
+
         try {
-          response = await model.generateText(
-            imagePrompt(persona.appearance, {
-              apperanceDetails:
-                "apperance" in promptInput ? promptInput.apperance : null,
-              age: "age" in promptInput ? promptInput.age : null,
-              gender: "gender" in promptInput ? promptInput.gender : null,
-            })
-          );
+          response = await model.generateText(prompt);
         } catch (error) {
           logger.error(error);
         }
@@ -210,14 +218,7 @@ export const generatePersona = inngest.createFunction(
         );
 
         try {
-          response = await model.generateText(
-            imagePrompt(persona.appearance, {
-              apperanceDetails:
-                "apperance" in promptInput ? promptInput.apperance : null,
-              age: "age" in promptInput ? promptInput.age : null,
-              gender: "gender" in promptInput ? promptInput.gender : null,
-            })
-          );
+          response = await model.generateText(prompt);
         } catch (error) {
           logger.error(error);
         }
@@ -306,6 +307,11 @@ export const generatePersona = inngest.createFunction(
               imageUrl: `https://${process.env.BUNNY_CDN_HOST}/personas/${persona.id}/persona-${persona.id}.webp`,
               prompt: personaImagePrompt,
               model: imageModelId,
+              creator: {
+                connect: {
+                  id: userId,
+                },
+              },
             },
           },
         },
@@ -365,6 +371,208 @@ export const syncUser = inngest.createFunction(
       properties: {
         username,
       },
+    });
+  }
+);
+
+export const generatePersonaImage = inngest.createFunction(
+  {
+    id: "generate-persona-image",
+    throttle: {
+      limit: 4,
+      period: "90s",
+      key: "event.data.userId",
+    },
+    concurrency: [
+      {
+        limit: 15,
+        key: "generate-persona-image",
+      },
+      {
+        limit: 2,
+        key: "event.data.userId",
+      },
+    ],
+    retries: 1,
+  },
+  { event: "app/generate-persona-image.sent" },
+  async ({ event, step, logger, prisma, redis, runId }) => {
+    const data = event.data;
+    assert(data, GeneratePersonaImageEventDataSchema);
+
+    const persona = await step.run("get-persona", async () => {
+      const persona = await prisma.persona.findUnique({
+        where: {
+          id: data.personaId,
+        },
+      });
+
+      if (!persona) {
+        throw new NonRetriableError("Persona not found");
+      }
+
+      return persona;
+    });
+
+    const prompt = await step.run("generate-persona-image-prompt", async () => {
+      let model = TextGenerationModelFactory.create(
+        TextGenerationModelsEnum.Qwen2_72bInstruct
+      );
+
+      let response = "";
+
+      const prompt =
+        data.style === PersonaImageStyleEnum.Photorealistic
+          ? data.frame === PersonaImageFrameEnum.Portrait
+            ? realisticPortraitPrompt({
+                apperance: persona.appearance,
+                age: persona.age,
+                gender: persona.gender,
+              })
+            : realisticFullBodyPrompt({
+                apperance: persona.appearance,
+                age: persona.age,
+                style: persona.style,
+                gender: persona.gender,
+              })
+          : data.frame === PersonaImageFrameEnum.Portrait
+          ? animePortraitPrompt({
+              apperance: persona.appearance,
+              age: persona.age,
+              gender: persona.gender,
+            })
+          : animeFullBodyPrompt({
+              apperance: persona.appearance,
+              age: persona.age,
+              style: persona.style,
+              gender: persona.gender,
+            });
+
+      logger.debug("Prompt: ", prompt);
+
+      try {
+        response = await model.generateText(prompt);
+
+        return response;
+      } catch (error) {
+        logger.error(error);
+      }
+
+      model = TextGenerationModelFactory.create(
+        TextGenerationModelsEnum.MetaLlama3_8bInstruct
+      );
+
+      try {
+        response = await model.generateText(prompt);
+      } catch (error) {
+        logger.error(error);
+      }
+
+      if (!response || response.length === 0) {
+        throw new Error("Failed to generate response");
+      }
+
+      return response;
+    });
+
+    const { imageUrl, modelId } = await step.run(
+      "generate-persona-image",
+      async () => {
+        let model = TextToImgModelFactory.create(
+          TextToImgModelsEnum.StabilityAIStableDiffusionXLBase10
+        );
+
+        model = TextToImgModelFactory.create(
+          TextToImgModelsEnum.StabilityAIStableDiffusionXL10
+        );
+
+        let imgBuffer: Buffer | null = null;
+
+        try {
+          imgBuffer = await model.generateImage(prompt, {
+            width: 1024,
+            height: 1024,
+          });
+        } catch (error) {
+          logger.error(error);
+        }
+
+        if (!imgBuffer) throw new Error("Failed to generate image");
+
+        // Optimize image
+        const optimizedImageBuffer = await sharp(imgBuffer)
+          .resize({
+            width: 1024,
+            height: 1024,
+          })
+          .webp({
+            quality: 80,
+          })
+          .toBuffer();
+
+        const uploadPath = `personas/${persona.id}/${nanoid(12)}.webp`;
+
+        /**
+         * We need to upload image in the same step as we generate it
+         * because of the file size and issue while returning it from step
+         */
+        await got.put(
+          `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/${uploadPath}`,
+          {
+            headers: {
+              AccessKey: process.env.BUNNY_CDN_API_KEY,
+              "Content-Type": "application/octet-stream",
+            },
+            body: Buffer.from(optimizedImageBuffer),
+          }
+        );
+
+        return {
+          imageUrl: `https://${process.env.BUNNY_CDN_HOST}/${uploadPath}`,
+          modelId: model.id,
+        };
+      }
+    );
+
+    await step.run("save-persona-image-in-db", async () => {
+      const { id } = await prisma.image.create({
+        data: {
+          imageUrl: imageUrl,
+          prompt: prompt,
+          model: modelId,
+          labels: [data.style],
+          ai: true,
+          persona: {
+            connect: {
+              id: persona.id,
+            },
+          },
+          creator: {
+            connect: {
+              id: data.userId,
+            },
+          },
+        },
+      });
+
+      // decrease by one the number of pending image generations
+      await redis
+        .set(
+          `user:${data.userId}:personas:${persona.id}:image-generation:${event.id}`,
+          JSON.stringify({
+            status: "done",
+            imageUrl: imageUrl,
+            id,
+            eventId: event.id,
+          }),
+          "EX",
+          1 * 60 // 1 minute
+        )
+        .catch((error) => {
+          logger.error(error);
+          // We don't want to fail the function if we can't update redis
+          // it's not a big issue, not worth to retry and not worth for separate step
+        });
     });
   }
 );

@@ -38,3 +38,6 @@ next-env.d.ts
 
 # Xata migrations not needed
 .xata/migrations
+
+# Million Lint
+.million

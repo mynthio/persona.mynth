@@ -1,13 +1,16 @@
 "use server";
 
 import { prisma } from "@/prisma/client";
-import { UpdatePersonaSchema } from "@/schemas/update-persona.schema";
+import {
+  UpdatePersonaInput,
+  UpdatePersonaSchema,
+} from "@/schemas/update-persona.schema";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import "server-only";
 import { assert } from "superstruct";
 
-export const updatePersonaAction = async (data: unknown) => {
+export const updatePersonaAction = async (data: UpdatePersonaInput) => {
   const { userId } = auth();
   if (!userId) throw new Error("Not authenticated");
 
@@ -24,6 +27,7 @@ export const updatePersonaAction = async (data: unknown) => {
       isNsfw: data.isNsfw,
       published: data.published,
       publishedAt: data.published ? new Date() : null,
+      mainImageUrl: data.mainImageUrl,
     },
   });
 

@@ -5,6 +5,7 @@ export const UpdatePersonaSchema = object({
   name: optional(string()),
   isNsfw: optional(boolean()),
   published: optional(boolean()),
+  mainImageUrl: optional(string()),
 });
 
 export type UpdatePersonaInput = Infer<typeof UpdatePersonaSchema>;

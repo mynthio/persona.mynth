@@ -12,8 +12,8 @@ export const textPrompt = (
   personalityTraits: Comma separated list of 3-5 key personality traits
   interests: Comma separated list of 3-5 main interests or hobbies
   culturalBackground: Character's cultural or ethnic background
-  appearance: A paragraph describing the character's physicalappearance
-  appearancePrompt: a prompt passed to text-to-image model to generate the image of the persona portrait
+  appearance: A paragraph describing the character's physical appearance, natural hairs, face details, body, skin, skin tone. Should not include the clothing or accessories.
+  style: A paragraph describing the character's style, including hair, makeup, and clothing
   background: A paragraph about the character's upbringing andformative experiences
   history: A paragraph detailing key events in the character's life
   characteristics: A paragraph describing the character's behavior,mannerisms, and notable qualities
@@ -100,10 +100,11 @@ export const creatorPrompt = (input: CreatorPrompt) => {
   summary: A brief, one-sentence summary of the character
   personalityTraits: Comma separated list of 3-5 key personality traits
   interests: Comma separated list of 3-5 main interests or hobbies
-  appearance: A paragraph describing the character's physical appearance
+  appearance: A paragraph describing the character's physical appearance, natural hairs, face details, body, skin, skin tone. Should not include the clothing or accessories.
+  style: A paragraph describing the character's style, including hair, makeup, and clothing
   background: A paragraph about the character's uprising and formative experiences
   history: A paragraph detailing key events in the character's life
-  characteristics: A paragraph describing the character's behavior,mannerisms, and notable qualities
+  characteristics: A paragraph describing the character's behavior, mannerisms, and notable qualities
 
   Ensure that all fields are filled out based on the given description, using creative inference where necessary to provide a complete and consistent persona. If any information is not explicitly provided in the original description, use your best judgment to create plausible details that fit the overall character concept.
 

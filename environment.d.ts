@@ -28,5 +28,8 @@ namespace NodeJS {
 
     // Betterstack
     LOGTAIL_SOURCE_TOKEN: string;
+
+    // Lemon Squeezy
+    LEMONSQUEEZY_WEBHOOK_SECRET: string;
   }
 }

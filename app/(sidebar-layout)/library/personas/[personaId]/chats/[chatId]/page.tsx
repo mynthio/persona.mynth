@@ -2,6 +2,7 @@ import { prisma } from "@/prisma/client";
 import { auth } from "@clerk/nextjs/server";
 import Chat from "./chat.client";
 import { Chip } from "@nextui-org/chip";
+import { Avatar } from "@nextui-org/react";
 
 export const maxDuration = 180;
 
@@ -39,18 +40,27 @@ export default async function ChatPage({ params }: Props) {
   if (!chat) return <div>Chat not found</div>; // TODO: Move to component or handle 404
 
   return (
-    <div>
-      <div className="flex items-start gap-2">
+    <div className="max-w-2xl mx-auto">
+      <div className="text-center">
         <Chip size="sm" color="danger">
           BETA
         </Chip>
-        <h2 className="text-2xl font-light text-foreground-500">
+
+        <Avatar
+          size="lg"
+          src={persona.mainImageUrl}
+          alt={persona.name}
+          className="mx-auto mt-10"
+        />
+
+        <h2 className="text-2xl font-light text-foreground-500 mt-4">
           Chat with {persona.name}
         </h2>
+
+        <p className="text-small text-foreground-400 italic">
+          Be aware of issues and bugs, as it's early beta stage
+        </p>
       </div>
-      <p className="text-small text-foreground-500 italic mt-1">
-        Be aware of issues and bugs, as it's early beta stage
-      </p>
 
       <div className="mt-10">
         <Chat

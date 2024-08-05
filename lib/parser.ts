@@ -99,6 +99,7 @@ type PersonaResponseFields = {
   personalityTraits: string;
   interests: string;
   appearance: string;
+  style: string;
   background: string;
   history: string;
   characteristics: string;
@@ -116,6 +117,7 @@ export const parsePersonaResponse = (text: string): PersonaResponseFields => {
     "personalityTraits",
     "interests",
     "appearance",
+    "style",
     "background",
     "history",
     "characteristics",

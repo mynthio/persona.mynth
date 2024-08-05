@@ -2,6 +2,7 @@
 
 import "server-only";
 
+import { jsonSchema, tool } from "ai";
 import { openai } from "@/lib/open-ai";
 import { CoreMessage, streamText } from "ai";
 import { createStreamableValue } from "ai/rsc";
@@ -10,6 +11,29 @@ import { prisma } from "@/prisma/client";
 import { auth } from "@clerk/nextjs/server";
 import { getPersonaChat } from "../_services/persona-chats.service";
 import { logger } from "@/lib/logger";
+
+const myMemorySchema = jsonSchema<{
+  memory: {
+    content: string;
+    keywords: string[];
+  };
+}>({
+  type: "object",
+  properties: {
+    memory: {
+      type: "object",
+      properties: {
+        content: { type: "string" },
+        keywords: {
+          type: "array",
+          items: { type: "string" },
+        },
+      },
+      required: ["content", "keywords"],
+    },
+  },
+  required: ["memory"],
+});
 
 export const chatAction = async (data: {
   messages: CoreMessage[];
@@ -35,6 +59,16 @@ export const chatAction = async (data: {
   const model = openai.chat("meta-llama/Meta-Llama-3-70B-Instruct");
 
   const result = await streamText({
+    tools: {
+      memory: tool({
+        description: "save memory",
+        parameters: myMemorySchema,
+        execute: async ({ memory }) => {
+          console.log("memory", memory);
+          logger.debug("Memory created", { memory });
+        },
+      }),
+    },
     model,
     messages: data.messages,
     ...(data.isLocal

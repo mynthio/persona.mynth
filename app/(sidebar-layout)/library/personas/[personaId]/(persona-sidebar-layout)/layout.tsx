@@ -2,7 +2,7 @@ import { prisma } from "@/prisma/client";
 import { auth } from "@clerk/nextjs/server";
 import PublishPersonaButton from "./_components/publish-persona-button.client";
 import { Image } from "@nextui-org/image";
-import { Link } from "@nextui-org/link";
+import Link from "next/link";
 
 import PersonaMenu from "./_components/persona-menu.client";
 import { Button } from "@nextui-org/button";

@@ -31,6 +31,7 @@ model User {
   xata_id        String   @unique(map: "_pgroll_user_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
   xata_version   Int      @default(0)
   xata_createdat DateTime @default(now()) @db.Timestamptz(6)
+  Image          Image[]
 }
 
 model PersonaPrompt {
@@ -103,6 +104,7 @@ model Persona {
 
   // Detailed description fields as text
   appearance      String
+  style           String @default("-")
   background      String
   history         String
   characteristics String
@@ -218,11 +220,21 @@ model Image {
 
   prompt String?
   model  String?
+  labels String[] @default([])
+
+  ai     Boolean @default(true)
+  public Boolean @default(false)
 
   imageUrl String
 
   persona   Persona? @relation(fields: [personaId], references: [id], onDelete: Cascade)
   personaId String?
+
+  creator   User?   @relation(fields: [creatorId], references: [id])
+  creatorId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   // Xata fields
   xata_updatedat DateTime @default(now()) @db.Timestamptz(6)

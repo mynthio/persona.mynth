@@ -4,9 +4,8 @@ import { Message } from "@/lib/ai/text-generation-models/types/message.type";
 import { Button } from "@nextui-org/button";
 import { Textarea } from "@nextui-org/input";
 import { useForm } from "react-hook-form";
-import { createStreamableValue, readStreamableValue } from "ai/rsc";
-import { CoreMessage, streamText } from "ai";
-import { openai } from "@/lib/open-ai";
+import { readStreamableValue } from "ai/rsc";
+import { CoreMessage } from "ai";
 import React from "react";
 import { chatAction } from "@/app/_actions/chat.action";
 import { useUser } from "@clerk/nextjs";
@@ -41,9 +40,13 @@ export default function Chat({
         m.role === "system" ? null : (
           <Card
             key={m.id}
-            className={`${m.role === "user" ? "mr-10" : "ml-10"}`}
+            className={`${
+              m.role === "user" ? "mr-10" : "ml-10"
+            } bg-default-100/50 px-3  py-4`}
           >
-            <CardBody>{m.content.toString()}</CardBody>
+            <CardBody className="text-foreground-500 text-balance">
+              {m.content.toString()}
+            </CardBody>
 
             <CardFooter>
               <User
@@ -87,6 +90,10 @@ export default function Chat({
           {...register("content")}
           type="text"
           placeholder="Type your message here"
+          className="pr-10"
+          classNames={{
+            inputWrapper: "bg-default-100/50",
+          }}
         />
 
         <div className="mt-4 flex items-center gap-4">
