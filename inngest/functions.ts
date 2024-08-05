@@ -499,6 +499,20 @@ export const generatePersonaImage = inngest.createFunction(
 
         if (!imgBuffer) throw new Error("Failed to generate image");
 
+        await logsnag.track({
+          channel: "images-ai",
+          event: "New image generated",
+          user_id: data.userId,
+          icon: "🖼️",
+          notify: false,
+          tags: {
+            persona: persona.id,
+            style: data.style,
+            frame: data.frame,
+            model: model.id,
+          },
+        });
+
         // Optimize image
         const optimizedImageBuffer = await sharp(imgBuffer)
           .resize({
