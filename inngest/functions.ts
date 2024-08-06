@@ -379,6 +379,36 @@ export const syncUser = inngest.createFunction(
   }
 );
 
+export const updateUser = inngest.createFunction(
+  { id: "update-user-from-clerk" }, // ←The 'id' is an arbitrary string used to identify the function in the dashboard
+  { event: "clerk/user.updated" }, // ← This is the function's triggering event
+  async ({ event, prisma }) => {
+    const user = event.data; // The event payload's data will be the Clerk User json object
+    const { id, username } = user;
+    const email = user.email_addresses.find(
+      (e: any) => e.id === user.primary_email_address_id
+    ).email;
+
+    await prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        username: username || "Anonymous",
+        email,
+        imageUrl: user.image_url,
+      },
+    });
+
+    await logsnag.identify({
+      user_id: id,
+      properties: {
+        username,
+      },
+    });
+  }
+);
+
 export const generatePersonaImage = inngest.createFunction(
   {
     id: "generate-persona-image",
