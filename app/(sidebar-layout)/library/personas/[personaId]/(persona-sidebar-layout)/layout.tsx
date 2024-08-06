@@ -62,7 +62,7 @@ export default async function LibraryPersonaLayout({
 
             <Button
               as={Link}
-              href={`/personas/${persona.id}/gallery`}
+              href={`/library/personas/${persona.id}/gallery`}
               variant="light"
               startContent={<Images size={12} />}
               className="xl:w-full text-foreground-700"
