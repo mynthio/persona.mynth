@@ -6,6 +6,7 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  Switch,
 } from "@nextui-org/react";
 import { Filter, Trash } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -45,6 +46,15 @@ export default function PersonasFilters() {
           <DropdownItem key="bookmarked">Bookmarked</DropdownItem>
         </DropdownMenu>
       </Dropdown>
+
+      <Switch
+        defaultSelected={searchParams.get("nsfw") === "true"}
+        onValueChange={(value) => {
+          toggleSearchParam("nsfw", value ? "true" : "false");
+        }}
+      >
+        Show NSFW?
+      </Switch>
     </div>
   );
 }

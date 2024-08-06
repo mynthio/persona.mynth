@@ -14,15 +14,24 @@ export default async function NewPromptPage() {
             Text Prompt
           </h1>
         </div>
-
-        <Button
-          variant="flat"
-          as={Link}
-          startContent={<Text size={12} />}
-          href="/library/prompts/creator/basic"
-        >
-          Switch to creator
-        </Button>
+        <div className="flex items-start gap-2">
+          <Button
+            variant="flat"
+            as={Link}
+            startContent={<Text size={12} />}
+            href="/library/personas/new"
+          >
+            Create Custom
+          </Button>
+          <Button
+            variant="flat"
+            as={Link}
+            startContent={<Text size={12} />}
+            href="/library/prompts/creator/basic"
+          >
+            Switch to creator
+          </Button>
+        </div>
       </div>
       <Suspense>
         <PromptTextPromptForm />

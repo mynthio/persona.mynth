@@ -4,11 +4,12 @@ import { auth } from "@clerk/nextjs/server";
 import { Button } from "@nextui-org/button";
 import { Image } from "@nextui-org/image";
 
-import { ImagePlus, Sparkles, Upload } from "lucide-react";
+import { ImagePlus, Sparkles, Upload, UploadCloud } from "lucide-react";
 import GenerateImageButton from "./_components/generate-image-button.client";
 import PendingImages from "./_components/pending-images.client";
 import Link from "next/link";
 import ImageModal from "./_components/image-modal.client";
+import UploadImageButton from "./_components/upload-image-button.client";
 
 type Props = {
   params: {
@@ -45,7 +46,7 @@ export default async function LibraryPersonaGallery({ params }: Props) {
 
   return (
     <>
-      <div>
+      <div className="flex gap-2">
         <GenerateImageButton
           personaId={params.personaId}
           startContent={<Sparkles size={12} />}
@@ -53,6 +54,13 @@ export default async function LibraryPersonaGallery({ params }: Props) {
         >
           Generate
         </GenerateImageButton>
+        <UploadImageButton
+          personaId={params.personaId}
+          startContent={<UploadCloud size={12} />}
+          variant="flat"
+        >
+          Upload image
+        </UploadImageButton>
       </div>
       <div className="grid mt-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {/* The create button */}

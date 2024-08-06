@@ -114,6 +114,7 @@ type GetPublicPersonasArgs = {
   filter?: "bookmarked";
   limit: number;
   cursor?: string;
+  nsfw: boolean;
 };
 
 export const getPublicPersonas = async ({
@@ -121,10 +122,12 @@ export const getPublicPersonas = async ({
   filter,
   limit,
   cursor,
+  nsfw,
 }: GetPublicPersonasArgs) => {
   const results = await prisma.persona.findMany({
     where: {
       published: true,
+      ...(nsfw ? {} : { isNsfw: false }),
       ...(filter === "bookmarked" && userId
         ? { bookmarks: { some: { userId } } }
         : {}),
@@ -141,6 +144,7 @@ export const getPublicPersonas = async ({
       createdAt: true,
       publishedAt: true,
 
+      isNsfw: true,
       personaGenerationId: true,
 
       likesCount: true,
@@ -175,6 +179,7 @@ export const getPublicPersonas = async ({
 
     createdAt: result.createdAt,
     publishedAt: result.publishedAt,
+    isNsfw: result.isNsfw,
 
     personaGenerationId: result.personaGenerationId,
 
@@ -224,6 +229,7 @@ export const getUserPersonas = async (args: GetUserPersonasArgs) => {
       mainImageUrl: true,
 
       original: true,
+      isNsfw: true,
 
       createdAt: true,
       publishedAt: true,
@@ -242,6 +248,8 @@ export const getUserPersonas = async (args: GetUserPersonasArgs) => {
     name: result.name,
     summary: result.summary,
     mainImageUrl: result.mainImageUrl,
+
+    isNsfw: result.isNsfw,
 
     original: result.original,
     createdAt: result.createdAt,

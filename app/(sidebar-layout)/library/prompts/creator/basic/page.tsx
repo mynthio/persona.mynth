@@ -22,14 +22,24 @@ export default async function NewPromptPage() {
           </Chip>
         </div>
 
-        <Button
-          variant="flat"
-          as={Link}
-          startContent={<Text size={12} />}
-          href="/library/prompts/creator/text"
-        >
-          Switch to text prompt
-        </Button>
+        <div className="flex items-start gap-2">
+          <Button
+            variant="flat"
+            as={Link}
+            startContent={<Text size={12} />}
+            href="/library/personas/new"
+          >
+            Create Custom
+          </Button>
+          <Button
+            variant="flat"
+            as={Link}
+            startContent={<Text size={12} />}
+            href="/library/prompts/creator/text"
+          >
+            Switch to text prompt
+          </Button>
+        </div>
       </div>
       <Suspense>
         <PromptCreatorForm />

@@ -12,6 +12,7 @@ export async function GET(request: Request) {
     cursor: searchParams.get("cursor") ?? undefined,
     limit: Number(searchParams.get("limit") ?? PERSONAS_PER_PAGE),
     filter: searchParams.get("filter"),
+    nsfw: searchParams.get("nsfw") ?? "false",
   };
 
   const cursor = parsedSearchParams.cursor;
@@ -20,6 +21,8 @@ export async function GET(request: Request) {
       ? parsedSearchParams.limit
       : PERSONAS_PER_PAGE;
 
+  const nsfw = parsedSearchParams.nsfw === "true";
+
   const filter = parsedSearchParams.filter ?? undefined;
 
   const personas = await getPublicPersonas({
@@ -27,6 +30,7 @@ export async function GET(request: Request) {
     filter: filter as "bookmarked" | undefined,
     limit,
     cursor,
+    nsfw,
   });
 
   return Response.json({

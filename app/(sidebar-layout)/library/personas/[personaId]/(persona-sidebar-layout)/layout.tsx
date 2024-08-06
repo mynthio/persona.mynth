@@ -6,7 +6,7 @@ import Link from "next/link";
 
 import PersonaMenu from "./_components/persona-menu.client";
 import { Button } from "@nextui-org/button";
-import { Earth, MessagesSquare, Terminal } from "lucide-react";
+import { Earth, Images, MessagesSquare, Terminal } from "lucide-react";
 import NewChatButton from "./chats/_components/new-chat-button";
 
 type Props = {
@@ -58,28 +58,17 @@ export default async function LibraryPersonaLayout({
           />
 
           <div className="m-4 max-xl:max-w-60 w-full mt-4 flex sm:flex-col flex-wrap gap-2">
-            {persona.chats.length > 0 ? (
-              <Button
-                as={Link}
-                href={`/library/personas/${persona.id}/chats`}
-                variant="light"
-                startContent={<MessagesSquare size={12} />}
-                className="xl:w-full bg-foreground-400/20"
-              >
-                Continue chat
-              </Button>
-            ) : (
-              <NewChatButton personaId={persona.id} />
-              // <Button
-              //   as={Link}
-              //   href={`/library/personas/${persona.id}`}
-              //   variant="light"
-              //   startContent={<MessagesSquare size={12} />}
-              //   className="xl:w-full bg-foreground-400/20"
-              // >
-              //   Start chatting
-              // </Button>
-            )}
+            <NewChatButton personaId={persona.id} />
+
+            <Button
+              as={Link}
+              href={`/personas/${persona.id}/gallery`}
+              variant="light"
+              startContent={<Images size={12} />}
+              className="xl:w-full text-foreground-700"
+            >
+              Generate / Add images
+            </Button>
 
             {persona.original &&
               (persona.published ? (

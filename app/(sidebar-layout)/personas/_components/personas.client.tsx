@@ -1,6 +1,6 @@
 "use client";
 
-import { Earth, Lock } from "lucide-react";
+import { Earth, Lock, ShieldAlert } from "lucide-react";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -35,11 +35,13 @@ const getKey =
     if (pageIndex === 0)
       return `/api/personas?limit=${PERSONAS_PER_PAGE}&filter=${searchParams.get(
         "filter"
-      )}`;
+      )}&nsfw=${searchParams.get("nsfw")}`;
 
     return `/api/personas?cursor=${
       previousPageData.nextCursor
-    }&limit=${PERSONAS_PER_PAGE}&filter=${searchParams.get("filter")}`;
+    }&limit=${PERSONAS_PER_PAGE}&filter=${searchParams.get(
+      "filter"
+    )}&nsfw=${searchParams.get("nsfw")}`;
   };
 
 type Props = {
@@ -71,6 +73,14 @@ export default function Personas({ initialData }: Props) {
               {
                 label: dayjs(persona.publishedAt).fromNow(),
               },
+              ...(persona.isNsfw
+                ? [
+                    {
+                      icon: <ShieldAlert size={16} />,
+                      label: "NSFW",
+                    },
+                  ]
+                : []),
             ]}
           />
 

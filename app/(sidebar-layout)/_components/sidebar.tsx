@@ -20,7 +20,12 @@ import {
 import { dark } from "@clerk/themes";
 
 import { SignInButton, useClerk, UserButton, useUser } from "@clerk/nextjs";
-
+import {
+  DropdownMenu,
+  Dropdown,
+  DropdownTrigger,
+  DropdownItem,
+} from "@nextui-org/dropdown";
 import { Image } from "@nextui-org/image";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
 import { Listbox, ListboxSection, ListboxItem } from "@nextui-org/listbox";
