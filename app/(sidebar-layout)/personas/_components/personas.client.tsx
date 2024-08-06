@@ -13,7 +13,10 @@ import {
   PersonaCardHeader,
   PersonaCardTitle,
 } from "@/app/_components/personas/persona-card.client";
-import { GetUserPersonasData } from "@/app/_services/personas.service";
+import {
+  GetPublicPersonasData,
+  GetUserPersonasData,
+} from "@/app/_services/personas.service";
 import {
   PersonaBookmarkButton,
   PersonaCreatorButton,
@@ -54,7 +57,7 @@ export default function Personas({ initialData }: Props) {
   const searchParams = useSearchParams();
 
   return (
-    <PersonasInfiniteLoader<GetUserPersonasData>
+    <PersonasInfiniteLoader<GetPublicPersonasData>
       getKey={getKey(searchParams)}
       itemSize={400}
       className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
@@ -94,8 +97,8 @@ export default function Personas({ initialData }: Props) {
 
           <PersonaCardFooter>
             <div>
-              {user?.username && (
-                <PersonaCreatorButton username={user.username} />
+              {persona.creator && (
+                <PersonaCreatorButton username={persona.creator.username} />
               )}
             </div>
 
