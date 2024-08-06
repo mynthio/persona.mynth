@@ -58,7 +58,17 @@ export default async function LibraryPersonaLayout({
           />
 
           <div className="m-4 max-xl:max-w-60 w-full mt-4 flex sm:flex-col flex-wrap gap-2">
-            <NewChatButton personaId={persona.id} />
+            {/* <NewChatButton personaId={persona.id} /> */}
+
+            <Button
+              as={Link}
+              href={`/library/personas/${persona.id}/chats/new`}
+              variant="light"
+              startContent={<MessagesSquare size={12} />}
+              className="xl:w-full text-foreground-700"
+            >
+              Start new chat
+            </Button>
 
             <Button
               as={Link}

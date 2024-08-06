@@ -1,29 +1,27 @@
+import "server-only";
 import { prisma } from "@/prisma/client";
-import { unstable_cache as cache } from "next/cache";
 
 type GetPersonaChatArgs = {
   chatId: string;
   userId: string;
 };
 
-export const getPersonaChat = (args: GetPersonaChatArgs) =>
-  cache(
-    async (args: GetPersonaChatArgs) => {
-      const chat = await prisma.chat.findUnique({
-        where: {
-          id: args.chatId,
-          userId: args.userId,
-        },
-      });
-
-      return chat
-        ? {
-            id: chat?.id,
-          }
-        : null;
+export const getPersonaChat = async (args: GetPersonaChatArgs) => {
+  const chat = await prisma.chat.findUnique({
+    where: {
+      id: args.chatId,
+      userId: args.userId,
     },
-    ["persona-chat"],
-    {
-      revalidate: 60 * 60, // 1 hour
-    }
-  )(args);
+    include: {
+      persona: true,
+      messages: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 25,
+      },
+    },
+  });
+
+  return chat ? chat : null;
+};

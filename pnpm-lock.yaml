@@ -59,6 +59,9 @@ importers:
       '@nextui-org/input':
         specifier: ^2.2.4
         version: 2.2.4(@nextui-org/system@2.2.5(@nextui-org/theme@2.2.9(tailwindcss@3.4.7))(framer-motion@11.3.21(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@nextui-org/theme@2.2.9(tailwindcss@3.4.7))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@nextui-org/kbd':
+        specifier: ^2.0.33
+        version: 2.0.33(@nextui-org/theme@2.2.9(tailwindcss@3.4.7))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@nextui-org/listbox':
         specifier: ^2.1.25
         version: 2.1.25(@nextui-org/system@2.2.5(@nextui-org/theme@2.2.9(tailwindcss@3.4.7))(framer-motion@11.3.21(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@nextui-org/theme@2.2.9(tailwindcss@3.4.7))(framer-motion@11.3.21(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -6084,7 +6087,7 @@ snapshots:
       '@antfu/ni': 0.21.12
       '@axiomhq/js': 1.0.0-rc.3
       '@babel/core': 7.24.6
-      '@babel/types': 7.24.6
+      '@babel/types': 7.25.2
       '@clack/prompts': 0.7.0
       cli-high: 0.4.2
       diff: 5.2.0

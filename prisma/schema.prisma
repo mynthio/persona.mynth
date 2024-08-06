@@ -251,10 +251,17 @@ model Chat {
   persona   Persona? @relation(fields: [personaId], references: [id], onDelete: Cascade)
   personaId String?
 
-  published     Boolean @default(false)
+  published Boolean @default(false)
+  type      String
+
   model         String
-  type          String
   modelSettings Json?
+
+  userCharacter Json?
+
+  scenario String?
+
+  nsfw Boolean @default(false)
 
   // Some user customization
   name String @default("New chat")

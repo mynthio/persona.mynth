@@ -12,25 +12,46 @@ import { useUser } from "@clerk/nextjs";
 import { Coins, Send } from "lucide-react";
 import { Card, CardBody, CardFooter } from "@nextui-org/card";
 import { User } from "@nextui-org/user";
+import { Kbd } from "@nextui-org/kbd";
+import Link from "next/link";
+import { TextGenerationModel } from "@/lib/ai/text-generation-models/text-generation-model.abstract";
+import { TextGenerationModelsEnum } from "@/lib/ai/text-generation-models/enums/text-generation-models.enum";
 type Props = {
   chatId: string;
   personaName: string;
+  personaId: string;
+  model: TextGenerationModelsEnum;
+  userCharacter: {
+    name: string;
+    character: string;
+  };
   personaImageUrl: string | null;
   initialMessages: Message[];
 };
+
+function formatString(input: string): string {
+  return input
+    .replace(/\*(.*?)\*/g, "<i class='text-blue-300'>$1</i>")
+    .replace(/"(.*?)"/g, '<b class="text-yellow-300">$1</b>');
+}
 
 export default function Chat({
   chatId,
   personaName,
   personaImageUrl,
   initialMessages,
+  personaId,
+  model,
+  userCharacter,
 }: Props) {
+  const formRef = React.useRef<HTMLFormElement>(null);
+
   const { user } = useUser();
 
   const [messages, setMessages] =
     React.useState<CoreMessage[]>(initialMessages);
 
-  const { handleSubmit, register, reset } = useForm<{
+  const { handleSubmit, register, reset, formState } = useForm<{
     content: string;
   }>();
 
@@ -45,26 +66,40 @@ export default function Chat({
             } bg-default-100/50 px-3  py-4`}
           >
             <CardBody className="text-foreground-500 text-balance">
-              {m.content.toString()}
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: formatString(m.content.toString()),
+                }}
+              ></div>
             </CardBody>
 
             <CardFooter>
-              <User
-                name={m.role === "user" ? user?.username : personaName}
-                avatarProps={{
-                  src:
-                    m.role === "user" ? user?.imageUrl : personaImageUrl || "",
-                }}
-              />
+              {m.role === "user" ? (
+                <User
+                  name={userCharacter?.name || user?.username}
+                  avatarProps={{
+                    src: user?.imageUrl,
+                  }}
+                />
+              ) : (
+                <User
+                  as={Link}
+                  href={`/library/personas/${personaId}`}
+                  name={personaName}
+                  avatarProps={{
+                    src: personaImageUrl || "",
+                  }}
+                />
+              )}
             </CardFooter>
           </Card>
         )
       )}
 
       <form
+        ref={formRef}
         onSubmit={handleSubmit(async (data) => {
           const newMessages: CoreMessage[] = [
-            ...messages,
             { content: data.content, role: "user" },
           ];
 
@@ -77,6 +112,7 @@ export default function Chat({
 
           for await (const content of readStreamableValue(result)) {
             setMessages([
+              ...messages,
               ...newMessages,
               {
                 role: "assistant",
@@ -94,20 +130,29 @@ export default function Chat({
           classNames={{
             inputWrapper: "bg-default-100/50",
           }}
+          onKeyDown={(event) => {
+            if (event.metaKey && event.key === "Enter" && formRef.current) {
+              formRef.current.dispatchEvent(
+                new Event("submit", { bubbles: true, cancelable: true })
+              );
+            }
+          }}
         />
 
         <div className="mt-4 flex items-center gap-4">
           <Button
+            isLoading={formState.isSubmitting}
             variant="shadow"
             color="secondary"
             type="submit"
-            endContent={<Send size={12} />}
+            endContent={
+              <Kbd keys={["command", "enter"]} className="bg-default-50/30" />
+            }
           >
             Send
           </Button>
-
           <p className="flex items-center gap-2 text-small text-foreground-500">
-            1 <Coins size={12} />
+            <s>1 token cost</s> 0 token cost (limited time) <Coins size={12} />
           </p>
         </div>
       </form>

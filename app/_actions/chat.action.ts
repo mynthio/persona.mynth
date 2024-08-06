@@ -11,6 +11,8 @@ import { prisma } from "@/prisma/client";
 import { auth } from "@clerk/nextjs/server";
 import { getPersonaChat } from "../_services/persona-chats.service";
 import { logger } from "@/lib/logger";
+import { TextGenerationModel } from "@/lib/ai/text-generation-models/text-generation-model.abstract";
+import { TextGenerationModelsEnum } from "@/lib/ai/text-generation-models/enums/text-generation-models.enum";
 
 const myMemorySchema = jsonSchema<{
   memory: {
@@ -47,30 +49,70 @@ export const chatAction = async (data: {
     chatId: data.chatId,
     userId,
   });
-
   if (!chat) throw new Error("Chat not found");
+  if (chat.userId !== userId) throw new Error("Not your chat");
 
-  const { canGenerate } = await checkAndUpdateUserTokens(1);
+  // const { canGenerate } = await checkAndUpdateUserTokens(1);
+  // if (!canGenerate) {
+  //   throw new Error("Not enough tokens");
+  // }
 
-  if (!canGenerate) {
-    throw new Error("Not enough tokens");
-  }
+  const messages = chat.messages;
+  const persona = chat.persona;
+  const userCharacter = chat.userCharacter
+    ? JSON.parse(chat.userCharacter)
+    : {
+        name: "User",
+        character: "",
+      };
 
-  const model = openai.chat("meta-llama/Meta-Llama-3-70B-Instruct");
+  if (!persona) throw new Error("Persona not found");
+
+  const systemMessage = {
+    role: "system" as const,
+    content: `You're playing a role of ${persona.name} in roleplay chat with ${
+      userCharacter.name
+    }. Behave like a provided character only. Be creative, move story forward, answer questions, make it like a real experience, talk scenes. Write only as character, don't write as user. Dont't repeat yourself. Don't prefix your text with character name etc.
+    
+Your character:
+Name: ${persona.name}
+Age: ${persona.age}
+Occupation: ${persona.occupation}
+Summary: ${persona.summary}
+Personality traits: ${persona.personalityTraits}
+Interests: ${persona.interests}
+Cultural background: ${persona.culturalBackground}
+Appearance: ${persona.appearance}
+Background: ${persona.background}
+History: ${persona.history}
+Characteristics: ${persona.characteristics}
+
+User character:
+Name: ${userCharacter.name}
+Character: ${userCharacter.character}
+
+Scenario: ${
+      chat.scenario
+        ? chat.scenario
+        : "Scenario not provided. Be creative. Come up with something based on user first messages."
+    }`,
+  };
+
+  const coreMessages: CoreMessage[] = messages.map((m) => ({
+    role: m.role as "user" | "assistant" | "system",
+    content: m.content,
+  }));
+
+  const modelId =
+    chat.model === TextGenerationModelsEnum.MetaLlama3_70bInstruct
+      ? "meta-llama/Meta-Llama-3-70B-Instruct"
+      : "Qwen/Qwen2-72B-Instruct";
+
+  const model = openai.chat(modelId);
 
   const result = await streamText({
-    tools: {
-      memory: tool({
-        description: "save memory",
-        parameters: myMemorySchema,
-        execute: async ({ memory }) => {
-          console.log("memory", memory);
-          logger.debug("Memory created", { memory });
-        },
-      }),
-    },
     model,
-    messages: data.messages,
+    messages: [systemMessage, ...coreMessages, data.messages[0]],
     ...(data.isLocal
       ? {}
       : {
@@ -89,6 +131,11 @@ export const chatAction = async (data: {
                   completionTokens: finalResult.usage.completionTokens,
                   promptTokens: finalResult.usage.promptTokens,
                   totalTokens: finalResult.usage.totalTokens,
+                  // @ts-ignore
+                  ...(finalResult.usage.cost
+                    ? // @ts-ignore
+                      { cost: finalResult.usage.cost }
+                    : {}),
                 },
               },
             });

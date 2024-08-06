@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import Chat from "./chat.client";
 import { Chip } from "@nextui-org/chip";
 import { Avatar } from "@nextui-org/react";
+import { TextGenerationModelsEnum } from "@/lib/ai/text-generation-models/enums/text-generation-models.enum";
 
 export const maxDuration = 180;
 
@@ -66,6 +67,14 @@ export default async function ChatPage({ params }: Props) {
         <Chat
           chatId={chat.id}
           personaName={persona.name}
+          personaId={persona.id}
+          model={chat.model as TextGenerationModelsEnum}
+          userCharacter={
+            JSON.parse(chat.userCharacter) as {
+              name: string;
+              character: string;
+            }
+          }
           personaImageUrl={persona.mainImageUrl}
           initialMessages={chat.messages.map((m) => ({
             role: m.role as any,
