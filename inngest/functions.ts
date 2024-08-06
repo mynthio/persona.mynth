@@ -167,7 +167,8 @@ export const generatePersona = inngest.createFunction(
         icon: "🧑",
         notify: false,
         tags: {
-          "persona-id": personaId,
+          persona: personaId,
+          model: model.id,
         },
       });
 
@@ -364,6 +365,9 @@ export const syncUser = inngest.createFunction(
       user_id: id,
       icon: "😊",
       notify: true,
+      tags: {
+        username,
+      },
     });
 
     await logsnag.identify({
