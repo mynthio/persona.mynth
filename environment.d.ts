@@ -31,5 +31,8 @@ namespace NodeJS {
 
     // Lemon Squeezy
     LEMONSQUEEZY_WEBHOOK_SECRET: string;
+
+    // DEEP Infra
+    DEEP_INFRA_API_KEY: string;
   }
 }

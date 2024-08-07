@@ -5,6 +5,7 @@ import { TextGenerationModelsEnum } from "@/lib/ai/text-generation-models/enums/
 import { CreateChatData, CreateChatSchema } from "@/schemas/create-chat.schema";
 import { superstructResolver } from "@hookform/resolvers/superstruct";
 import { Button } from "@nextui-org/button";
+import { Chip } from "@nextui-org/chip";
 import { Input, Textarea } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
 import { useRouter } from "next/navigation";
@@ -25,6 +26,31 @@ const exampleScenarios = {
       "{{user}}, 23 years old, space traveler. {{persona}} close friend. They met each other in work, before a travel to space.",
   },
 };
+
+const modelsData: {
+  id: TextGenerationModelsEnum;
+  name: string;
+  description: string;
+  chip?: string;
+}[] = [
+  {
+    id: TextGenerationModelsEnum.MetaLlama3_70bInstruct,
+    name: "Llama 3 70b",
+    description: "Good roleplay for general chats",
+  },
+  {
+    id: TextGenerationModelsEnum.Qwen2_72bInstruct,
+    name: "Qwen 2 72b",
+    description:
+      "Good creativity when it comes to Persona character in scneario",
+  },
+  {
+    id: TextGenerationModelsEnum.Sao10kL3_70bEuryaleV2,
+    name: "Sao 10k L3 70b",
+    chip: "NSFW",
+    description: "Greate model for NSFW chats, performs well in roleplay",
+  },
+];
 
 export default function CreateChatForm({ personaId }: Props) {
   const { push } = useRouter();
@@ -94,21 +120,46 @@ export default function CreateChatForm({ personaId }: Props) {
             }}
             isInvalid={!!formState.errors.model}
             errorMessage={formState.errors.model?.message}
+            items={modelsData}
             label="Model"
+            selectionMode="single"
             description="The AI model that will be used to generate the messages"
+            renderValue={([modelData]) =>
+              modelData ? (
+                <>
+                  {modelData.data?.name}
+                  {modelData.data?.chip && (
+                    <Chip
+                      size="sm"
+                      className="bg-gradient-to-tl from-purple-700 to-red-600 ml-2"
+                    >
+                      {modelData.data?.chip}
+                    </Chip>
+                  )}
+                </>
+              ) : null
+            }
           >
-            <SelectItem
-              key={TextGenerationModelsEnum.MetaLlama3_70bInstruct}
-              value={TextGenerationModelsEnum.MetaLlama3_70bInstruct}
-            >
-              Llama 3 70b (censored)
-            </SelectItem>
-            <SelectItem
-              key={TextGenerationModelsEnum.Qwen2_72bInstruct}
-              value={TextGenerationModelsEnum.Qwen2_72bInstruct}
-            >
-              Qwen 2 72b (censored)
-            </SelectItem>
+            {(modelData) => (
+              <SelectItem
+                key={modelData.id}
+                value={modelData.id}
+                className="py-4"
+              >
+                {modelData.name}
+                {modelData.chip && (
+                  <Chip
+                    size="sm"
+                    className="bg-gradient-to-tl from-purple-700 to-red-600 ml-2"
+                  >
+                    NSFW
+                  </Chip>
+                )}
+                <p className="text-small text-foreground-500">
+                  {modelData.description}
+                </p>
+              </SelectItem>
+            )}
           </Select>
         )}
       />

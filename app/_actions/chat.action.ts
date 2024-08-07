@@ -3,7 +3,7 @@
 import "server-only";
 
 import { jsonSchema, tool } from "ai";
-import { openai } from "@/lib/open-ai";
+import { deepInfraOpenAi, openai } from "@/lib/open-ai";
 import { CoreMessage, streamText } from "ai";
 import { createStreamableValue } from "ai/rsc";
 import { checkAndUpdateUserTokens } from "@/lib/tokens";
@@ -104,11 +104,18 @@ Scenario: ${
   }));
 
   const modelId =
-    chat.model === TextGenerationModelsEnum.MetaLlama3_70bInstruct
+    chat.model === TextGenerationModelsEnum.Sao10kL3_70bEuryaleV2
+      ? "Sao10K/L3-70B-Euryale-v2.1"
+      : chat.model === TextGenerationModelsEnum.MetaLlama3_70bInstruct
       ? "meta-llama/Meta-Llama-3-70B-Instruct"
       : "Qwen/Qwen2-72B-Instruct";
 
-  const model = openai.chat(modelId);
+  const oai =
+    chat.model === TextGenerationModelsEnum.Sao10kL3_70bEuryaleV2
+      ? deepInfraOpenAi
+      : openai;
+
+  const model = oai.chat(modelId);
 
   const result = await streamText({
     model,

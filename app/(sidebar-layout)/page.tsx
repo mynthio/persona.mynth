@@ -31,6 +31,7 @@ export default async function Home() {
     getPublicPersonas({
       userId: userId ?? undefined,
       limit: 6,
+      nsfw: false,
     }),
   ]);
 

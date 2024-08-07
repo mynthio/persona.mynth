@@ -7,6 +7,7 @@ export const CreateChatSchema = object({
   model: enums([
     TextGenerationModelsEnum.MetaLlama3_70bInstruct,
     TextGenerationModelsEnum.Qwen2_72bInstruct,
+    TextGenerationModelsEnum.Sao10kL3_70bEuryaleV2,
   ]),
 
   name: optional(size(string(), 0, 125)),
