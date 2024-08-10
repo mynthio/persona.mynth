@@ -38,7 +38,7 @@ export default function GenerateImageButton({ personaId, ...props }: Props) {
                 Generate Persona image
               </ModalHeader>
               <ModalBody className="mt-8">
-                <GenerateImageForm personaId={personaId} />
+                <GenerateImageForm personaId={personaId} onClose={onClose} />
               </ModalBody>
             </>
           )}

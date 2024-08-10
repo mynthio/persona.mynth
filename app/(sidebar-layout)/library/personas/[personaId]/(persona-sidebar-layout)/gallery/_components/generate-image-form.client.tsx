@@ -26,6 +26,7 @@ import { PersonaImageFrameEnum } from "@/enums/persona-image-frame.enum";
 
 type Props = {
   personaId: string;
+  onClose: () => void;
 };
 
 const qualityCosts = {
@@ -95,7 +96,7 @@ const personaImageFramesData = [
   },
 ];
 
-export default function GenerateImageForm({ personaId }: Props) {
+export default function GenerateImageForm({ personaId, onClose }: Props) {
   const { replace } = useRouter();
   const searchParams = useSearchParams();
 
@@ -135,6 +136,8 @@ export default function GenerateImageForm({ personaId }: Props) {
             personaId: data.personaId,
           });
         });
+
+        onClose();
       })}
     >
       <Select

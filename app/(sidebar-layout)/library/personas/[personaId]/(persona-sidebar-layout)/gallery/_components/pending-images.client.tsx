@@ -31,7 +31,7 @@ function ImageGeneration(props: { personaId: string; eventId: string }) {
     }
   }, [data, props.eventId, imageGenerations]);
 
-  return <Skeleton className="rounded-xl" />;
+  return <Skeleton className="rounded-xl h-64" />;
 }
 
 export default function PendingImages({ personaId }: Props) {
