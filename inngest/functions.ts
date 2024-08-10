@@ -1,7 +1,7 @@
 import { assert } from "superstruct";
 import { inngest } from "./client";
 import { GeneratePersonaEventData } from "@/schemas/generate-persona-event-data.schema";
-import { creatorPrompt, imagePrompt, textPrompt } from "@/app/prompts";
+import { creatorPrompt, textPrompt } from "@/app/prompts";
 import got from "got";
 import { parsePersonaResponse } from "@/lib/parser";
 import { TextGenerationModelFactory } from "@/lib/ai/text-generation-models/text-generation-model-factory";
@@ -16,7 +16,6 @@ import { NonRetriableError } from "inngest";
 import { realisticPortraitPrompt } from "@/lib/ai/prompts-creator/prompts-data/realistic-portrait-prompts.data";
 import { animePortraitPrompt } from "@/lib/ai/prompts-creator/prompts-data/anime-portrait-prompts.data";
 import { PersonaImageStyleEnum } from "@/enums/persona-image-style.enum";
-import { PersonaImageQualityEnum } from "@/enums/persona-image-quality.enum";
 import { PersonaImageFrameEnum } from "@/enums/persona-image-frame.enum";
 import { realisticFullBodyPrompt } from "@/lib/ai/prompts-creator/prompts-data/realistic-full-body-prompts.data";
 import { animeFullBodyPrompt } from "@/lib/ai/prompts-creator/prompts-data/anime-full-body-prompts.data";
@@ -232,7 +231,7 @@ export const generatePersona = inngest.createFunction(
       }
     );
 
-    const { imageModelId } = await step.run(
+    const { imageModelId, imageUrl } = await step.run(
       "generate-persona-image",
       async () => {
         try {
@@ -273,12 +272,14 @@ export const generatePersona = inngest.createFunction(
             })
             .toBuffer();
 
+          const uploadPath = `personas/${persona.id}/${nanoid(12)}.webp`;
+
           /**
            * We need to upload image in the same step as we generate it
            * because of the file size and issue while returning it from step
            */
           await got.put(
-            `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/personas/${persona.id}/persona-${persona.id}.webp`,
+            `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/${uploadPath}`,
             {
               headers: {
                 AccessKey: process.env.BUNNY_CDN_API_KEY,
@@ -288,7 +289,9 @@ export const generatePersona = inngest.createFunction(
             }
           );
 
-          return { imageModelId: model.id };
+          const imageUrl = `https://${process.env.BUNNY_CDN_HOST}/${uploadPath}`;
+
+          return { imageModelId: model.id, imageUrl };
         } catch (error) {
           logger.error(error);
           throw error;
@@ -302,10 +305,10 @@ export const generatePersona = inngest.createFunction(
           id: persona.id,
         },
         data: {
-          mainImageUrl: `https://${process.env.BUNNY_CDN_HOST}/personas/${persona.id}/persona-${persona.id}.webp`,
+          mainImageUrl: imageUrl,
           images: {
             create: {
-              imageUrl: `https://${process.env.BUNNY_CDN_HOST}/personas/${persona.id}/persona-${persona.id}.webp`,
+              imageUrl: imageUrl,
               prompt: personaImagePrompt,
               model: imageModelId,
               creator: {
@@ -325,7 +328,7 @@ export const generatePersona = inngest.createFunction(
             status: "done",
             persona: {
               ...persona,
-              mainImageUrl: `https://${process.env.BUNNY_CDN_HOST}/personas/${persona.id}/persona-${persona.id}.webp`,
+              mainImageUrl: imageUrl,
             },
           }),
           "EX",
