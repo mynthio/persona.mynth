@@ -9,13 +9,17 @@ import { CoreMessage } from "ai";
 import React from "react";
 import { chatAction } from "@/app/_actions/chat.action";
 import { useUser } from "@clerk/nextjs";
-import { Coins, Send } from "lucide-react";
+import { Coins, History, RefreshCcw, Send } from "lucide-react";
 import { Card, CardBody, CardFooter } from "@nextui-org/card";
 import { User } from "@nextui-org/user";
 import { Kbd } from "@nextui-org/kbd";
 import Link from "next/link";
 import { TextGenerationModel } from "@/lib/ai/text-generation-models/text-generation-model.abstract";
 import { TextGenerationModelsEnum } from "@/lib/ai/text-generation-models/enums/text-generation-models.enum";
+import { regenerateChatMessageAction } from "@/app/_actions/regenerate-chat-message.action";
+import { Tooltip } from "@nextui-org/react";
+import ChatMessageHistory from "./_components/chat-message-history.client";
+import ChatMessageHistoryButton from "./_components/chat-message-history-button.client";
 type Props = {
   chatId: string;
   personaName: string;
@@ -46,6 +50,8 @@ export default function Chat({
 }: Props) {
   const formRef = React.useRef<HTMLFormElement>(null);
 
+  const [isLoading, setIsLoading] = React.useState(false);
+
   const { user } = useUser();
 
   const [messages, setMessages] =
@@ -57,7 +63,7 @@ export default function Chat({
 
   return (
     <div className="space-y-4">
-      {messages.map((m) =>
+      {messages.map((m, mi) =>
         m.role === "system" ? null : (
           <Card
             key={m.id}
@@ -82,14 +88,64 @@ export default function Chat({
                   }}
                 />
               ) : (
-                <User
-                  as={Link}
-                  href={`/library/personas/${personaId}`}
-                  name={personaName}
-                  avatarProps={{
-                    src: personaImageUrl || "",
-                  }}
-                />
+                <div className="flex items-start justify-between w-full">
+                  <User
+                    as={Link}
+                    href={`/library/personas/${personaId}`}
+                    name={personaName}
+                    avatarProps={{
+                      src: personaImageUrl || "",
+                    }}
+                  />
+
+                  <div>
+                    {mi === messages.length - 1 && (
+                      <Tooltip content="Regenerate last message">
+                        <Button
+                          variant="light"
+                          isLoading={isLoading}
+                          isIconOnly
+                          onClick={async () => {
+                            if (isLoading) return;
+                            setIsLoading(true);
+
+                            const result = await regenerateChatMessageAction({
+                              chatId: chatId,
+                            });
+
+                            const messagesWithoutLastOne = messages.slice(
+                              0,
+                              messages.length - 1
+                            );
+
+                            for await (const content of readStreamableValue(
+                              result
+                            )) {
+                              setMessages([
+                                ...messagesWithoutLastOne,
+                                {
+                                  role: "assistant",
+                                  content: content as string,
+                                },
+                              ]);
+                            }
+
+                            setIsLoading(false);
+                          }}
+                        >
+                          <RefreshCcw size={12} />
+                        </Button>
+                      </Tooltip>
+                    )}
+                    <ChatMessageHistoryButton
+                      isIconOnly
+                      variant="light"
+                      messageId={m.id}
+                    >
+                      <History size={12} />
+                    </ChatMessageHistoryButton>
+                  </div>
+                </div>
               )}
             </CardFooter>
           </Card>
@@ -99,25 +155,30 @@ export default function Chat({
       <form
         ref={formRef}
         onSubmit={handleSubmit(async (data) => {
-          const newMessages: CoreMessage[] = [
-            { content: data.content, role: "user" },
-          ];
-
           const result = await chatAction({
-            messages: newMessages,
+            content: data.content,
             chatId: chatId,
           });
 
+          const newMessages: CoreMessage[] = [
+            {
+              id: result.userMessage.id,
+              content: data.content,
+              role: "user",
+            } as any,
+          ];
+
           reset();
 
-          for await (const content of readStreamableValue(result)) {
+          for await (const content of readStreamableValue(result.textStream)) {
             setMessages([
               ...messages,
               ...newMessages,
               {
+                id: result.assistantMessage.id,
                 role: "assistant",
                 content: content as string,
-              },
+              } as any,
             ]);
           }
         })}
@@ -155,6 +216,8 @@ export default function Chat({
             <s>1 token cost</s> 0 token cost (limited time) <Coins size={12} />
           </p>
         </div>
+
+        <div className="mt-4 flex items-center gap-4"></div>
       </form>
     </div>
   );

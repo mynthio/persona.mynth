@@ -13,10 +13,22 @@ export const getPersonaChat = async (args: GetPersonaChatArgs) => {
       userId: args.userId,
     },
     include: {
-      persona: true,
       messages: {
+        where: {
+          role: {
+            not: "system",
+          },
+        },
+        include: {
+          versions: {
+            where: {
+              selected: true,
+            },
+            take: 1,
+          },
+        },
         orderBy: {
-          createdAt: "desc",
+          createdAt: "asc",
         },
         take: 25,
       },

@@ -34,11 +34,33 @@ export default async function ChatPage({ params }: Props) {
       userId,
     },
     include: {
-      messages: true,
+      messages: {
+        where: {
+          role: {
+            not: "system",
+          },
+        },
+        select: {
+          id: true,
+          role: true,
+          versions: {
+            where: {
+              selected: true,
+            },
+            take: 1,
+          },
+        },
+      },
     },
   });
 
   if (!chat) return <div>Chat not found</div>; // TODO: Move to component or handle 404
+
+  const messages = chat.messages.map((m) => ({
+    id: m.id,
+    role: m.role as any,
+    content: m.versions[0].content,
+  }));
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -76,10 +98,7 @@ export default async function ChatPage({ params }: Props) {
             }
           }
           personaImageUrl={persona.mainImageUrl}
-          initialMessages={chat.messages.map((m) => ({
-            role: m.role as any,
-            content: m.content,
-          }))}
+          initialMessages={messages}
         />
       </div>
     </div>

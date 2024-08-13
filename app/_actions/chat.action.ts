@@ -2,43 +2,17 @@
 
 import "server-only";
 
-import { jsonSchema, tool } from "ai";
 import { deepInfraOpenAi, openai } from "@/lib/open-ai";
 import { CoreMessage, streamText } from "ai";
 import { createStreamableValue } from "ai/rsc";
-import { checkAndUpdateUserTokens } from "@/lib/tokens";
 import { prisma } from "@/prisma/client";
 import { auth } from "@clerk/nextjs/server";
 import { getPersonaChat } from "../_services/persona-chats.service";
 import { logger } from "@/lib/logger";
-import { TextGenerationModel } from "@/lib/ai/text-generation-models/text-generation-model.abstract";
 import { TextGenerationModelsEnum } from "@/lib/ai/text-generation-models/enums/text-generation-models.enum";
 
-const myMemorySchema = jsonSchema<{
-  memory: {
-    content: string;
-    keywords: string[];
-  };
-}>({
-  type: "object",
-  properties: {
-    memory: {
-      type: "object",
-      properties: {
-        content: { type: "string" },
-        keywords: {
-          type: "array",
-          items: { type: "string" },
-        },
-      },
-      required: ["content", "keywords"],
-    },
-  },
-  required: ["memory"],
-});
-
 export const chatAction = async (data: {
-  messages: CoreMessage[];
+  content: string;
   isLocal?: boolean;
   chatId: string;
 }) => {
@@ -57,46 +31,62 @@ export const chatAction = async (data: {
   //   throw new Error("Not enough tokens");
   // }
 
-  const messages = chat.messages;
-  const persona = chat.persona;
-  const userCharacter = chat.userCharacter
-    ? JSON.parse(chat.userCharacter)
-    : {
-        name: "User",
-        character: "",
-      };
+  const userMessage = await prisma.chatMessage.create({
+    data: {
+      chatId: data.chatId,
+      role: "user",
+      content: "",
+      versions: {
+        create: {
+          content: data.content,
+        },
+      },
+    },
+  });
 
-  if (!persona) throw new Error("Persona not found");
+  const assistantMessage = await prisma.chatMessage.create({
+    data: {
+      chatId: data.chatId,
+      role: "assistant",
+      content: "",
+    },
+  });
 
-  const systemMessage = {
-    role: "system" as const,
-    content: `You're playing a role of ${persona.name} in roleplay chat with ${
-      userCharacter.name
-    }. Behave like a provided character only. Be creative, move story forward, answer questions, make it like a real experience, talk scenes. Write only as character, don't write as user. Dont't repeat yourself. Don't prefix your text with character name etc.
-    
-Your character:
-Name: ${persona.name}
-Age: ${persona.age}
-Occupation: ${persona.occupation}
-Summary: ${persona.summary}
-Personality traits: ${persona.personalityTraits}
-Interests: ${persona.interests}
-Cultural background: ${persona.culturalBackground}
-Appearance: ${persona.appearance}
-Background: ${persona.background}
-History: ${persona.history}
-Characteristics: ${persona.characteristics}
+  const systemMessage = await prisma.chatMessage.findFirst({
+    where: {
+      chatId: data.chatId,
+      role: "system",
+    },
+    include: {
+      versions: {
+        where: {
+          selected: true,
+        },
+        take: 1,
+      },
+    },
+  });
 
-User character:
-Name: ${userCharacter.name}
-Character: ${userCharacter.character}
+  if (!systemMessage || !systemMessage.versions[0])
+    throw new Error("System message not found");
 
-Scenario: ${
-      chat.scenario
-        ? chat.scenario
-        : "Scenario not provided. Be creative. Come up with something based on user first messages."
-    }`,
-  };
+  const messages = [
+    {
+      id: systemMessage.id,
+      role: "system",
+      content: systemMessage.versions[0].content,
+    },
+    ...chat.messages.map((m) => ({
+      id: m.id,
+      role: m.role as "user" | "assistant",
+      content: m.versions[0].content || "",
+    })),
+    {
+      id: userMessage.id,
+      role: "user",
+      content: String(data.content),
+    },
+  ];
 
   const coreMessages: CoreMessage[] = messages.map((m) => ({
     role: m.role as "user" | "assistant" | "system",
@@ -119,7 +109,7 @@ Scenario: ${
 
   const result = await streamText({
     model,
-    messages: [systemMessage, ...coreMessages, data.messages[0]],
+    messages: [...coreMessages, { role: "user", content: data.content }],
     ...(data.isLocal
       ? {}
       : {
@@ -150,27 +140,15 @@ Scenario: ${
             if (finalResult.finishReason !== "stop") return;
             if (finalResult.text.length < 1) return;
 
-            await prisma.chat.update({
+            await prisma.chatMessage.update({
               where: {
-                id: data.chatId!,
-                userId,
+                id: assistantMessage.id,
               },
               data: {
-                messages: {
-                  createMany: {
-                    data: [
-                      {
-                        role: "user",
-                        content:
-                          data.messages[
-                            data.messages.length - 1
-                          ].content.toString(),
-                      },
-                      {
-                        role: "assistant",
-                        content: finalResult.text.toString(),
-                      },
-                    ],
+                versions: {
+                  create: {
+                    content: finalResult.text.toString(),
+                    selected: true,
                   },
                 },
               },
@@ -183,5 +161,5 @@ Scenario: ${
   });
 
   const stream = createStreamableValue(result.textStream);
-  return stream.value;
+  return { textStream: stream.value, userMessage, assistantMessage };
 };

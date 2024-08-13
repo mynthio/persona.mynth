@@ -19,7 +19,11 @@ const logger = winston.createLogger({
     process.env.NODE_ENV == "production" ? productionFormat : developmentFormat,
   transports:
     process.env.NODE_ENV === "production"
-      ? [new LogtailTransport(new Logtail(process.env.LOGTAIL_SOURCE_TOKEN))]
+      ? [
+          new LogtailTransport(
+            new Logtail(process.env.LOGTAIL_SOURCE_TOKEN || "NO_TOKEN")
+          ),
+        ]
       : [new winston.transports.Console()],
 });
 

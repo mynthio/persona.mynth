@@ -289,9 +289,27 @@ model ChatMessage {
   chat   Chat?   @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId String?
 
+  versions ChatMessageVersion[]
+
   // Xata fields
   xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
   xata_id        String   @unique(map: "_pgroll_chat_message_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
+  xata_version   Int      @default(0)
+  xata_createdat DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model ChatMessageVersion {
+  id String @id @default(dbgenerated("('cmv_'::text || (xata_private.xid())::text)"))
+
+  content  String
+  selected Boolean @default(true)
+
+  chatMessage   ChatMessage @relation(fields: [chatMessageId], references: [id], onDelete: Cascade)
+  chatMessageId String
+
+  // Xata fields
+  xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
+  xata_id        String   @unique(map: "_pgroll_chat_message_version_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
   xata_version   Int      @default(0)
   xata_createdat DateTime @default(now()) @db.Timestamptz(6)
 }
