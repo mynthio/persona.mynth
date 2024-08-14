@@ -9,7 +9,8 @@ import { CoreMessage } from "ai";
 import React from "react";
 import { chatAction } from "@/app/_actions/chat.action";
 import { useUser } from "@clerk/nextjs";
-import { Coins, History, RefreshCcw, Send } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/popover";
+import { Coins, History, RefreshCcw, Send, Trash } from "lucide-react";
 import { Card, CardBody, CardFooter } from "@nextui-org/card";
 import { User } from "@nextui-org/user";
 import { Kbd } from "@nextui-org/kbd";
@@ -20,6 +21,7 @@ import { regenerateChatMessageAction } from "@/app/_actions/regenerate-chat-mess
 import { Tooltip } from "@nextui-org/react";
 import ChatMessageHistory from "./_components/chat-message-history.client";
 import ChatMessageHistoryButton from "./_components/chat-message-history-button.client";
+import { deleteChatMessageAction } from "@/app/_actions/delete-chat-message.action";
 type Props = {
   chatId: string;
   personaName: string;
@@ -81,12 +83,56 @@ export default function Chat({
 
             <CardFooter>
               {m.role === "user" ? (
-                <User
-                  name={userCharacter?.name || user?.username}
-                  avatarProps={{
-                    src: user?.imageUrl,
-                  }}
-                />
+                <div className="flex items-start justify-between w-full">
+                  <User
+                    name={userCharacter?.name || user?.username}
+                    avatarProps={{
+                      src: user?.imageUrl,
+                    }}
+                  />
+
+                  {mi === messages.length - 2 && (
+                    <Popover placement="right">
+                      <PopoverTrigger>
+                        <Button
+                          variant="light"
+                          isLoading={isLoading || formState.isSubmitting}
+                          isIconOnly
+                        >
+                          <Trash size={12} />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        <div className="px-1 py-2">
+                          <div className="text-small font-bold">
+                            Delete this and answer?
+                          </div>
+                          <div className="mt-4">
+                            <Button
+                              onPress={async () => {
+                                if (isLoading || formState.isSubmitting) return;
+                                setIsLoading(true);
+                                await deleteChatMessageAction({
+                                  messageId: m.id,
+                                  chatId: chatId,
+                                });
+
+                                // Remove last 2 messages
+                                setMessages([
+                                  ...messages.slice(0, messages.length - 2),
+                                ]);
+
+                                setIsLoading(false);
+                              }}
+                            >
+                              Confirm
+                            </Button>
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                </div>
               ) : (
                 <div className="flex items-start justify-between w-full">
                   <User
@@ -103,10 +149,10 @@ export default function Chat({
                       <Tooltip content="Regenerate last message">
                         <Button
                           variant="light"
-                          isLoading={isLoading}
+                          isLoading={isLoading || formState.isSubmitting}
                           isIconOnly
                           onClick={async () => {
-                            if (isLoading) return;
+                            if (isLoading || formState.isSubmitting) return;
                             setIsLoading(true);
 
                             const result = await regenerateChatMessageAction({

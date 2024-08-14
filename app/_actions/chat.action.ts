@@ -110,6 +110,7 @@ export const chatAction = async (data: {
   const result = await streamText({
     model,
     messages: [...coreMessages, { role: "user", content: data.content }],
+
     ...(data.isLocal
       ? {}
       : {
