@@ -37,7 +37,7 @@ export default async function SidebarLayout({ children }: Props) {
         <div className="flex gap-4 items-center w-full justify-center mt-10">
           <Button
             as={Link}
-            href="https://discord.gg/BcEFDbEHPg"
+            href="https://discord.gg/5GNHhYq2sX"
             target="_blank"
             variant="solid"
             className="bg-foreground-500/10"

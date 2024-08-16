@@ -6,7 +6,7 @@ Warning! Warning! Warning! Active contributors will get some bigger limits for g
 
 Keep in mind, that for now the project is in pretty bad state, as I haven;t got a lot of time, and worked through nights to just make it work, and after some time stopped to pay attention to code style etc. I'll be trying to clean it up and setup some rules, liniting etc. if you want to help me with that, you're more than welcome to do so :)
 
-Join our discord to talk about the ideas and anything else: [https://discord.gg/BcEFDbEHPg](https://discord.gg/BcEFDbEHPg)
+Join our discord to talk about the ideas and anything else: [https://discord.gg/5GNHhYq2sX](https://discord.gg/5GNHhYq2sX)
 
 # Roadmap
 
