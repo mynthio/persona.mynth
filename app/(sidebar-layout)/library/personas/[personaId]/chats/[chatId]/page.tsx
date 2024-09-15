@@ -5,7 +5,7 @@ import { Chip } from "@nextui-org/chip";
 import { Avatar } from "@nextui-org/react";
 import { TextGenerationModelsEnum } from "@/lib/ai/text-generation-models/enums/text-generation-models.enum";
 
-export const maxDuration = 180;
+export const maxDuration = 60;
 
 type Props = {
   params: {
