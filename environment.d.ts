@@ -6,6 +6,7 @@ namespace NodeJS {
 
     // Redis / Dragonfly
     REDIS_CONNECTION_URL: string;
+    KV_URL: string;
 
     // Clerk
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: string;
