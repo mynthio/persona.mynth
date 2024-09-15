@@ -30,7 +30,11 @@ const prismaMiddleware = new InngestMiddleware({
 const redisMiddleware = new InngestMiddleware({
   name: "Cache Client Init Middleware",
   init() {
-    const redis = new Redis(process.env.KV_URL);
+    const redis = new Redis(process.env.KV_URL, {
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
 
     return {
       onFunctionRun(ctx) {
